@@ -15,3 +15,15 @@ export async function registerUser(req: Request, res: Response) {
         res.status(500).json({message: "Internal server error"});
     }
 }
+
+export async function loginUser(req: Request, res: Response) {
+    const {email, password } = req.body;
+
+    try {
+        const user = await UserService.loginUser(email, password);
+        res.json({user});
+    } catch (error: any) {
+        console.error("Login error:", error);
+        res.status(400).json({message: error.message});
+    }
+}
