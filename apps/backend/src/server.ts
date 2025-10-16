@@ -1,5 +1,4 @@
 ﻿import app from "./app.js";
-import { BeerStyleService } from './services/beerStyles.service.js';
 
 const PORT = process.env.PORT || 4000;
 
