@@ -1,4 +1,9 @@
 {
+  "compilerOptions": {
+    "jsx": "react",
+    "allowJs": true,
+    "checkJs": false
+  },
   "extends": "@repo/typescript-config/vite.json",
   "include": ["src"]
 }
