@@ -2,6 +2,7 @@
 import { db } from "../config/db.js";
 import { User } from "../models/users.model.js";
 import bcrypt from "bcrypt";
+import { editUser } from "../controllers/users.controller.js";
 
 export const UserService = {
     async getUser(email: string): Promise<User | null> {
@@ -36,5 +37,38 @@ export const UserService = {
         if (!validPassword) throw new Error("Invalid password");
 
         return user;
+    },
+
+    async getUserById(user_id: number): Promise<User | null> {
+        const result = await db.query<User>(`SELECT * FROM users WHERE user_id = ${user_id} LIMIT 1;`);
+        return result.rows[0] || null;
+    },
+
+    async editUser(user_id: number, updateData: Partial<User>): Promise<User | null> {
+        const user = await this.getUserById(user_id);
+        if (!user) {
+            return null;
+        }
+
+        const fields = Object.keys(updateData).filter(key => (updateData as any)[key] !== undefined);
+
+        if (fields.length === 0) {
+            return user;
+        }
+
+        const setClause = fields.map((field, index) => `"${field}" = $${index + 1}`).join(", ");
+
+        const values = fields.map(field => updateData[field as keyof User]);
+
+        const query = `
+        UPDATE users
+        SET ${setClause}
+        WHERE user_id = $${fields.length + 1}
+        RETURNING *;
+    `;
+
+        const result = await db.query<User>(query, [...values, user_id]);
+
+        return result.rows[0];
     }
 }
