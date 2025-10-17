@@ -71,3 +71,36 @@ export async function editUser(req: AuthenticatedRequest, res: Response) {
     return res.status(500).json({ message: "An error occurred while updating the user." });
   }
 }
+
+export async function editUserPreference(req: AuthenticatedRequest, res: Response) {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: Missing user token." });
+    }
+
+    const {
+        preferred_budget_range,
+        preferred_venue_atmosphere,
+        preferred_beer_style_id
+    } = req.body;
+
+    const updateData: Partial<User> = {
+      ...(preferred_budget_range && { preferred_budget_range }),
+      ...(preferred_venue_atmosphere && { preferred_venue_atmosphere }),
+      ...(preferred_beer_style_id && { preferred_beer_style_id })
+    };
+
+    const updatedUser = await UserService.editUserPreference(userId, updateData);
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json(updatedUser);
+
+  } catch (err) {
+    console.error("Error updating user:", err);
+    return res.status(500).json({ message: "An error occurred while updating the user." });
+  }
+}
