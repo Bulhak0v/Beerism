@@ -32,6 +32,22 @@ export async function addLocation(req: Request, res: Response) {
         res.status(201).json(newLocation);
     } catch (error: any) {
         console.error("Error occured while creating a location:", error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export async function updateLocation(req: Request, res: Response) {
+    const locationId = Number(req.params.id);
+    const { name, description, city, adress, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude } = req.body;
+
+    try {
+        const updatedLocation = await LocationsService.updateLocation(locationId, name, description, city, adress, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude);
+        res.status(201).json(updatedLocation);
+    } catch (error: any) {
+        console.error("Error occured while updating location:", error);
+        if (error.message == "Location not found") {
+            return res.status(404).json({ message: error.message });
+        }
+        res.status(500).json({ message: "Internal server error" })
     }
 }
