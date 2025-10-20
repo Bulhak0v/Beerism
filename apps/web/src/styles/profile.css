@@ -1,8 +1,8 @@
-body{
+body {
   width: 100%;
   display: block !important;
   place-items: unset !important;
-  overflow: hidden; 
+  overflow: hidden;
   background-color: #F2EFE5;
 }
 
@@ -13,15 +13,16 @@ body{
   margin: 95px 144px 0px;
 }
 
-.profile-card{
+.profile-card {
   flex: 0 0 59%;
 }
 
-.profile-settings{
+.profile-settings {
   padding: 34px 0px !important;
 }
 
-.profile-card, .profile-settings {
+.profile-card,
+.profile-settings {
   background-color: #fff;
   padding: 50px;
   font-weight: 400;
@@ -31,7 +32,7 @@ body{
   border-color: #20202080;
   border-width: 1px;
   border-style: solid;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .avatar-section {
@@ -63,27 +64,32 @@ body{
   margin-bottom: 16px;
 }
 
-.field input, .field textarea, .field select {
+.field input,
+.field textarea,
+.field select {
   padding: 10px;
   margin-bottom: 15px;
-  background-color: #F2EFE580;
+  background-color: #f2efe580;
   border-radius: 8px;
   color: #20202099;
   font-size: 17px;
   border: 1px solid #ccc;
 }
 
-.settings-cover{
+.settings-cover {
   flex: 0 0 29%;
 }
-.profile-settings ul{
-  list-style:none;
+
+.profile-settings ul {
+  list-style: none;
   margin: 0;
   padding: 0;
 }
-.profile-settings ul li{
+
+.profile-settings ul li {
   padding-bottom: 31px;
   font-size: 24px;
+  cursor: pointer;
 }
 
 .profile-settings ul li.active {
@@ -95,30 +101,175 @@ body{
   font-size: 31px;
 }
 
-
-.backButton{
+.backButton {
   padding: 0px 36px;
   border-radius: 24px;
   border: #20202080 1px solid;
-  background-color: #FCFCFC;
+  background-color: #fcfcfc;
   height: 50%;
   font-size: 22px;
-} 
-.backButton span{
+}
+
+.backButton span {
   margin-right: 6px;
 }
-.backButton img{
+
+.backButton img {
   width: 28%;
 }
 
-.topTitle{
+.topTitle {
   width: 100%;
   display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
   align-items: center;
 }
-.preferences{
+
+.preferences {
   display: flex;
   justify-content: space-between;
+}
+
+/* ========================= */
+/* 📱 Мобильная адаптация */
+/* ========================= */
+
+@media (max-width: 768px) {
+
+  body {
+    overflow-y: auto;
+  }
+
+  .profile-main {
+    margin: 20px auto;
+    flex-direction: column;
+    align-items: center;
+    width: 95%;
+  }
+
+  .topTitle {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .account-title {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .backButton {
+    width: 100%;
+    font-size: 18px;
+    padding: 8px 0;
+  }
+
+  .settings-cover {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .profile-settings {
+    padding: 20px;
+    font-size: 20px;
+  }
+
+  .profile-settings ul {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .profile-settings ul li {
+    font-size: 18px;
+    padding-bottom: 10px;
+  }
+
+  .profile-card {
+    width: 100%;
+    padding: 25px;
+  }
+
+  .avatar-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .avatar {
+    margin-right: 0;
+    margin-bottom: 10px;
+    height: 80px;
+  }
+
+  .field label {
+    font-size: 16px;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    font-size: 15px;
+    padding: 8px;
+  }
+
+  .preferences {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .preferences .field {
+    width: 100%;
+  }
+
+  .logo-header {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+    display: hidden;
+  }
+
+  .title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .account-title {
+    font-size: 20px;
+  }
+
+  .profile-settings ul li {
+    font-size: 16px;
+  }
+
+  .profile-card {
+    font-size: 18px;
+    padding: 20px;
+  }
+
+  .backButton {
+    font-size: 16px;
+  }
+
+  .logo-header {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    font-size: 14px;
+  }
 }

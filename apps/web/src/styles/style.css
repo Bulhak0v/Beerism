@@ -14,11 +14,13 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+
 a {
   font-weight: 500;
   color: #646cff;
   text-decoration: inherit;
 }
+
 a:hover {
   color: #535bf2;
 }
@@ -43,14 +45,6 @@ h1 {
   height: auto;
 }
 
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
-}
-
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -62,9 +56,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -75,17 +71,24 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }
 }
+
+/* ==================== */
+/* 💻 Десктопная версия */
+/* ==================== */
+
 .auth-container {
   display: flex;
   min-height: 100vh;
-   position: relative;
+  position: relative;
 }
 
 .slider-section {
@@ -103,13 +106,15 @@ button:focus-visible {
   align-items: center;
 }
 
-.registerData_form, .signIn_form{
+.registerData_form,
+.signIn_form {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
-.registerData_form input, .signIn_form input {
+.registerData_form input,
+.signIn_form input {
   margin-bottom: 15px;
   padding: 13px;
   background-color: #FCFCFC;
@@ -118,8 +123,10 @@ button:focus-visible {
   font-size: 18px;
 }
 
-.registerData_form button, .registration_form button, .signIn_form button {
-  font-weight:normal;
+.registerData_form button,
+.registration_form button,
+.signIn_form button {
+  font-weight: normal;
   font-size: 20px;
   background-color: #FCFCFC;
   border-radius: 8px;
@@ -130,6 +137,7 @@ button:focus-visible {
   border-color: #1a1a1a;
   width: 100%;
 }
+
 .logo-header {
   position: absolute;
   top: -9px;
@@ -140,15 +148,19 @@ button:focus-visible {
   z-index: 10;
 }
 
-.registration_form, .signIn_form{
+.registration_form,
+.signIn_form {
   width: 70%;
 }
-.registration_form h2, .signIn_form h2{
+
+.registration_form h2,
+.signIn_form h2 {
   font-size: 37px;
   margin-top: 0;
 }
 
-.registration_form p, .signIn_form p{
+.registration_form p,
+.signIn_form p {
   font-size: 25px;
   color: #202020A6;
   margin: 0;
@@ -156,12 +168,15 @@ button:focus-visible {
   font-style: italic;
 }
 
-.registration_form h3, .signIn_form h3{
+.registration_form h3,
+.signIn_form h3 {
   font-size: 20px;
   text-align: center;
   font-weight: lighter;
 }
-.registration_form a:hover, .signIn_form a:hover{
+
+.registration_form a:hover,
+.signIn_form a:hover {
   text-decoration: underline;
   cursor: pointer;
 }
@@ -171,16 +186,18 @@ button:focus-visible {
   font-weight: bold;
   margin: 0;
 }
+
 .form-group {
   display: flex;
-
   flex-direction: column;
 }
-.form-group label{
+
+.form-group label {
   font-size: 26px;
   font-weight: 400;
   margin-bottom: 22px;
 }
+
 .divider {
   display: flex;
   align-items: center;
@@ -193,7 +210,7 @@ button:focus-visible {
 .divider::before,
 .divider::after {
   content: "";
-  flex: 1; 
+  flex: 1;
   border-bottom: 1px solid #aaa;
 }
 
@@ -203,4 +220,159 @@ button:focus-visible {
 
 .divider:not(:empty)::after {
   margin-left: 10px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal input {
+    padding: 8px;
+    font-size: 16px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* ======================== */
+/* 📱 Мобильная адаптация */
+/* ======================== */
+
+@media (max-width: 768px) {
+
+  .auth-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 10px;
+  }
+
+  .logo-header {
+    position: static;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+
+  .logo {
+    width: 70px;
+    height: auto;
+  }
+
+  .title {
+    font-size: 24px;
+    margin-left: 10px;
+  }
+
+  .slider-section {
+    order: 3;
+    width: 100%;
+    margin-top: 30px;
+  }
+
+  .form-section {
+    order: 2;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .registration_form,
+  .signIn_form {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .registration_form h2,
+  .signIn_form h2 {
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .registration_form p,
+  .signIn_form p {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .form-group label {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .registerData_form input,
+  .signIn_form input {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .registerData_form button,
+  .signIn_form button {
+    font-size: 18px;
+    padding: 10px;
+  }
+
+  .registration_form h3,
+  .signIn_form h3 {
+    font-size: 16px;
+  }
+
+  .divider {
+    font-size: 14px;
+    margin: 15px 0;
+  }
+}
+
+/* 🔸 Дополнительная адаптация для узких экранов (iPhone SE и т.п.) */
+@media (max-width: 480px) {
+  .registration_form,
+  .signIn_form {
+    width: 100%;
+  }
+
+  .registration_form h2,
+  .signIn_form h2 {
+    font-size: 24px;
+  }
+
+  .form-group label {
+    font-size: 16px;
+  }
+
+  .registerData_form input,
+  .signIn_form input {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .registerData_form button,
+  .signIn_form button {
+    font-size: 16px;
+    padding: 8px;
+  }
+
+  .divider {
+    margin: 10px 0;
+  }
 }

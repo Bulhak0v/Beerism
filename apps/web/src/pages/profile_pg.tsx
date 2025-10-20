@@ -119,7 +119,7 @@ const LogoHeader: React.FC = () => {
         onClick={() => navigate("/auth")}
         style={{ cursor: "pointer" }}
       >
-            <img src={logo} className="logo" />
+          <img src={logo} className="logo" />
           <h1 className="title">Beerism</h1>
     </div>
   );
