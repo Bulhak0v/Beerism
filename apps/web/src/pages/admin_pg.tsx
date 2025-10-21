@@ -40,13 +40,18 @@ export default function AdminPage() {
                 body: JSON.stringify(formData)
             });
 
-            const resultText = await response.text();
+            // Check for response status first
             if (!response.ok) {
-                console.error("Failed to add/update location:", resultText);
+                // Fetch the error body (which could be JSON or text)
+                // For simplicity, let's stick to text for the error console.
+                const errorText = await response.text(); 
+                console.error("Failed to add/update location:", errorText);
                 return;
             }
 
-            const result = JSON.parse(resultText);
+            // For a successful response (response.ok is true), use .json()
+            const result = await response.json(); 
+
             if (editingLocationId) {
                 setData(data.map(item => item.location_id === editingLocationId ? result : item));
             } else {
