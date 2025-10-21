@@ -102,7 +102,7 @@ button:focus-visible {
 
 .form-section {
   flex: 0 0 50%;
-  margin-top: 50px;
+  /* margin-top: 50px; */
   display: flex;
   justify-content: center;
   align-items: center;
@@ -159,6 +159,7 @@ button:focus-visible {
 .signIn_form h2 , .recovery_form h2{
   font-size: 37px;
   margin-top: 0;
+  margin-bottom: 17px;
 }
 
 .registration_form p, .signIn_form p, .recovery_form p{
@@ -173,6 +174,7 @@ button:focus-visible {
 .signIn_form h3 , .recovery_form h3{
   font-size: 20px;
   text-align: center;
+  margin-top: 15px;
   font-weight: lighter;
 }
 .registration_form a:hover, .signIn_form a:hover, .recovery_form a:hover{

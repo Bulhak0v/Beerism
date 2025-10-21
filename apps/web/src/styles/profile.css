@@ -8,9 +8,10 @@ body {
 
 .profile-main {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-evenly;
   flex-flow: wrap;
-  margin: 95px 144px;
+  width: 80%;
+  margin: 95px auto ;
 }
 
 .profile-card {
@@ -66,13 +67,6 @@ body {
   width: 26%;
 }
 
-.upload-btn {
-  border: none;
-  background: none;
-  cursor: pointer;
-  font-size: 20px;
-}
-
 .field {
   display: flex;
   flex-direction: column;
@@ -121,12 +115,11 @@ body {
   font-size: 31px;
 }
 
-.backButton {
+.topTitle .backButton {
   padding: 0px 36px;
   border-radius: 24px;
   border: #20202080 1px solid;
   background-color: #fcfcfc;
-  height: 50%;
   font-size: 22px;
 }
 
@@ -134,12 +127,8 @@ body {
   margin-right: 6px;
 }
 
-.backButton img {
-  width: 28%;
-}
-
 .topTitle {
-  width: 100%;
+  width: 92%;
   display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
@@ -298,7 +287,6 @@ body {
 .field .upload-button{
   background-color: #F2EFE580;
   font-size: 13px;
-  width: 33%;
   font-family: "Gentium Book Plus", serif;
   padding: 0px;
   margin: auto;

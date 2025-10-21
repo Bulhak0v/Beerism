@@ -187,13 +187,7 @@ const ProfilePage: React.FC = () => {
                 placeholder="Nickname"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)} /> 
-              </div>
-            
-          </div>
-
-
-          <div className="field">
-              <input 
+                      <input 
               className="upload-button"
               type="file"
               accept="image/*"
@@ -206,7 +200,13 @@ const ProfilePage: React.FC = () => {
                 }
               }}
             />
-    
+              </div>
+            
+          </div>
+
+
+          <div className="field">
+        
             <label>Bio</label>
             <textarea
               placeholder="Bio"
