@@ -6,9 +6,13 @@ import { editUser, editUserPreference } from "../controllers/users.controller.js
 
 export const UserService = {
     async getUser(email: string): Promise<User | null> {
-        const result = await db.query<User>(`SELECT * FROM users WHERE email = ${email} LIMIT 1;`);
+        const result = await db.query<User>(
+            `SELECT * FROM users WHERE email = $1 LIMIT 1;`,
+            [email]
+        );
         return result.rows[0] || null;
     },
+
 
     async registerUser(email: string, nickname: string, password: string): Promise<User> {
         const existingUser = await this.getUser(email);

@@ -23,7 +23,7 @@
 
 .container__slider__links {
   position: absolute;
-  bottom: 5%;
+  bottom: 7%;
   left: 50%;
   transform: translateX(-50%);
 }

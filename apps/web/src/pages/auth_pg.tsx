@@ -4,6 +4,7 @@ import CustomSlider from "../components/slider";
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../components/authProvider";
 
 const SliderSection: React.FC = () => {
   const images = [
@@ -22,6 +23,7 @@ const SliderSection: React.FC = () => {
     </div>
   );
 };
+
 
 const LogoHeader: React.FC = () => {
   const navigate = useNavigate();
@@ -45,21 +47,140 @@ const LogoHeader: React.FC = () => {
 const RegistrationForm: React.FC = () => {
   const [isSignIn, setIsSignIn] = useState(false);
   const navigate = useNavigate();
-  
-   const handleGoogleSuccess = (credentialResponse: any) => {
+  const { setUser } = useAuth();
+  const [error, setError] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    confirmPassword: "",
+  });
 
-    if (credentialResponse.credential) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    if (formData.password !== formData.confirmPassword) {
+      setError("Паролі не співпадають!");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:4000/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          nickname: formData.email.split("@")[0], 
+          password: formData.password
+        }),
+      });
+
+      let data: any = {};
       try {
-        const decoded: any = jwtDecode(credentialResponse.credential);
+        data = await res.json();
 
-        const nickname = decoded.name || decoded.given_name || decoded.email;
-
-        localStorage.setItem("nickname", nickname);
-
-        navigate("/profile");
-      } catch (error) {
-        console.error("JWT decode failed:", error);
+      } catch {
+        console.log("Empty or invalid JSON response from server");
       }
+
+      if (!res.ok) {
+        throw new Error(data.message || "Registration failed");
+        
+      }
+      console.log("Registered user:", data.user);
+      setUser(data.user);
+      navigate("/profile");
+
+    } catch (err: any) {
+
+      setError(err.message);
+    }
+  };
+
+  const handleSignInSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    
+    try {
+      const res = await fetch("http://localhost:4000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        }),
+      });
+
+      let data: any = {};
+      try {
+        data = await res.json();
+
+      } catch {
+        console.log("Empty or invalid JSON response from server");
+      }
+
+      if (!res.ok) {
+        throw new Error(data?.message || "Login failed");
+      }
+
+      console.log("Loged in user:", data.user);
+      setUser(data.user);
+      navigate("/profile");
+
+    } catch (err: any) {
+
+      setError(err.message);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse: any) => {
+
+  if (credentialResponse.credential) {
+    try {
+      const decoded: any = jwtDecode(credentialResponse.credential);
+
+      const email = decoded.email;
+      const nickname = decoded.name || decoded.given_name || email.split("@")[0];
+      const idToken = credentialResponse.credential;
+
+      let res = await fetch("http://localhost:4000/api/users/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password: idToken,
+        }),
+      });
+
+       let data: any = await res.json();
+
+    if (!res.ok) {
+      console.log("User not found, registering new Google user...");
+      res = await fetch("http://localhost:4000/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          nickname,
+          password: idToken, 
+        }),
+      });
+      data = await res.json();
+    }
+
+    if (!res.ok) throw new Error(data.message || "Google authentication failed");
+
+    setUser(data.user || data);
+    localStorage.setItem("user", JSON.stringify(data.user || data));
+
+    navigate("/profile");
+    } catch (error) {
+      console.error("JWT decode failed:", error);
+    }
     } else {
       console.warn("No credential found in Google response");
     }
@@ -89,6 +210,7 @@ const RegistrationForm: React.FC = () => {
             <p>or</p>
           </div>
 
+        <form onSubmit={handleSignInSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email address</label>
             <input
@@ -96,6 +218,7 @@ const RegistrationForm: React.FC = () => {
               type="email"
               name="email"
               placeholder="Enter your email"
+              onChange={handleChange}
               required
             />
           </div>
@@ -106,16 +229,20 @@ const RegistrationForm: React.FC = () => {
               id="password"
               type="password"
               name="password"
+              onChange={handleChange}
               placeholder="Enter your password"
               required
             />
           </div>
+          <a onClick={() => navigate("/passwordRecovery")}>Forgot your password?</a>
+          {error && <p className="error-message">{error}</p>}
           <button type="submit">Sign In</button>
 
           <h3>
             Don’t have an account?{" "}
             <a onClick={() => setIsSignIn(false)}>Sign Up</a>
           </h3>
+          </form>
         </div>
       ) : (
         <div className="registration_form">
@@ -135,13 +262,14 @@ const RegistrationForm: React.FC = () => {
             <p>or</p>
           </div>
 
-          <form className="registerData_form">
+          <form className="registerData_form" onSubmit={handleRegisterSubmit}>
             <div className="form-group">
               <label htmlFor="email">Email address</label>
               <input
                 id="email"
                 type="email"
                 name="email"
+                onChange={handleChange}
                 placeholder="Enter your email"
                 required
               />
@@ -152,6 +280,7 @@ const RegistrationForm: React.FC = () => {
               <input
                 id="password"
                 type="password"
+                onChange={handleChange}
                 name="password"
                 placeholder="Enter your password"
                 required
@@ -163,12 +292,13 @@ const RegistrationForm: React.FC = () => {
               <input
                 id="confirmPassword"
                 type="password"
+                onChange={handleChange}
                 name="confirmPassword"
                 placeholder="Confirm your password"
                 required
               />
             </div>
-
+            {error && <p className="error-message">{error}</p>}
             <button type="submit">Sign Up</button>
           </form>
 

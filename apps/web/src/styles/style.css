@@ -85,21 +85,23 @@ button:focus-visible {
 /* 💻 Десктопная версия */
 /* ==================== */
 
-.auth-container {
+.auth-container, .passwordRecovery-container {
   display: flex;
-  min-height: 100vh;
+  
+  /* min-height: 100vh; */
+   position: relative;
   position: relative;
 }
 
 .slider-section {
-  flex: 1;
+  flex: 0 0 50%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .form-section {
-  flex: 1;
+  flex: 0 0 50%;
   margin-top: 50px;
   display: flex;
   justify-content: center;
@@ -107,14 +109,14 @@ button:focus-visible {
 }
 
 .registerData_form,
-.signIn_form {
+.signIn_form , .recovery_form{
   display: flex;
   flex-direction: column;
   width: 100%;
 }
 
 .registerData_form input,
-.signIn_form input {
+.signIn_form input, .recovery_form input {
   margin-bottom: 15px;
   padding: 13px;
   background-color: #FCFCFC;
@@ -125,7 +127,7 @@ button:focus-visible {
 
 .registerData_form button,
 .registration_form button,
-.signIn_form button {
+.signIn_form button , .recovery_form button{
   font-weight: normal;
   font-size: 20px;
   background-color: #FCFCFC;
@@ -149,18 +151,17 @@ button:focus-visible {
 }
 
 .registration_form,
-.signIn_form {
+.signIn_form , .recovery_form{
   width: 70%;
 }
 
 .registration_form h2,
-.signIn_form h2 {
+.signIn_form h2 , .recovery_form h2{
   font-size: 37px;
   margin-top: 0;
 }
 
-.registration_form p,
-.signIn_form p {
+.registration_form p, .signIn_form p, .recovery_form p{
   font-size: 25px;
   color: #202020A6;
   margin: 0;
@@ -169,14 +170,12 @@ button:focus-visible {
 }
 
 .registration_form h3,
-.signIn_form h3 {
+.signIn_form h3 , .recovery_form h3{
   font-size: 20px;
   text-align: center;
   font-weight: lighter;
 }
-
-.registration_form a:hover,
-.signIn_form a:hover {
+.registration_form a:hover, .signIn_form a:hover, .recovery_form a:hover{
   text-decoration: underline;
   cursor: pointer;
 }
@@ -192,6 +191,9 @@ button:focus-visible {
   flex-direction: column;
 }
 
+.recovery_form .form-group :nth-child(1){
+  margin-top: 10px;
+}
 .form-group label {
   font-size: 26px;
   font-weight: 400;

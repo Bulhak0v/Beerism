@@ -2,7 +2,7 @@ body {
   width: 100%;
   display: block !important;
   place-items: unset !important;
-  overflow: hidden;
+  overflow-y:scroll;
   background-color: #F2EFE5;
 }
 
@@ -10,7 +10,7 @@ body {
   display: flex;
   justify-content: space-between;
   flex-flow: wrap;
-  margin: 95px 144px 0px;
+  margin: 95px 144px;
 }
 
 .profile-card {
@@ -42,8 +42,28 @@ body {
 }
 
 .avatar {
-  margin-right: 20%;
-  height: 93px;
+  margin-right: 18%;
+  object-fit: cover;
+  height: 98px;
+  width: 96px;
+  border-radius: 53px;
+}
+
+.profile-actions{
+  text-align: right;
+}
+
+.profile-actions button{
+  font-weight:normal;
+  font-size: 17px;
+  background-color: #F2EFE580;
+  border-radius: 8px;
+  margin-top: 12px;
+  border-width: 0.1px;
+  cursor: pointer;
+  color: #1a1a1a;
+  border-color: #ccc;
+  width: 26%;
 }
 
 .upload-btn {
@@ -272,4 +292,17 @@ body {
   .field select {
     font-size: 14px;
   }
+}
+
+
+.field .upload-button{
+  background-color: #F2EFE580;
+  font-size: 13px;
+  width: 33%;
+  font-family: "Gentium Book Plus", serif;
+  padding: 0px;
+  margin: auto;
+  margin-bottom: 15px;
+  border-radius: 7px;
+  color: #1a1a1a;
 }

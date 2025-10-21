@@ -1,26 +1,158 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react"; 
 import avatarPlaceholder from "/avatar_placeholder.png"; 
 import '../styles/profile.css';
 import logo from "/logo.svg";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth, User } from "../components/authProvider"; 
 
 const ProfilePage: React.FC = () => {
+  const CLOUD_NAME = "djtsu5y8b"; 
+  const UPLOAD_PRESET = "userImages"
+  const { user, setUser, logout } = useAuth(); 
+  const navigate = useNavigate();
+
   const [nickname, setNickname] = useState(() => localStorage.getItem("nickname") || "");
   const [bio, setBio] = useState("");
+  const [initialPrefs, setInitialPrefs] = useState({
+    favoriteBeer: "Not set",
+    budget: "Not set",
+    favoriteBarStyle: "Not set"
+  });
   const [favoriteBeer, setFavoriteBeer] = useState("Not set");
   const [budget, setBudget] = useState("Not set");
   const [favoriteBarStyle, setFavoriteBarStyle] = useState("Not set");
-  const [activeTab, setActiveTab] = useState("Profile"); 
-  const navigate = useNavigate();
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string>(
+    user?.profile_picture || avatarPlaceholder
+  );
 
+  const handleLogout = () => {
+    logout(); 
+    navigate("/auth");
+  };
+
+  const [activeTab, setActiveTab] = useState("Profile"); 
+  useEffect(() => {
+    if (user) {
+      setNickname(user.nickname || "");
+      setBio(user.bio || "");
+
+      setAvatarPreview(user.profile_picture || avatarPlaceholder); 
+
+      const beer = user.preferred_beer_style_id
+        ? user.preferred_beer_style_id.toString()
+        : "";
+      const bud = user.preferred_budget_range || "";
+      const bar = user.preferred_venue_atmosphere || "";
+
+      setFavoriteBeer(beer);
+      setBudget(bud);
+      setFavoriteBarStyle(bar);
+
+      setInitialPrefs({
+        favoriteBeer: beer,
+        budget: bud,
+        favoriteBarStyle: bar,
+      });
+    }
+  }, [user, setUser]); 
+
+
+  const handleSaveProfile = async () => {
+    if (!user) {
+      console.log("no user"); 
+      return;
+    }
+    let imageUrl;
+
+    try {
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append("file", avatarFile);
+        formData.append("upload_preset", UPLOAD_PRESET);
+
+        const resCloudinary = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, 
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
+
+        if (!resCloudinary.ok) {
+          throw new Error("Cloudinary upload failed");
+        }
+
+        const cloudinaryData = await resCloudinary.json();
+        imageUrl = cloudinaryData.secure_url; 
+        setAvatarFile(null); 
+      }
+    } catch (err) {
+        console.error("Avatar upload error:", err);
+        alert("Error uploading image.");
+        return; 
+    }
+    let updatedUser = { ...user };
+
+    try {
+      const resProfile = await fetch("http://localhost:4000/api/users/edit", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          nickname,
+          bio,
+          profile_picture: imageUrl,
+        }),
+      });
+
+
+      if (!resProfile.ok) throw new Error("Failed to update profile");
+      
+      updatedUser = await resProfile.json();
+      
+      setAvatarFile(null); 
+
+    } catch (err) {
+      console.error("Profile update error:", err);
+    }
+ 
+    if (
+      favoriteBeer !== initialPrefs.favoriteBeer ||
+      budget !== initialPrefs.budget ||
+      favoriteBarStyle !== initialPrefs.favoriteBarStyle
+    ) {
+    const prefData = {
+      preferred_beer_style_id: favoriteBeer ? parseInt(favoriteBeer) : null,
+      preferred_budget_range: budget || null,
+      preferred_venue_atmosphere: favoriteBarStyle || null,
+    };
+
+      try {
+        const resPref = await fetch("http://localhost:4000/api/users/edit/preferences", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: user.user_id, ...prefData }),
+        });
+        if (!resPref.ok) throw new Error("Failed to update preferences");
+        updatedUser = await resPref.json();
+      } catch (err) {
+        console.error("Preferences update error:", err);
+      }
+    }
+
+    setUser(updatedUser); 
+    alert("Profile saved!");
+  };
+
+ 
   return (
     <>
     <LogoHeader />
       <div className="profile-main">
         <div className="topTitle">
           <h2 className="account-title">Account settings</h2>
-          <button className="backButton" onClick={() => navigate("/auth")}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
+          <button className="backButton" onClick={() => handleLogout()}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
         </div>
          <div className="settings-cover">
      
@@ -43,19 +175,38 @@ const ProfilePage: React.FC = () => {
 
         <div className="profile-card">
           <div className="avatar-section">
-            <img src={avatarPlaceholder} alt="Avatar" className="avatar" />
-               <div className="field">
-                <label>Nickname</label>
-                <input
-                  type="text"
-                  placeholder="Nickname"
-                  value={nickname}
-                  onChange={(e) => setNickname(e.target.value)}
-                />
+            <img
+              src={avatarPreview}
+              alt="Avatar"
+              className="avatar"
+            />
+            <div className="field"> 
+              <label>Nickname</label>
+              <input 
+                type="text"
+                placeholder="Nickname"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)} /> 
               </div>
+            
           </div>
 
+
           <div className="field">
+              <input 
+              className="upload-button"
+              type="file"
+              accept="image/*"
+              id="avatarUpload"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setAvatarFile(file);
+                  setAvatarPreview(URL.createObjectURL(file));
+                }
+              }}
+            />
+    
             <label>Bio</label>
             <textarea
               placeholder="Bio"
@@ -65,27 +216,30 @@ const ProfilePage: React.FC = () => {
           </div>
 
           <div className="preferences">
+            
             <div className="field">
               <label>Favorite kind of beer</label>
               <select
                 value={favoriteBeer}
                 onChange={(e) => setFavoriteBeer(e.target.value)}
               >
-                <option>Not set</option>
-                <option>Lager</option>
-                <option>Ale</option>
-                <option>Stout</option>
+                <option value="">Not set</option>
+                <option value="1">Lager</option>
+                <option value="2">Ale</option>
+                <option value="3">Stout</option>
               </select>
             </div>
+
 
             <div className="field">
               <label>Budget</label>
               <select value={budget} onChange={(e) => setBudget(e.target.value)}>
-                <option>Not set</option>
-                <option>50$</option>
-                <option>100$</option>
-                <option>200$</option>
+                <option value="">Not set</option>
+                <option value="Low">~50$</option>
+                <option value="Medium">~100$</option>
+                <option value="High">~200$</option>
               </select>
+
             </div>
 
             <div className="field">
@@ -94,12 +248,17 @@ const ProfilePage: React.FC = () => {
                 value={favoriteBarStyle}
                 onChange={(e) => setFavoriteBarStyle(e.target.value)}
               >
-                <option>Not set</option>
-                <option>Pub</option>
-                <option>Lounge</option>
-                <option>Beer Garden</option>
+                <option value="">Not set</option>
+                <option value="Cozy">Cozy</option>
+                <option value="Modern">Modern</option>
+                <option value="Historic">Historic</option>
               </select>
             </div>
+
+
+          </div>
+           <div className="profile-actions">
+            <button onClick={handleSaveProfile} className="save-button">Save</button>
           </div>
       </div>
     </div>

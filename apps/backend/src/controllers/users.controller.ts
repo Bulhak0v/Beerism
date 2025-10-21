@@ -37,7 +37,7 @@ interface AuthenticatedRequest extends Request {
 
 export async function editUser(req: AuthenticatedRequest, res: Response) {
   try {
-    const userId = req.user?.id;
+    const userId = req.body.user_id;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized: Missing user token." });
     }
@@ -74,7 +74,7 @@ export async function editUser(req: AuthenticatedRequest, res: Response) {
 
 export async function editUserPreference(req: AuthenticatedRequest, res: Response) {
   try {
-    const userId = req.user?.id;
+    const userId = req.body.user_id;
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized: Missing user token." });
     }
@@ -84,6 +84,8 @@ export async function editUserPreference(req: AuthenticatedRequest, res: Respons
         preferred_venue_atmosphere,
         preferred_beer_style_id
     } = req.body;
+
+
 
     const updateData: Partial<User> = {
       ...(preferred_budget_range && { preferred_budget_range }),
