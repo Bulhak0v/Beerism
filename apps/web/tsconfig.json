@@ -3,7 +3,9 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "checkJs": false,
-    "noEmitOnError": false
+    "noEmitOnError": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "extends": "@repo/typescript-config/vite.json",
   "include": ["src"]
