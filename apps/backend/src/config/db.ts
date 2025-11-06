@@ -1,5 +1,4 @@
 ﻿import { Client } from "pg";
-import 'dotenv/config';
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -11,4 +10,4 @@ export const db = new Client({
 
 db.connect()
   .then(() => console.log("Connected to database"))
-  .catch((err) => console.error("DB connection error:", err));
+  .catch((err: Error) => console.error("DB connection error:", err));
