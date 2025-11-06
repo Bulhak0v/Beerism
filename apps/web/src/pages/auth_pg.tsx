@@ -69,7 +69,7 @@ const RegistrationForm: React.FC = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/users/register", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -106,7 +106,7 @@ const RegistrationForm: React.FC = () => {
     setError("");
     
     try {
-      const res = await fetch("http://localhost:4000/api/users/login", {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -147,7 +147,7 @@ const RegistrationForm: React.FC = () => {
       const nickname = decoded.name || decoded.given_name || email.split("@")[0];
       const idToken = credentialResponse.credential;
 
-      let res = await fetch("http://localhost:4000/api/users/login", {
+      let res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -160,7 +160,7 @@ const RegistrationForm: React.FC = () => {
 
     if (!res.ok) {
       console.log("User not found, registering new Google user...");
-      res = await fetch("http://localhost:4000/api/users/register", {
+      res = await fetch(`${import.meta.env.VITE_API_URL}/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

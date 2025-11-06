@@ -95,7 +95,7 @@ const ProfilePage: React.FC = () => {
     let updatedUser = { ...user };
 
     try {
-      const resProfile = await fetch("http://localhost:4000/api/users/edit", {
+      const resProfile = await fetch(`${import.meta.env.VITE_API_URL}/api/users/edit`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -129,7 +129,7 @@ const ProfilePage: React.FC = () => {
     };
 
       try {
-        const resPref = await fetch("http://localhost:4000/api/users/edit/preferences", {
+        const resPref = await fetch(`${import.meta.env.VITE_API_URL}/api/users/edit/preferences`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ user_id: user.user_id, ...prefData }),
