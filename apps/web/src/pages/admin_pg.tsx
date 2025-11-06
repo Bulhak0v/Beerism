@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
+import { Location } from "../../../../shared/types/locations.model";
 import '../styles/admin.css';
 
 export default function AdminPage() {
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<Location[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [formData, setFormData] = useState({});
-    const [editingLocationId, setEditingLocationId] = useState(null);
+    const [formData, setFormData] = useState<Partial<Location>>({});
+    const [editingLocationId, setEditingLocationId] = useState<number | null>(null);
 
     useEffect(() => {
         async function getData() {
             try {
                 const response = await fetch('http://localhost:4000/api/locations');
-                const answer = await response.json();
+                const answer: Location[] = await response.json();
                 setData(answer);
             } catch (err) {
                 console.error("Failed to fetch locations:", err);
@@ -20,7 +21,7 @@ export default function AdminPage() {
         getData();
     }, []);
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
@@ -67,13 +68,13 @@ export default function AdminPage() {
         }
     };
 
-    const handleEditClick = (location) => {
+    const handleEditClick = (location: Location) => {
         setFormData(location);
         setEditingLocationId(location.location_id);
         setIsModalOpen(true);
     };
 
-    const handleDeleteClick = async (id) => {
+    const handleDeleteClick = async (id: number) => {
         if (!window.confirm("Are you sure you want to delete this location?")) return;
 
         try {
@@ -143,7 +144,7 @@ export default function AdminPage() {
                                     <td>{item.name}</td>
                                     <td>{item.description}</td>
                                     <td>{item.city}</td>
-                                    <td>{item.adress}</td>
+                                    <td>{item.address}</td>
                                     <td>{item.website}</td>
                                     <td>{item.rating}</td>
                                     <td>{item.average_budget_requirment}</td>
@@ -180,7 +181,7 @@ export default function AdminPage() {
                             <input
                                 key={key}
                                 name={key}
-                                value={formData[key] || ""}
+                                value={(formData as any)[key] || ""}
                                 onChange={handleInputChange}
                                 placeholder={key.replace("_", " ")}
                             />
