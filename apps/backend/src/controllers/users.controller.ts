@@ -211,21 +211,23 @@ export async function deleteUser(req: Request, res: Response) {
   }
 }
 
-// export async function getUserLocation(): Promise<{ latitude: number; longitude: number }> {
-//   return new Promise((resolve, reject) => {
-//     if (!navigator.geolocation) {
-//       reject(new Error("Geolocation is not supported by your browser."));
-//       return;
-//     }
+export async function handleUserLocation(req: Request, res: Response) {
+  try {
+    const { user_id, latitude, longitude } = req.body;
 
-//     navigator.geolocation.getCurrentPosition(
-//       (pos) => {
-//         const { latitude, longitude } = pos.coords;
-//         resolve({ latitude, longitude });
-//       },
-//       (err) => {
-//         reject(new Error("Failed to retrieve location: " + err.message));
-//       }
-//     );
-//   });
-// }
+    if (!user_id || latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ message: "Missing user_id or coordinates" });
+    }
+
+    const updatedUser = await UserService.saveUserLocation(user_id, latitude, longitude);
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    return res.status(200).json({ message: "Location saved", user: updatedUser });
+  } catch (err) {
+    console.error("Error saving user location:", err);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+}

@@ -5,6 +5,9 @@ import logo from "/logo.svg";
 import { useNavigate } from "react-router-dom";
 import { useAuth, User } from "../components/authProvider"; 
 
+import { useEffect } from "react";
+import { getUserLocation } from "../utils/getUserLocation";//костя хуесос добавил строчки 
+
 const ProfilePage: React.FC = () => {
   const CLOUD_NAME = "djtsu5y8b"; 
   const UPLOAD_PRESET = "userImages"
@@ -33,29 +36,48 @@ const ProfilePage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState("Profile"); 
   useEffect(() => {
-    if (user) {
-      setNickname(user.nickname || "");
-      setBio(user.bio || "");
+    if (user) {
+      setNickname(user.nickname || "");
+      setBio(user.bio || "");
 
-      setAvatarPreview(user.profile_picture || avatarPlaceholder); 
+      setAvatarPreview(user.profile_picture || avatarPlaceholder);
 
-      const beer = user.preferred_beer_style_id
-        ? user.preferred_beer_style_id.toString()
-        : "";
-      const bud = user.preferred_budget_range || "";
-      const bar = user.preferred_venue_atmosphere || "";
+      const beer = user.preferred_beer_style_id
+        ? user.preferred_beer_style_id.toString()
+        : "";
+      const bud = user.preferred_budget_range || "";
+      const bar = user.preferred_venue_atmosphere || "";
 
-      setFavoriteBeer(beer);
-      setBudget(bud);
-      setFavoriteBarStyle(bar);
+      setFavoriteBeer(beer);
+      setBudget(bud);
+      setFavoriteBarStyle(bar);
 
-      setInitialPrefs({
-        favoriteBeer: beer,
-        budget: bud,
-        favoriteBarStyle: bar,
-      });
-    }
-  }, [user, setUser]); 
+      setInitialPrefs({
+        favoriteBeer: beer,
+        budget: bud,
+        favoriteBarStyle: bar,
+      });
+      (async () => {//
+        const coords = await getUserLocation();//
+        if (coords) {//
+          console.log("User coordinates:", coords);//
+          try {//
+            await fetch("https://beerism-backend.onrender.com/api/users/location", {//
+              method: "POST",//
+              headers: { "Content-Type": "application/json" },//
+              body: JSON.stringify({//
+                user_id: user.user_id,//
+                latitude: coords.latitude,//
+                longitude: coords.longitude,//
+              }),//
+            });//
+          } catch (err) {//
+            console.error("Failed to send location:", err);//
+          }//
+        }//
+      })();//
+    }
+  }, [user, setUser]); 
 
 
   const handleSaveProfile = async () => {
