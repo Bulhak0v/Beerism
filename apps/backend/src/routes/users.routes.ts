@@ -10,7 +10,7 @@ router.patch("/edit", editUser);
 router.patch("/edit/preferences", editUserPreference);
 
 router.post("/add", addUser);
-router.put("/update:id", updateUser);
+router.put("/update/:id", updateUser);
 router.delete("/delete", deleteUser);
 
 export default router;
