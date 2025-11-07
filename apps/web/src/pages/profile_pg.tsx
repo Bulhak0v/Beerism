@@ -57,25 +57,6 @@ const ProfilePage: React.FC = () => {
         budget: bud,
         favoriteBarStyle: bar,
       });
-      (async () => {//
-        const coords = await getUserLocation();//
-        if (coords) {//
-          console.log("User coordinates:", coords);//
-          try {//
-            await fetch("https://beerism-backend.onrender.com/api/users/location", {//
-              method: "POST",//
-              headers: { "Content-Type": "application/json" },//
-              body: JSON.stringify({//
-                user_id: user.user_id,//
-                latitude: coords.latitude,//
-                longitude: coords.longitude,//
-              }),//
-            });//
-          } catch (err) {//
-            console.error("Failed to send location:", err);//
-          }//
-        }//
-      })();//
     }
   }, [user, setUser]); 
 

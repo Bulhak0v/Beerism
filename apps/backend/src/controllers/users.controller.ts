@@ -210,24 +210,3 @@ export async function deleteUser(req: Request, res: Response) {
     return res.status(500).json({ message: "Error deleting user: " + error.message });
   }
 }
-
-export async function handleUserLocation(req: Request, res: Response) {
-  try {
-    const { user_id, latitude, longitude } = req.body;
-
-    if (!user_id || latitude === undefined || longitude === undefined) {
-      return res.status(400).json({ message: "Missing user_id or coordinates" });
-    }
-
-    const updatedUser = await UserService.saveUserLocation(user_id, latitude, longitude);
-
-    if (!updatedUser) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    return res.status(200).json({ message: "Location saved", user: updatedUser });
-  } catch (err) {
-    console.error("Error saving user location:", err);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-}

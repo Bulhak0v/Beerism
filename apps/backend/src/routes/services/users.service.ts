@@ -147,16 +147,4 @@ export const UserService = {
         const result = await db.query(query, values);
         return result.rowCount;
     },
-
-    async saveUserLocation(user_id: number, latitude: number, longitude: number): Promise<User | null> {
-    //     const result = await db.query<User>(
-    //         `UPDATE users
-    //  SET latitude = $1, longitude = $2
-    //  WHERE user_id = $3
-    //  RETURNING *;`,
-    //         [latitude, longitude, user_id]
-    //     );
-
-    //     return result.rows[0] || null;
-    }
 }
