@@ -51,3 +51,4 @@ export async function updateLocation(req: Request, res: Response) {
         res.status(500).json({ message: "Internal server error" })
     }
 }
+

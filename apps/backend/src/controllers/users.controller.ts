@@ -106,3 +106,107 @@ export async function editUserPreference(req: AuthenticatedRequest, res: Respons
     return res.status(500).json({ message: "An error occurred while updating the user." });
   }
 }
+
+export async function addUser(req: Request, res: Response) {
+  try {
+    const {
+      email,
+      nickname,
+      password,
+      profile_picture,
+      bio,
+      preferred_budget_range,
+      preferred_venue_atmosphere,
+      preferred_beer_style_id,
+      xp,
+      level
+    } = req.body;
+
+    if (!email || !nickname || !password) {
+      return res.status(400).json({ message: "Email, nickname и password обязательны." });
+    }
+
+    const newUser = await UserService.addUser({
+      email,
+      nickname,
+      password,
+      profile_picture,
+      bio,
+      preferred_budget_range,
+      preferred_venue_atmosphere,
+      preferred_beer_style_id,
+      xp,
+      level
+    });
+
+    return res.status(201).json(newUser);
+  } catch (error: any) {
+    console.error("Error adding user:", error);
+    return res.status(500).json({ message: "Error adding user: " + error.message });
+  }
+}
+
+export async function updateUser(req: Request, res: Response) {
+  try {
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID." });
+    }
+
+    const {
+      email,
+      nickname,
+      password,
+      profile_picture,
+      bio,
+      preferred_budget_range,
+      preferred_venue_atmosphere,
+      preferred_beer_style_id,
+      xp,
+      level
+    } = req.body;
+
+    const updateData: Partial<User> = {
+      ...(email && { email }),
+      ...(nickname && { nickname }),
+      ...(password && { password }),
+      ...(profile_picture && { profile_picture }),
+      ...(bio && { bio }),
+      ...(preferred_budget_range && { preferred_budget_range }),
+      ...(preferred_venue_atmosphere && { preferred_venue_atmosphere }),
+      ...(preferred_beer_style_id && { preferred_beer_style_id }),
+      ...(xp !== undefined && { xp }),
+      ...(level !== undefined && { level })
+    };
+
+    const updatedUser = await UserService.updateUserByAdmin(userId, updateData);
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json(updatedUser);
+  } catch (error: any) {
+    console.error("Error updating user:", error);
+    return res.status(500).json({ message: "Error updating user: " + error.message });
+  }
+}
+
+export async function deleteUser(req: Request, res: Response) {
+  try {
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID." });
+    }
+
+    const deleted = await UserService.deleteUser(userId);
+    if (!deleted) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    return res.status(200).json({ message: "User deleted successfully." });
+  } catch (error: any) {
+    console.error("Error deleting user:", error);
+    return res.status(500).json({ message: "Error deleting user: " + error.message });
+  }
+}

@@ -1,11 +1,14 @@
-﻿import { Client } from "pg";
+import { Client } from "pg";
 import dotenv from "dotenv";
 
-dotenv.config();
+// 🎯 ШАГ 1: ВЫВОДИМ ПЕРЕМЕННУЮ В КОНСОЛЬ
+console.log("Attempting to connect with URL:", process.env.DATABASE_URL);
 
 export const db = new Client({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false }
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
 db.connect()
