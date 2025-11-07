@@ -1,7 +1,6 @@
 import { Client } from "pg";
 import dotenv from "dotenv";
 
-// 🎯 ШАГ 1: ВЫВОДИМ ПЕРЕМЕННУЮ В КОНСОЛЬ
 console.log("Attempting to connect with URL:", process.env.DATABASE_URL);
 
 export const db = new Client({

@@ -3,7 +3,6 @@ import cors from "cors";
 import beerStylesRouter from "./routes/beerStyles.routes.js";
 import locationsRouter from "./routes/locations.routes.js";
 import userRouter from "./routes/users.routes.js";
-import locationsRouter from "./routes/locations.routes.js";
 
 const app = express();
 app.use(cors());
