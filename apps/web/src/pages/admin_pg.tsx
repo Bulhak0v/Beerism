@@ -11,7 +11,7 @@ export default function AdminPage() {
     useEffect(() => {
         async function getData() {
             try {
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/locations`);
+                const response = await fetch(`https://beerism-backend.onrender.com/api/locations`);
                 const answer: Location[] = await response.json();
                 setData(answer);
             } catch (err) {
@@ -32,8 +32,8 @@ export default function AdminPage() {
         try {
             const method = editingLocationId ? "PUT" : "POST";
             const url = editingLocationId
-                ? `${import.meta.env.VITE_API_URL}/api/locations/${editingLocationId}`
-                : `${import.meta.env.VITE_API_URL}/api/locations`;
+                ? `https://beerism-backend.onrender.com/api/locations/${editingLocationId}`
+                : `https://beerism-backend.onrender.com/api/locations`;
 
             const response = await fetch(url, {
                 method,
@@ -78,7 +78,7 @@ export default function AdminPage() {
         if (!window.confirm("Are you sure you want to delete this location?")) return;
 
         try {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/locations/${id}`, {
+            const response = await fetch(`https://beerism-backend.onrender.com/api/locations/${id}`, {
                 method: "DELETE",
             });
 
