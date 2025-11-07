@@ -5,9 +5,6 @@ import logo from "/logo.svg";
 import { useNavigate } from "react-router-dom";
 import { useAuth, User } from "../components/authProvider"; 
 
-import { useEffect } from "react";
-import { getUserLocation } from "../utils/getUserLocation";//костя хуесос добавил строчки 
-
 const ProfilePage: React.FC = () => {
   const CLOUD_NAME = "djtsu5y8b"; 
   const UPLOAD_PRESET = "userImages"
