@@ -179,7 +179,7 @@ export async function updateUser(req: Request, res: Response) {
       ...(level !== undefined && { level })
     };
 
-    const updatedUser = await UserService.updateUserByAdmin(userId, updateData);
+    const updatedUser = await UserService.updateUser(userId, updateData);
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found." });

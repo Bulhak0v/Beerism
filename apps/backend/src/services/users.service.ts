@@ -2,7 +2,6 @@
 import { db } from "../config/db.js";
 import { User } from "../models/users.model.js";
 import bcrypt from "bcrypt";
-import { editUser, editUserPreference } from "../controllers/users.controller.js";
 
 export const UserService = {
     async getUser(email: string): Promise<User | null> {
@@ -43,14 +42,14 @@ export const UserService = {
         return user;
     },
 
-    async addUser(email: string, nickname: string, password: string, profile_picture: string, bio: string, preffered_budget_range: string, preferred_venue_atmosphere: string, preferred_beer_style_id: number, xp: number, level: number): Promise<User> {
+    async addUser(email: string, nickname: string, password: string, profile_picture: string, bio: string, preferred_budget_range: string, preferred_venue_atmosphere: string, preferred_beer_style_id: number, xp: number, level: number): Promise<User> {
         const result = await db.query<User>(
             `
-            INSERT INTO users (email, nickname, password, profile_picture, bio, preffered_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level)
+            INSERT INTO users (email, nickname, password, profile_picture, bio, preferred_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             RETURNING *;
             `,
-            [email, nickname, password, profile_picture, bio, preffered_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level]
+            [email, nickname, password, profile_picture, bio, preferred_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level]
         );
 
         return result.rows[0];
