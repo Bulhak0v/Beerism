@@ -44,7 +44,7 @@ export const UserService = {
     },
 
     async addUser(email: string, nickname: string, password: string, profile_picture: string, bio: string, preffered_budget_range: string, preferred_venue_atmosphere: string, preferred_beer_style_id: number, xp: number, level: number): Promise<User> {
-        const result = await db.query<Location>(
+        const result = await db.query<User>(
             `
             INSERT INTO users (email, nickname, password, profile_picture, bio, preffered_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -148,4 +148,5 @@ export const UserService = {
         const result = await db.query(query, values);
         return result.rowCount;
     },
+
 }

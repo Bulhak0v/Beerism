@@ -126,7 +126,7 @@ export async function addUser(req: Request, res: Response) {
       return res.status(400).json({ message: "Email, nickname и password обязательны." });
     }
 
-    const newUser = await UserService.addUser({
+    const newUser = await UserService.addUser(
       email,
       nickname,
       password,
@@ -137,7 +137,7 @@ export async function addUser(req: Request, res: Response) {
       preferred_beer_style_id,
       xp,
       level
-    });
+    );
 
     return res.status(201).json(newUser);
   } catch (error: any) {
@@ -210,3 +210,22 @@ export async function deleteUser(req: Request, res: Response) {
     return res.status(500).json({ message: "Error deleting user: " + error.message });
   }
 }
+
+// export async function getUserLocation(): Promise<{ latitude: number; longitude: number }> {
+//   return new Promise((resolve, reject) => {
+//     if (!navigator.geolocation) {
+//       reject(new Error("Geolocation is not supported by your browser."));
+//       return;
+//     }
+
+//     navigator.geolocation.getCurrentPosition(
+//       (pos) => {
+//         const { latitude, longitude } = pos.coords;
+//         resolve({ latitude, longitude });
+//       },
+//       (err) => {
+//         reject(new Error("Failed to retrieve location: " + err.message));
+//       }
+//     );
+//   });
+// }
