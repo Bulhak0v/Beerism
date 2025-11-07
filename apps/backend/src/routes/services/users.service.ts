@@ -146,5 +146,5 @@ export const UserService = {
         const values = [id];
         const result = await db.query(query, values);
         return result.rowCount;
-    },
+    }
 }
