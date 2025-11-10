@@ -129,6 +129,26 @@ const RegistrationForm: React.FC = () => {
 
       console.log("Loged in user:", data.user);
       setUser(data.user);
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const coords = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            sessionStorage.setItem("user_location", JSON.stringify(coords));
+            console.log("User location saved:", coords);
+          },
+          (error) => {
+            console.warn("Geolocation error:", error.message);
+          }
+        );
+      } else {
+        console.warn("Geolocation not supported by this browser.");
+      }
+
+      
       navigate("/profile");
 
     } catch (err: any) {
