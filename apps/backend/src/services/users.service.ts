@@ -56,7 +56,7 @@ export const UserService = {
     },
 
     async getUserById(user_id: number): Promise<User | null> {
-        const result = await db.query<User>(`SELECT * FROM users WHERE user_id = ${user_id} LIMIT 1;`);
+        const result = await db.query<User>(`SELECT * FROM users WHERE user_id = $1 LIMIT 1;`, [user_id]);
         return result.rows[0] || null;
     },
 

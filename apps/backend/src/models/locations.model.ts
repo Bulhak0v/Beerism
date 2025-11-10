@@ -11,4 +11,5 @@ export interface Location {
     closes_at: string | null;
     latitude: number;
     longtitude: number;
+    picture: string | null;
 }

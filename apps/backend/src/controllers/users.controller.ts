@@ -1,6 +1,7 @@
 ﻿import { Request, Response } from "express";
 import { UserService } from "../services/users.service.js";
 import { User } from "../models/users.model.js";
+import { LocationsService } from "../services/locations.service.js";
 
 export async function registerUser(req: Request, res: Response) {
     const { email, nickname, password } = req.body;
@@ -208,5 +209,28 @@ export async function deleteUser(req: Request, res: Response) {
   } catch (error: any) {
     console.error("Error deleting user:", error);
     return res.status(500).json({ message: "Error deleting user: " + error.message });
+  }
+}
+
+export async function getRecommendedLocations(req: Request, res: Response) {
+  try {
+    const userId = parseInt(req.params.id);
+    if (isNaN(userId)) {
+      return res.status(400).json({ message: "Invalid user ID." });
+    }
+
+    const city = req.query.city;
+    if (!city || typeof city !== 'string') {
+      return res.status(400).json({ message: "Missing or invalid 'city' query parameter." });
+    }
+
+    const recommended = await LocationsService.getRecommendedLocations(userId, city);
+    return res.status(200).json(recommended);
+  } catch (err: any) {
+    if (err.message === "User not found") {
+      return res.status(404).json({ message: err.message });
+    }
+    console.error("Error getting recommendations:", err);
+    return res.status(500).json({ message: "An error occurred while fetching recommendations." });
   }
 }
