@@ -53,7 +53,7 @@ body {
   border-radius: 8px;
   padding: 10px;
   overflow: hidden; 
-  background-color: #F2EFE580;
+  background-color: #f2efe5;
   cursor: pointer;
   transition: box-shadow 0.2s ease-in-out;
 }
@@ -237,4 +237,8 @@ body {
 
 .suggestions-dropdown li:hover {
   background-color: #f5f5f5; 
+}
+.search-bar-container{
+  position: relative;
+  width: 100%; 
 }

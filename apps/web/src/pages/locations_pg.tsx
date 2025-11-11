@@ -127,26 +127,28 @@ const LocationsPage: React.FC = () => {
 
         <div className="locations-cover">
             <div className="search-and-pagination">
-              <div className="search-bar"> 
-                <input
-                  type="text"
-                  placeholder="Search (name, city, rating...)"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  autoComplete="off"
-                /> 
-                <button onClick={handleSearch} className="searchButton"></button>
+              <div className="search-bar-container">
+                <div className="search-bar"> 
+                  <input
+                    type="text"
+                    placeholder="Search (name, city, rating...)"
+                    value={searchTerm}
+                    onChange={handleSearchChange}
+                    autoComplete="off"
+                  /> 
+                  <button onClick={handleSearch} className="searchButton"></button>
+                 
+                </div>
                  {showSuggestions && suggestions.length > 0 && (
-                  <ul className="suggestions-dropdown">
-                    {suggestions.map((city) => (
-                      <li key={city} onClick={() => handleSuggestionClick(city)}>
-                        {city}
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                    <ul className="suggestions-dropdown">
+                      {suggestions.map((city) => (
+                        <li key={city} onClick={() => handleSuggestionClick(city)}>
+                          {city}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
               </div>
-
              
 
               <PaginationControls
@@ -217,16 +219,11 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 const LocationCard: React.FC<LocationCardProps> = ({ location, onClick }) => {
-  let displayPicture = location.picture; 
-
-  if (!displayPicture) {
-    const pictureIndex = (location.location_id - 1) % FALLBACK_PICTURES.length;
-    displayPicture = FALLBACK_PICTURES[pictureIndex];
-  }
+  const pictureIndex = (location.location_id - 1) % FALLBACK_PICTURES.length;
 
   return (
     <div className="location-card"  onClick={() => onClick && onClick(location)}>
-      <img src={displayPicture} className="location-image" />
+      <img src={FALLBACK_PICTURES[pictureIndex]} className="location-image" />
       <div className="location-info">
         <div className="location-info-title">
           <div className="location-info-titleName">{location.name}</div>
