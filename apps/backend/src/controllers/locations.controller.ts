@@ -108,14 +108,3 @@ export async function getRecommendedLocations(req: Request, res: Response) {
   }
 }
 
-export async function getAllCities(req: Request, res: Response) {
-    try {
-        const cities = await LocationsService.getAllCities();
-        
-        res.status(200).json(cities);
-
-    } catch (error: any) {
-        console.error("Error fetching cities:", error);
-        res.status(500).json({ message: "Internal server error" });
-    }
-}
