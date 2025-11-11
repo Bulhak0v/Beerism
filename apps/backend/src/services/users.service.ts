@@ -181,5 +181,10 @@ export const UserService = {
         const values = [id];
         const result = await db.query(query, values);
         return result.rowCount;
-    }
+    },
+
+    async getAllUsers(): Promise<User[]> {
+        const result = await db.query<User>(`SELECT * FROM users;`);
+        return result.rows;
+    },
 }

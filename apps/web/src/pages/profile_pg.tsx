@@ -151,6 +151,7 @@ const ProfilePage: React.FC = () => {
     { name: "Security", path: "/profile" },
     { name: "Notifications", path: "/profile" },
     { name: "Privacy", path: "/profile" },
+    { name: "Map", path: "/map" },
   ];
 
   const handleTabClick = (tabName: string, path: string) => {

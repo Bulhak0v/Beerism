@@ -1,5 +1,5 @@
 ﻿import { Router } from "express";
-import { loginUser, registerUser, editUser, editUserPreference, addUser, updateUser, deleteUser, getRecommendedLocations, googleAuth } from "../controllers/users.controller.js";
+import { loginUser, registerUser, editUser, editUserPreference, addUser, updateUser, deleteUser, getRecommendedLocations, googleAuth, getAllUsers } from "../controllers/users.controller.js";
 
 const router = Router();
 
@@ -15,5 +15,6 @@ router.put("/update/:id", updateUser);
 router.delete("/delete", deleteUser);
 
 // router.get("/recommendations/:id", getRecommendedLocations);
+router.get("/all", getAllUsers);
 
 export default router;

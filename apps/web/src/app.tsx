@@ -6,6 +6,8 @@ import AdminPage from "./pages/admin_pg";
 import PasswordRecovery from "./pages/passwordRecovery_pg";
 import LocationsPage from "./pages/locations_pg";
 import LocationDetailsPage from "./pages/locationDetails_pg";
+import MapPage from "./pages/map_pg";
+import AdminUserPage from "./pages/adminUser_pg";
 
 const App: React.FC = () => {
   return (
@@ -15,7 +17,9 @@ const App: React.FC = () => {
       <Route path="/locations" element={<LocationsPage />} />
       <Route path="/locationDetails/:id" element={<LocationDetailsPage />} />
       <Route path="/admin" element={<AdminPage />} />
+      <Route path="/adminUser" element={<AdminUserPage />} />
       <Route path="/recovery" element={<PasswordRecovery />} />
+      <Route path="/map" element={<MapPage />} />
       
       <Route path="*" element={<Navigate to="/auth" replace />} />
     </Routes>

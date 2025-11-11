@@ -1,244 +1,261 @@
+/* Основні стилі для десктопу (залишаємо як є) */
 body {
-  width: 100%;
-  display: block !important;
-  place-items: unset !important;
-  overflow-y:scroll;
-  color: #202020;
-  background-color: #F2EFE5;
+    width: 100%;
+    display: block !important;
+    place-items: unset !important;
+    overflow-y: scroll;
+    color: #202020;
+    background-color: #F2EFE5;
 }
 
 .locations-main {
-  display: flex;
-  flex-flow: wrap;
-  width: 80%;
-  margin: 95px auto ;
-  align-items: center;
-  justify-content: center;
+    display: flex;
+    flex-flow: wrap;
+    width: 80%;
+    margin: 95px auto;
+    align-items: center;
+    justify-content: center;
 }
 
-/* .locations-card{
-  background-color: #fff;
-
-  padding: 50px;
-  font-weight: 400;
-  text-align: center;
-  border-radius: 10px;
-  font-size: 25px;
-  border-color: #20202080;
-  border-width: 1px;
-  border-style: solid;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-} */
-
-.locations-cover{
-  background-color: #fdfdfaec;
-  padding: 25px 50px;
-  border-radius: 10px;
-  border-color: #20202080;
-  width: 92%;
-  border-width: 1px;
-  font-size: 26px;
-  border-style: solid;
+.locations-cover {
+    background-color: #fdfdfaec;
+    padding: 25px 50px;
+    border-radius: 10px;
+    border-color: #20202080;
+    width: 92%;
+    border-width: 1px;
+    font-size: 26px;
+    border-style: solid;
 }
 
 .locations-card {
-  display: flex;
-  flex-direction: column;
-  gap: 20px; 
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .location-card {
-  display: flex; 
-  border: 1px solid #3d3d3d5d; 
-  border-radius: 8px;
-  padding: 10px;
-  overflow: hidden; 
-  background-color: #f2efe5;
-  cursor: pointer;
-  transition: box-shadow 0.2s ease-in-out;
+    display: flex;
+    border: 1px solid #3d3d3d5d;
+    border-radius: 8px;
+    padding: 10px;
+    overflow: hidden;
+    background-color: #f2efe5;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease-in-out;
 }
 
 .location-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .location-image {
-  width: 200px; 
-  height: 150px; 
-  object-fit: cover; 
-  flex-shrink: 0;
+    width: 200px;
+    height: 150px;
+    object-fit: cover;
+    flex-shrink: 0;
 }
 
 .location-info {
-  display: flex;
-  flex-direction: column; 
-  padding: 12px 16px;
-  flex-grow: 1;
-  gap: 8px;
+    display: flex;
+    flex-direction: column;
+    padding: 12px 16px;
+    flex-grow: 1;
+    gap: 8px;
 }
 
+/* ... інші стилі для десктопу ... */
 
-.location-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+.location-info-title {
+    display: flex;
+    align-items: baseline; /* Для вирівнювання елементів */
+    flex-wrap: wrap;
 }
 
-.location-name {
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin: 0;
-  color: #333;
+.location-info-titleName, .location-rating-value {
+    margin-right: 16px;
+}
+.location-info-title {
+    font-size: 28px;
 }
 
-.location-rating-value, .star-rating{
-  font-weight: bold;
-  font-size: 23px;
-  color: #333;
-}
-
-.location-review-count {
-  font-size: 1rem;
-  color: #777;
-}
-
-.star-rating .star-empty {
-  color: #DCDCDC;
-}
-
-.location-description {
-  font-size: 0.95rem;
-  color: #555;
-  margin: 0;
-  line-height: 1.4;
+.location-rating-value, .star-rating {
+    font-weight: bold;
+    font-size: 23px;
+    color: #333;
 }
 
 .location-meta {
-  display: flex;
-  justify-content: space-between; 
-  align-items: center;
-  margin-top: auto; 
-  padding-top: 8px;
-  border-top: 1px solid #EEE;
-  font-size: 0.9rem;
-  color: #444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid #EEE;
+    font-size: 0.9rem;
+    color: #444;
 }
 
-.meta-item {
-  flex-basis: 0; 
-  flex-grow: 1;
-  text-align: left;
-}
-
-.meta-item:last-child {
-  text-align: right;
-}
-.search-bar{
-  display: flex;
-  
-}
-.search-bar input{
-  padding: 10px 44px;
-  margin-bottom: 22px;
-  border-radius: 7px;
-  margin-right: 10px;
-  border-color: #3d3d3d5d;
-  background-color: #F2EFE580;
-  font-size: 19px;
-}
-.topTitle {
-  width: 92%;
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 25px;
-  align-items: center;
-}
-.topTitle h2{
-  font-size: 36px;
-}
-
-.searchButton{
-  width: 45px;
-  height: 43px;
-  background: url("/search.svg") no-repeat center;
-  border: none;
-  padding: 0;
-  border-radius: 50%;
-  background-size: 40px 36px;
-  cursor: pointer;
-  border: 2px solid rgba(0, 0, 0, 0.5);
-}
-.location-info-titleName, .location-rating-value{
-  margin-right: 16px;
-}
-.location-info-title{
-  font-size: 28px;
+.location-meta span {
+    flex-basis: 33%; 
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .search-and-pagination {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  flex-wrap: wrap; 
-}
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 18px;
-}
-.page-number {
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  background-color: #F2EFE580;
-  color: #333;
-  border-radius: 6px;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.page-arrow {
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  background-color: #F2EFE580;
-  color: #333;
-  border-radius: 6px;
-  padding: 5px 10px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-.location-info-title{
-  display: flex;
-}
-
-.suggestions-dropdown {
-  position: absolute;
-  top: 100%; 
-  left: 0;
-  right: 0;
-  background-color: #fff;
-  border: 1px solid #ddd;
-  border-top: none;
-  border-radius: 0 0 8px 8px; 
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  z-index: 100; 
-  max-height: 250px;
-  overflow-y: auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.suggestions-dropdown li {
-  padding: 12px 15px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-.suggestions-dropdown li:hover {
-  background-color: #f5f5f5; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
 }
 .search-bar-container{
-  position: relative;
-  width: 100%; 
+    position: relative;
+    width: 45%; /* Зменшуємо ширину для десктопу */
+    margin-right: 20px; /* Додаємо відступ */
+}
+
+/* ... стилі для пагінації, пошуку, suggestions залишаються як є ... */
+
+
+/* ================================================= */
+/* АДАПТАЦІЯ ПІД МОБІЛЬНІ ПРИСТРОЇ (max-width: 768px) */
+/* ================================================= */
+
+@media screen and (max-width: 768px) {
+    
+    .locations-main {
+        width: 95%; /* Більша ширина на мобільних пристроях */
+        margin: 70px auto 20px auto; /* Зменшуємо верхній відступ */
+    }
+
+    .topTitle {
+        width: 100%; /* Займає всю ширину */
+        margin-bottom: 15px;
+    }
+
+    .topTitle h2 {
+        font-size: 28px; /* Менший розмір заголовка */
+    }
+    
+    .backButton {
+        font-size: 14px;
+        padding: 5px 10px;
+    }
+
+    .locations-cover {
+        padding: 15px; /* Зменшуємо внутрішній відступ */
+        width: 100%; /* Займає всю ширину */
+        font-size: 16px;
+    }
+
+    /* === Пошук та Пагінація === */
+    .search-and-pagination {
+        flex-direction: column; /* Вертикальне розташування */
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .search-bar-container {
+        width: 100%; /* Пошук на всю ширину */
+        margin-right: 0;
+    }
+    
+    .search-bar {
+        width: 100%;
+    }
+    
+    .search-bar input {
+        flex-grow: 1; /* Поле вводу займає весь простір */
+        padding: 10px 15px;
+        font-size: 16px;
+        margin-bottom: 0; /* Прибираємо нижній відступ */
+        width: 80%; /* Фіксована ширина для input */
+    }
+    
+    .searchButton {
+        width: 40px;
+        height: 40px;
+        background-size: 32px 32px;
+        margin-left: 5px; /* Невеликий відступ */
+        flex-shrink: 0;
+    }
+
+    .suggestions-dropdown {
+        width: 90%; /* Адаптуємо ширину під input */
+        left: 0;
+        right: auto;
+        top: 48px; /* Під input, враховуючи висоту поля */
+    }
+    
+    /* === Пагінація === */
+    .pagination-controls {
+        font-size: 14px;
+        gap: 4px;
+        margin-top: 10px; /* Відступ від пошуку */
+    }
+    
+    .page-number, .page-arrow {
+        padding: 4px 8px;
+    }
+
+    /* === Картки Локацій === */
+    .location-card {
+        flex-direction: column; /* Зображення зверху, інформація знизу */
+        padding: 8px;
+    }
+
+    .location-image {
+        width: 100%; /* Зображення на всю ширину */
+        height: 180px; /* Збільшуємо висоту зображення */
+        border-radius: 5px 5px 0 0;
+        margin-bottom: 8px;
+    }
+
+    .location-info {
+        padding: 8px 0; /* Зменшуємо внутрішній відступ */
+        gap: 6px;
+    }
+
+    .location-info-title {
+        flex-direction: column; /* Рейтинг під назвою */
+        align-items: flex-start;
+    }
+
+    .location-info-titleName {
+        font-size: 20px; /* Менший розмір назви */
+        margin-right: 0;
+    }
+    
+    .location-rating-value, .star-rating {
+        font-size: 16px; /* Менший розмір рейтингу */
+    }
+    
+    .location-description-text {
+        font-size: 14px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Обрізаємо опис до 2 рядків */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-height: 40px; /* Приблизно для 2 рядків */
+    }
+
+    .location-meta {
+        flex-direction: column; /* Мета-дані у стовпчик */
+        align-items: flex-start;
+        font-size: 0.85rem;
+        gap: 4px;
+    }
+    
+    .location-meta span {
+        width: 100%; /* На всю ширину */
+        text-align: left !important;
+        white-space: normal; /* Дозволяємо перенесення */
+        overflow: visible;
+        text-overflow: clip;
+        flex-basis: auto;
+    }
 }

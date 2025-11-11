@@ -3,6 +3,16 @@ import { UserService } from "../services/users.service.js";
 import { User } from "../models/users.model.js";
 import { LocationsService } from "../services/locations.service.js";
 
+export async function getAllUsers(req: Request, res: Response) {
+  try {
+    const users = await UserService.getAllUsers();
+    res.status(200).json(users);
+  } catch (error: any) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+}
+
 export async function registerUser(req: Request, res: Response) {
     const { email, nickname, password } = req.body;
 
