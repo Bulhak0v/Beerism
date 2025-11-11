@@ -52,3 +52,17 @@ export async function updateLocation(req: Request, res: Response) {
     }
 }
 
+export async function getLocationById(req: Request, res: Response) {
+    const locationId = Number(req.params.id);
+    try {
+        const location = await LocationsService.findLocationById(locationId);
+        res.status(200).json(location);
+    } catch (error: any) {
+        console.error("Error occured while fetching location by ID:", error);
+        if (error.message == "Location not found") {
+            return res.status(404).json({ message: error.message });
+        }      
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
