@@ -4,82 +4,97 @@ import { useNavigate } from "react-router-dom";
 import '../styles/locations.css';
 import { useAuth } from "../components/authProvider"; 
 
+const FALLBACK_PICTURES = [
+  "/beer1.jpg",
+  "/beer2.svg",
+  "/beer3.jpg",
+  "/beer4.jpg",
+  "/beer5.jpg"
+];
+
 const LocationsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [cityList, setCityList] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by this browser.");
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserLocation({ latitude, longitude });
-      },
-      (err) => {
-        setError(err.message);
-        setLoading(false);
-      }
-    );
-  }, []);
-  
-    useEffect(() => {
-    const fetchRecommendations = async () => {
-      if (!user || !userLocation) return;
-
+    const fetchCities = async () => {
       try {
-        const geoRes = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${userLocation.latitude}&lon=${userLocation.longitude}&zoom=10&addressdetails=1`,
-          { headers: { "User-Agent": "beerism-app" } }
-        );
-        const geoData = await geoRes.json();
-        const city =
-          geoData.address?.city ||
-          geoData.address?.town ||
-          geoData.address?.village ||
-          geoData.address?.county ||
-          "Unknown";
-
-        const res = await fetch(
-          `https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user.user_id}&city=${encodeURIComponent(
-            city
-          )}`
-        );
-
+        const res = await fetch(`https://beerism-backend.onrender.com/api/locations/cities`);
         if (!res.ok) {
-          throw new Error(`Failed to fetch recommendations: ${res.statusText}`);
+          throw new Error('Failed to fetch cities');
         }
-
-        const data = await res.json();
-        setLocations(data);
+        const cities: string[] = await res.json();
+        setCityList(cities);
       } catch (err: any) {
-        setError(err.message || "Error fetching recommendations");
-      } finally {
-        setLoading(false);
+        console.error("Error fetching city list:", err.message);
       }
     };
 
-    fetchRecommendations();
-  }, [userLocation, user]);
+    fetchCities();
+  }, []);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+    const value = e.target.value;
+    setSearchTerm(value);
 
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-    
+    if (value.length > 0) {
+      // Filter the cityList based on the input
+      const filteredSuggestions = cityList.filter(city =>
+        city.toLowerCase().startsWith(value.toLowerCase())
+      );
+      setSuggestions(filteredSuggestions);
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
 
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
-        setSearchTerm(e.target.value);
-        setCurrentPage(1); 
+  const handleSuggestionClick = (city: string) => {
+    setSearchTerm(city);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleSearch = async () => {
+    setSuggestions([]);
+    setShowSuggestions(false);
+    if (user && searchTerm) {
+      try {
+        const res = await fetch(
+          `https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user.user_id}&city=${encodeURIComponent(
+            searchTerm 
+          )}`
+        );
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch recommendations: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        setLocations(data);
+        setCurrentPage(1);
+        
+      } catch (err: any) {
+        setError(err.message || "Error fetching recommendations");
+      }
+    }
   };
+
+  const paginatedLocations = locations.slice(
+      (currentPage - 1) * itemsPerPage, 
+      currentPage * itemsPerPage
+  );
+
 
   return (
     <>
@@ -98,9 +113,21 @@ const LocationsPage: React.FC = () => {
                   placeholder="Search (name, city, rating...)"
                   value={searchTerm}
                   onChange={handleSearchChange}
+                  autoComplete="off"
                 /> 
-                <button className="searchButton"></button>
+                <button onClick={handleSearch} className="searchButton"></button>
+                 {showSuggestions && suggestions.length > 0 && (
+                  <ul className="suggestions-dropdown">
+                    {suggestions.map((city) => (
+                      <li key={city} onClick={() => handleSuggestionClick(city)}>
+                        {city}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
+
+             
 
               <PaginationControls
                 currentPage={currentPage}
@@ -110,15 +137,24 @@ const LocationsPage: React.FC = () => {
             </div>
             
             <div className="locations-card">
-                {locations.map(location => (
-                    <LocationCard 
-                      key={location.location_id} 
-                      location={location} 
-                      onClick={(location) => navigate(`/locationDetails/${location.location_id}`, { state: { location } })} 
-                    />
+            {paginatedLocations.map(location => {
+              
+              let displayPicture = location.picture;
 
-                ))}
-            </div>
+              if (!displayPicture) {
+                const pictureIndex = (location.location_id - 1) % FALLBACK_PICTURES.length;
+                location.picture = FALLBACK_PICTURES[pictureIndex];
+              }
+
+              return (
+                <LocationCard 
+                  key={location.location_id} 
+                  location={location} 
+                  onClick={(location) => navigate(`/locationDetails/${location.location_id}`)} 
+                />
+              );
+            })}
+          </div>
         </div>
          
       </div>
@@ -141,13 +177,13 @@ interface Location {
     closes_at: string | null;
     latitude: number;
     longtitude: number;
+    picture: string;
 }
 
 interface LocationCardProps {
   location: Location;
   onClick?: (location: Location) => void;
 }
-
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
@@ -170,7 +206,7 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 const LocationCard: React.FC<LocationCardProps> = ({ location, onClick }) => {
   return (
     <div className="location-card"  onClick={() => onClick && onClick(location)}>
-      <img src="/placeholder-image.png" className="location-image" />
+      <img src={location.picture} className="location-image" />
       <div className="location-info">
         <div className="location-info-title">
           <div className="location-info-titleName">{location.name}</div>
@@ -220,7 +256,7 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({ currentPage, to
     }
 
     if (currentPage < totalPages - 2) {
-      pageNumbers.push(-1); // "..."
+      pageNumbers.push(-1); 
     }
     pageNumbers.push(totalPages);
   }

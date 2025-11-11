@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import LogoHeader from "../components/logoHeader";
 import "../styles/locationDetails.css";
 
@@ -16,12 +16,37 @@ interface Location {
   closes_at: string | null;
   latitude: number;
   longtitude: number;
+  picture: string;
 }
 
 const LocationDetailsPage: React.FC = () => {
   const navigate = useNavigate();
-  const { state } = useLocation();
-  const { location } = state || {};
+  const { id } = useParams();
+  const [location, setLocation] = useState<Location | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    const fetchLocationDetails = async () => {
+      if (!id) return; 
+
+      try {
+        const res = await fetch(
+          `https://beerism-backend.onrender.com/api/locations/${id}`
+        );
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch location: ${res.statusText}`);
+        }
+        
+        const data: Location = await res.json();
+        setLocation(data);
+      } catch (err: any) {
+        setError(err.message);
+      } 
+    };
+
+    fetchLocationDetails();
+  }, [id]);
+
   const [activeTab, setActiveTab] = useState<"info" | "reviews">("info");
 
   if (!location) {
@@ -30,9 +55,8 @@ const LocationDetailsPage: React.FC = () => {
         <LogoHeader />
         <div className="locationDetails-main">
           <div className="locations-cover">
-            <p>No location data available.</p>
                 <div className="topTitle">
-                    <h2>Location: {location.name}</h2>
+                    <h2>No location data available.</h2>
                     <button className="backButton" onClick={() => navigate("/locations")}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
                 </div>
           </div>
@@ -51,7 +75,7 @@ const LocationDetailsPage: React.FC = () => {
         </div>
         <div className="details-card">
           <img
-            src="/bar.svg"
+            src={location.picture}
             alt={location.name}
             className="details-image"
           />

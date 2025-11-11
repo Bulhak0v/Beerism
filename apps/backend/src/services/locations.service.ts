@@ -56,6 +56,15 @@ export const LocationsService = {
         return result.rows[0] || null;
     },
 
+    async getAllCities(): Promise<string[]> {
+        const result = await db.query(
+            "SELECT DISTINCT city FROM locations WHERE city IS NOT NULL;"
+        );
+
+        const uniqueCities = result.rows.map(item => item.city as string);
+        return uniqueCities;
+    },
+
     async getRecommendedLocations(user_id: number, city: string): Promise<Location[]> {
         const user = await UserService.getUserById(user_id);
         if (!user) {
@@ -99,3 +108,4 @@ export const LocationsService = {
         return scored.map(s => s.loc);
     }
 };
+
