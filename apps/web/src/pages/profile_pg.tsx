@@ -33,29 +33,29 @@ const ProfilePage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState("Profile"); 
   useEffect(() => {
-    if (user) {
-      setNickname(user.nickname || "");
-      setBio(user.bio || "");
+    if (user) {
+      setNickname(user.nickname || "");
+      setBio(user.bio || "");
 
-      setAvatarPreview(user.profile_picture || avatarPlaceholder); 
+      setAvatarPreview(user.profile_picture || avatarPlaceholder);
 
-      const beer = user.preferred_beer_style_id
-        ? user.preferred_beer_style_id.toString()
-        : "";
-      const bud = user.preferred_budget_range || "";
-      const bar = user.preferred_venue_atmosphere || "";
+      const beer = user.preferred_beer_style_id
+        ? user.preferred_beer_style_id.toString()
+        : "";
+      const bud = user.preferred_budget_range || "";
+      const bar = user.preferred_venue_atmosphere || "";
 
-      setFavoriteBeer(beer);
-      setBudget(bud);
-      setFavoriteBarStyle(bar);
+      setFavoriteBeer(beer);
+      setBudget(bud);
+      setFavoriteBarStyle(bar);
 
-      setInitialPrefs({
-        favoriteBeer: beer,
-        budget: bud,
-        favoriteBarStyle: bar,
-      });
-    }
-  }, [user, setUser]); 
+      setInitialPrefs({
+        favoriteBeer: beer,
+        budget: bud,
+        favoriteBarStyle: bar,
+      });
+    }
+  }, [user, setUser]); 
 
 
   const handleSaveProfile = async () => {
@@ -95,7 +95,7 @@ const ProfilePage: React.FC = () => {
     let updatedUser = { ...user };
 
     try {
-      const resProfile = await fetch("http://localhost:4000/api/users/edit", {
+      const resProfile = await fetch(`https://beerism-backend.onrender.com/api/users/edit`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -129,7 +129,7 @@ const ProfilePage: React.FC = () => {
     };
 
       try {
-        const resPref = await fetch("http://localhost:4000/api/users/edit/preferences", {
+        const resPref = await fetch(`https://beerism-backend.onrender.com/api/users/edit/preferences`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ user_id: user.user_id, ...prefData }),

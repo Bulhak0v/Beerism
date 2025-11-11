@@ -69,7 +69,7 @@ const RegistrationForm: React.FC = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:4000/api/users/register", {
+      const res = await fetch(`https://beerism-backend.onrender.com/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -106,7 +106,7 @@ const RegistrationForm: React.FC = () => {
     setError("");
     
     try {
-      const res = await fetch("http://localhost:4000/api/users/login", {
+      const res = await fetch(`https://beerism-backend.onrender.com/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -129,6 +129,26 @@ const RegistrationForm: React.FC = () => {
 
       console.log("Loged in user:", data.user);
       setUser(data.user);
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const coords = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude
+            };
+            sessionStorage.setItem("user_location", JSON.stringify(coords));
+            console.log("User location saved:", coords);
+          },
+          (error) => {
+            console.warn("Geolocation error:", error.message);
+          }
+        );
+      } else {
+        console.warn("Geolocation not supported by this browser.");
+      }
+
+      
       navigate("/profile");
 
     } catch (err: any) {
@@ -147,7 +167,7 @@ const RegistrationForm: React.FC = () => {
       const nickname = decoded.name || decoded.given_name || email.split("@")[0];
       const idToken = credentialResponse.credential;
 
-      let res = await fetch("http://localhost:4000/api/users/login", {
+      let res = await fetch(`https://beerism-backend.onrender.com/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -160,7 +180,7 @@ const RegistrationForm: React.FC = () => {
 
     if (!res.ok) {
       console.log("User not found, registering new Google user...");
-      res = await fetch("http://localhost:4000/api/users/register", {
+      res = await fetch(`https://beerism-backend.onrender.com/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
