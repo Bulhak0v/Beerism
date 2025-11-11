@@ -66,3 +66,18 @@ export async function getLocationById(req: Request, res: Response) {
     }
 }
 
+export async function getRecommendedLocations(req: Request, res: Response) {
+    const userId = Number(req.params.user_id);
+    const city = req.query.city as string;
+    try {
+        const locations = await LocationsService.getRecommendedLocations(userId, city);
+        res.status(200).json(locations);
+    } catch (error: any) {
+        console.error("Error occured while fetching recommended locations:", error);
+        if (error.message == "User not found") {
+            return res.status(404).json({ message: error.message });
+        }
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
