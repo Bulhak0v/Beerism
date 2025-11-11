@@ -48,7 +48,7 @@ const RegistrationForm: React.FC = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/api/users/register`, {
+      const res = await fetch(`https://beerism-backend.onrender.com/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -85,7 +85,7 @@ const RegistrationForm: React.FC = () => {
     setError("");
     
     try {
-      const res = await fetch(`http://localhost:4000/api/users/login`, {
+      const res = await fetch(`https://beerism-backend.onrender.com/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -145,7 +145,7 @@ const RegistrationForm: React.FC = () => {
 
   try {
     
-    const res = await fetch("http://localhost:4000/api/users/google", {
+    const res = await fetch("https://beerism-backend.onrender.com/api/users/google", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }), 
