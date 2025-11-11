@@ -52,6 +52,16 @@ export async function updateLocation(req: Request, res: Response) {
     }
 }
 
+export async function getAllCities(req: Request, res: Response) { 
+    try {
+        const cities = await LocationsService.getAllCities();  
+        res.status(200).json(cities);
+    } catch (error: any) {
+        console.error("Error occured while fetching cities:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export async function getLocationById(req: Request, res: Response) {
     const locationId = Number(req.params.id);
     try {
