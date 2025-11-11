@@ -234,3 +234,20 @@ export async function getRecommendedLocations(req: Request, res: Response) {
     return res.status(500).json({ message: "An error occurred while fetching recommendations." });
   }
 }
+
+export async function googleAuth(req: Request, res: Response) {
+  try {
+    const { token } = req.body;
+    if (!token) {
+      return res.status(400).json({ message: "Missing Google token." });
+    }
+
+    const user = await UserService.googleAuth(token);
+    res.status(200).json({ user });
+  } catch (err: any) {
+    console.error("Google Auth failed:", err);
+    res
+      .status(401)
+      .json({ message: err.message || "Google authentication failed" });
+  }
+}

@@ -2,6 +2,9 @@
 import { db } from "../config/db.js";
 import { User } from "../models/users.model.js";
 import bcrypt from "bcrypt";
+import { OAuth2Client } from "google-auth-library";
+import crypto from "crypto";
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const UserService = {
     async getUser(email: string): Promise<User | null> {
@@ -30,6 +33,38 @@ export const UserService = {
         );
 
         return result.rows[0];
+    },
+
+    async googleAuth(idToken: string): Promise<User> {
+        const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+        });
+
+        const payload = ticket.getPayload();
+        if (!payload || !payload.email) throw new Error("Invalid Google token");
+
+        const email = payload.email;
+        const nickname = payload.name || payload.given_name || email.split("@")[0];
+
+        let user = await this.getUser(email);
+
+        if (!user) {
+        const randomPassword = crypto.randomBytes(32).toString("hex"); 
+        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+
+        const result = await db.query<User>(
+            `
+            INSERT INTO users (email, nickname, password, auth_provider, created_at)
+            VALUES ($1, $2, $3, $4, NOW())
+            RETURNING *;
+            `,
+            [email, nickname, hashedPassword, "google"]
+        );
+        user = result.rows[0];
+        }
+
+        return user;
     },
 
     async loginUser(email: string, password: string): Promise<User> {

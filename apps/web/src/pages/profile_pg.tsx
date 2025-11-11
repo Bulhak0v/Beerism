@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"; 
 import avatarPlaceholder from "/avatar_placeholder.png"; 
 import '../styles/profile.css';
-import logo from "/logo.svg";
+import LogoHeader from "../components/logoHeader";
 import { useNavigate } from "react-router-dom";
 import { useAuth, User } from "../components/authProvider"; 
 
@@ -145,7 +145,18 @@ const ProfilePage: React.FC = () => {
     alert("Profile saved!");
   };
 
- 
+  const tabs = [
+    { name: "Profile", path: "/profile" },
+    { name: "Locations", path: "/locations" },
+    { name: "Security", path: "/profile" },
+    { name: "Notifications", path: "/profile" },
+    { name: "Privacy", path: "/profile" },
+  ];
+
+  const handleTabClick = (tabName: string, path: string) => {
+    setActiveTab(tabName);
+    navigate(path); 
+  };
   return (
     <>
     <LogoHeader />
@@ -158,18 +169,30 @@ const ProfilePage: React.FC = () => {
      
              <div className="profile-settings">
                 <ul>
-                  {["Profile", "Security", "Notifications", "Privacy"].map((tab) => (
-                    <li
-                      key={tab}
-                      className={activeTab === tab ? "active" : ""}
-                      onClick={() => setActiveTab(tab)}
-                    >
-                      {tab} <span>
-                        <img src={`/profileIcons/${tab === "Profile" ? "User" : tab === "Security" ? "Lock" : tab === "Notifications" ? "Bell" : "Eye"}.png`} />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+        {tabs.map((tab) => (
+          <li
+            key={tab.name}
+            className={activeTab === tab.name ? "active" : ""}
+            onClick={() => handleTabClick(tab.name, tab.path)}
+          >
+            {tab.name}{" "}
+            <span>
+              <img
+                src={`/profileIcons/${
+                  tab.name === "Profile"
+                    ? "User"
+                    : tab.name === "Security"
+                    ? "Lock"
+                    : tab.name === "Notifications"
+                    ? "Bell"
+                    : "Eye"
+                }.png`}
+                alt={tab.name}
+              />
+            </span>
+          </li>
+        ))}
+      </ul>
               </div>
          </div>
 
@@ -269,17 +292,3 @@ const ProfilePage: React.FC = () => {
 
 export default ProfilePage;
 
-const LogoHeader: React.FC = () => {
-  const navigate = useNavigate();
-
-  return(
-        <div
-        className="logo-header"
-        onClick={() => navigate("/auth")}
-        style={{ cursor: "pointer" }}
-      >
-          <img src={logo} className="logo" />
-          <h1 className="title">Beerism</h1>
-    </div>
-  );
-};

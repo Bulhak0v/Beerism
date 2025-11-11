@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import logo from "/logo.svg";
+import LogoHeader from "../components/logoHeader";
 import CustomSlider from "../components/slider";
 import { GoogleLogin } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../components/authProvider";
 
@@ -20,26 +19,6 @@ const SliderSection: React.FC = () => {
           <img key={index} src={image.imgURL} alt={image.imgAlt} />
         ))}
       </CustomSlider>
-    </div>
-  );
-};
-
-
-const LogoHeader: React.FC = () => {
-  const navigate = useNavigate();
-  
-  return(
-       <div
-        className="logo-header"
-        onClick={() => navigate("/auth")}
-        >
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img src={logo} className="logo" />
-          </a>
-          <h1 className="title">Beerism</h1>
     </div>
   );
 };
@@ -158,53 +137,42 @@ const RegistrationForm: React.FC = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
+  const token = credentialResponse.credential;
+  if (!token) {
+    console.warn("No Google credential found");
+    return;
+  }
 
-  if (credentialResponse.credential) {
+  try {
+    
+    const res = await fetch("https://beerism-backend.onrender.com/api/users/google", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }), 
+    });
+
+    let data: any = {};
     try {
-      const decoded: any = jwtDecode(credentialResponse.credential);
-
-      const email = decoded.email;
-      const nickname = decoded.name || decoded.given_name || email.split("@")[0];
-      const idToken = credentialResponse.credential;
-
-      let res = await fetch(`https://beerism-backend.onrender.com/api/users/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password: idToken,
-        }),
-      });
-
-       let data: any = await res.json();
+      data = await res.json();
+    } catch {
+      console.log("Empty or invalid JSON response from server");
+    }
 
     if (!res.ok) {
-      console.log("User not found, registering new Google user...");
-      res = await fetch(`https://beerism-backend.onrender.com/api/users/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          nickname,
-          password: idToken, 
-        }),
-      });
-      data = await res.json();
+      throw new Error(data?.message || "Google authentication failed");
     }
 
-    if (!res.ok) throw new Error(data.message || "Google authentication failed");
-
-    setUser(data.user || data);
-    localStorage.setItem("user", JSON.stringify(data.user || data));
+    console.log("Google user:", data.user);
+    setUser(data.user);
+    localStorage.setItem("user", JSON.stringify(data.user));
 
     navigate("/profile");
-    } catch (error) {
-      console.error("JWT decode failed:", error);
-    }
-    } else {
-      console.warn("No credential found in Google response");
-    }
-  };
+  } catch (err: any) {
+    console.error("Google login error:", err);
+    setError(err.message);
+  }
+};
+
   const handleGoogleError = () => {
     console.log("Google Sign In Failed");
   };
@@ -345,3 +313,7 @@ const AuthPage: React.FC = () => {
 };
 
 export default AuthPage;
+function jwtDecode(credential: any): any {
+  throw new Error("Function not implemented.");
+}
+

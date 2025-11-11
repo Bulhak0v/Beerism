@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "/logo.svg";
+import LogoHeader from "../components/logoHeader";
 import CustomSlider from "../components/slider";
 import { useNavigate } from "react-router-dom";
 
@@ -17,25 +17,6 @@ const SliderSection: React.FC = () => {
           <img key={index} src={image.imgURL} alt={image.imgAlt} />
         ))}
       </CustomSlider>
-    </div>
-  );
-};
-
-const LogoHeader: React.FC = () => {
-  const navigate = useNavigate();
-  
-  return(
-       <div
-        className="logo-header"
-        onClick={() => navigate("/auth")}
-        >
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <img src={logo} className="logo" />
-          </a>
-          <h1 className="title">Beerism</h1>
     </div>
   );
 };
