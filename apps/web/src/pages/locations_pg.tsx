@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect, useCallback } from "react";
 import LogoHeader from "../components/logoHeader";
 import { useNavigate } from "react-router-dom";
 import '../styles/locations.css';
@@ -25,6 +25,24 @@ const LocationsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
+  const fetchAllLocations = useCallback(async () => {
+    try {
+      const res = await fetch(`https://beerism-backend.onrender.com/api/locations`);
+      if (!res.ok) {
+        throw new Error('Failed to fetch locations');
+      }
+      const data = await res.json();
+      setLocations(data);
+      setCurrentPage(1); 
+    } catch (err: any) {
+      setError(err.message || "Error fetching locations");
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAllLocations();
+  }, [fetchAllLocations]);
+
   useEffect(() => {
     const fetchCities = async () => {
       try {
@@ -47,7 +65,6 @@ const LocationsPage: React.FC = () => {
     setSearchTerm(value);
 
     if (value.length > 0) {
-      // Filter the cityList based on the input
       const filteredSuggestions = cityList.filter(city =>
         city.toLowerCase().startsWith(value.toLowerCase())
       );
@@ -88,6 +105,9 @@ const LocationsPage: React.FC = () => {
         setError(err.message || "Error fetching recommendations");
       }
     }
+    else{
+      fetchAllLocations();
+    }
   };
 
   const paginatedLocations = locations.slice(
@@ -138,14 +158,7 @@ const LocationsPage: React.FC = () => {
             
             <div className="locations-card">
             {paginatedLocations.map(location => {
-              
-              let displayPicture = location.picture;
-
-              if (!displayPicture) {
-                const pictureIndex = (location.location_id - 1) % FALLBACK_PICTURES.length;
-                location.picture = FALLBACK_PICTURES[pictureIndex];
-              }
-
+          
               return (
                 <LocationCard 
                   key={location.location_id} 
@@ -177,7 +190,7 @@ interface Location {
     closes_at: string | null;
     latitude: number;
     longtitude: number;
-    picture: string;
+    picture: string | null;
 }
 
 interface LocationCardProps {
@@ -204,9 +217,16 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 const LocationCard: React.FC<LocationCardProps> = ({ location, onClick }) => {
+  let displayPicture = location.picture; 
+
+  if (!displayPicture) {
+    const pictureIndex = (location.location_id - 1) % FALLBACK_PICTURES.length;
+    displayPicture = FALLBACK_PICTURES[pictureIndex];
+  }
+
   return (
     <div className="location-card"  onClick={() => onClick && onClick(location)}>
-      <img src={location.picture} className="location-image" />
+      <img src={displayPicture} className="location-image" />
       <div className="location-info">
         <div className="location-info-title">
           <div className="location-info-titleName">{location.name}</div>

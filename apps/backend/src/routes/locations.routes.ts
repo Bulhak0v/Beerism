@@ -7,9 +7,8 @@ router.get("/", getLocations);
 router.delete("/:id", deleteLocation);
 router.post("/", addLocation);
 router.put("/:id", updateLocation);
-router.get("/:id", getLocationById);
 router.get("/recommendations/byCity", getRecommendedLocations);
-router.get("/:id", getLocationById);
 router.get("/cities", getAllCities);
+router.get("/:id", getLocationById);
 
 export default router;
