@@ -12,7 +12,7 @@ router.patch("/edit/preferences", editUserPreference);
 
 router.post("/add", addUser);
 router.put("/update/:id", updateUser);
-router.delete("/delete", deleteUser);
+router.delete("/:id", deleteUser);
 
 // router.get("/recommendations/:id", getRecommendedLocations);
 router.get("/all", getAllUsers);
