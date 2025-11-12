@@ -1,35 +1,125 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Location } from "../../../../shared/types/locations.model";
 import '../styles/admin.css';
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../components/authProvider";
 
 export default function AdminPage() {
+    const navigate = useNavigate();
     const [data, setData] = useState<Location[]>([]);
+    const { user } = useAuth();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [formData, setFormData] = useState<Partial<Location>>({});
     const [editingLocationId, setEditingLocationId] = useState<number | null>(null);
+    const [selectedLocationId, setSelectedLocationId] = useState<number | null>(null);
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [cityList, setCityList] = useState<string[]>([]);
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+
+    const fetchAllLocations = useCallback(async () => {
+          try {
+            const res = await fetch(`https://beerism-backend.onrender.com/api/locations`);
+            if (!res.ok) {
+              throw new Error('Failed to fetch locations');
+            }
+            const data = await res.json();
+               setData(data);
+          } catch (err: any) {
+            console.error("Error fetching recommendations");
+          }
+        }, []);
+        
+    useEffect(() => {
+        fetchAllLocations();
+      }, [fetchAllLocations]);
 
     useEffect(() => {
-        async function getData() {
-            try {
-                const response = await fetch(`https://beerism-backend.onrender.com/api/locations`);
-                const answer: Location[] = await response.json();
-                setData(answer);
-            } catch (err) {
-                console.error("Failed to fetch locations:", err);
+        const fetchCities = async () => {
+          try {
+            const res = await fetch(`https://beerism-backend.onrender.com/api/locations/cities`);
+            if (!res.ok) {
+              throw new Error('Failed to fetch cities');
             }
+            const cities: string[] = await res.json();
+            setCityList(cities);
+          } catch (err: any) {
+            console.error("Error fetching city list:", err.message);
+          }
+        };
+    
+        fetchCities();
+      }, []);
+    
+      const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+        const value = e.target.value;
+        setSearchTerm(value);
+    
+        if (value.length > 0) {
+          const filteredSuggestions = cityList.filter(city =>
+            city.toLowerCase().startsWith(value.toLowerCase())
+          );
+          setSuggestions(filteredSuggestions);
+          setShowSuggestions(true);
+        } else {
+          setSuggestions([]);
+          setShowSuggestions(false);
         }
-        getData();
-    }, []);
+      };
+    
+      const handleSuggestionClick = (city: string) => {
+        setSearchTerm(city);
+        setSuggestions([]);
+        setShowSuggestions(false);
+      };
+    
+      
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+      const handleSearch = async () => {
+        setSuggestions([]);
+        setShowSuggestions(false);
+        if (searchTerm) {
+          try {
+            const res = await fetch(
+              `https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}&city=${encodeURIComponent(
+                searchTerm 
+              )}`
+            );
+    
+            if (!res.ok) {
+              throw new Error(`Failed to fetch recommendations: ${res.statusText}`);
+            }
+    
+            const data = await res.json();
+            setData(data);
+            
+          } catch (err: any) {
+            console.error("Error fetching recommendations");
+          }
+        }
+        else{
+          fetchAllLocations();
+        }
+      };
+
+    const handleAddClick = () => {
+        setEditingLocationId(null);
+        setFormData({});
+        setSelectedLocationId(null); 
+        setIsModalOpen(true);
     };
 
     const handleAddOrEditLocation = async () => {
+    
         try {
+            const dataToSend = {
+                ...formData,
+                rating: formData.rating ? parseFloat(formData.rating as unknown as string) : null,
+                latitude: formData.latitude ? parseFloat(formData.latitude as unknown as string) : null,
+                longtitude: formData.longtitude ? parseFloat(formData.longtitude as unknown as string) : null,
+            };
+
             const method = editingLocationId ? "PUT" : "POST";
             const url = editingLocationId
                 ? `https://beerism-backend.onrender.com/api/locations/${editingLocationId}`
@@ -38,19 +128,15 @@ export default function AdminPage() {
             const response = await fetch(url, {
                 method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(dataToSend)
             });
 
-            // Check for response status first
             if (!response.ok) {
-                // Fetch the error body (which could be JSON or text)
-                // For simplicity, let's stick to text for the error console.
                 const errorText = await response.text(); 
                 console.error("Failed to add/update location:", errorText);
                 return;
             }
 
-            // For a successful response (response.ok is true), use .json()
             const result = await response.json(); 
 
             if (editingLocationId) {
@@ -68,10 +154,22 @@ export default function AdminPage() {
         }
     };
 
-    const handleEditClick = (location: Location) => {
+    const handleEdit = (location: Location) => {
         setFormData(location);
         setEditingLocationId(location.location_id);
         setIsModalOpen(true);
+    };
+
+    const handleEditBottomClick = () => {
+        if (!selectedLocationId) {
+            alert("Please select a location to edit.");
+            return;
+        }
+        const locationToEdit = data.find(item => item.location_id === selectedLocationId);
+        
+        if (locationToEdit) {
+            handleEdit(locationToEdit);
+        }
     };
 
     const handleDeleteClick = async (id: number) => {
@@ -95,7 +193,7 @@ export default function AdminPage() {
 
     const tableHeaders = [
         "ID", "Name", "Description", "City", "Address", "Website",
-        "Rating", "Budget Range", "Opens At", "Closes At", "Latitude", "Longitude", "Actions"
+        "Rating", "Budget Range", "Opens At", "Closes At", "Latitude", "Longitude"
     ];
 
     return (
@@ -107,18 +205,33 @@ export default function AdminPage() {
             <div className="container">
                 <h1 className="admin-title">Location list</h1>
                 <div className="admin-top-buttons">
-                    <form className="search-form">
-                        <input type="text" placeholder="Search (name, city, rating...)" />
-                        <div className="search-buttons">
-                            <button className="search"><img src="adminIcons/search.svg" alt="search" /></button>
-                            <button className="denie"><img src="adminIcons/denie.svg" alt="denie" /></button>
+                    <div className="search-bar-container">
+                        <div className="search-bar"> 
+                        <input
+                            type="text"
+                            placeholder="Search (name, city, rating...)"
+                            value={searchTerm}
+                            onChange={handleSearchChange}
+                            autoComplete="off"
+                        /> 
+                        <button onClick={handleSearch} className="searchButton"></button>
+                        
                         </div>
-                    </form>
-                    <BackButton />
+                        {showSuggestions && suggestions.length > 0 && (
+                            <ul className="suggestions-dropdown">
+                            {suggestions.map((city) => (
+                                <li key={city} onClick={() => handleSuggestionClick(city)}>
+                                {city}
+                                </li>
+                            ))}
+                            </ul>
+                        )}
+                    </div>
+                    <button className="backButton" onClick={() => navigate("/profile")}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
                 </div>
 
-                <div style={{ width: "100%", overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #ccc", borderRadius: "10px", overflow: "hidden", textAlign: "center" }}>
+                <div style={{ width: "100%" }}>
+                    <table style={{ width: "100%", border: "1px solid #ccc", borderRadius: "10px", overflow: "hidden", textAlign: "center" }}>
                         <thead>
                             <tr style={{ backgroundColor: "#ffffff" }}>
                                 {tableHeaders.map((header, index) => (
@@ -139,7 +252,10 @@ export default function AdminPage() {
                         </thead>
                         <tbody>
                             {data.map((item, idx) => (
-                                <tr key={item.location_id} style={{ backgroundColor: idx % 2 === 0 ? "#F2EFE5" : "#ffffff", fontSize: "16px" }}>
+                                <tr key={item.location_id}
+                                 className={`admin-row ${selectedLocationId === item.location_id ? 'selected-row' : ''}`}
+                                 onClick={() => setSelectedLocationId(item.location_id)}
+                                 style={{ backgroundColor: idx % 2 === 0 ? "#F2EFE5" : "#ffffff", fontSize: "16px" }}>
                                     <td>{item.location_id}</td>
                                     <td>{item.name}</td>
                                     <td>{item.description}</td>
@@ -152,12 +268,7 @@ export default function AdminPage() {
                                     <td>{item.closes_at}</td>
                                     <td>{item.latitude}</td>
                                     <td>{item.longtitude}</td>
-                                    <td>
-                                        <div style={{display: "flex", gap: "10px"}}>
-                                          <button onClick={() => handleEditClick(item)}>Edit</button>
-                                          <button onClick={() => handleDeleteClick(item.location_id)}>Delete</button>
-                                        </div>
-                                    </td>
+                                   
                                 </tr>
                             ))}
                         </tbody>
@@ -165,7 +276,15 @@ export default function AdminPage() {
                 </div>
 
                 <div className="admin-bottom-buttons">
-                    <button className="admin-button admin-button-add" onClick={() => setIsModalOpen(true)}>Add</button>
+                    <button className="admin-button admin-button-add" onClick={handleAddClick}>Add</button>
+                     <button className="admin-button admin-button-edit" onClick={handleEditBottomClick}>Edit</button>
+                      <button className="admin-button admin-button-delete" onClick={() => {
+                        if (selectedLocationId) {
+                            handleDeleteClick(selectedLocationId);
+                        } else {
+                            alert("Please select a location to delete.");
+                        }
+                    }} >Delete</button>
                 </div>
             </div>
 
@@ -175,14 +294,14 @@ export default function AdminPage() {
                     <div className="modal">
                         <h2>{editingLocationId ? "Edit Location" : "Add New Location"}</h2>
                         {Object.keys({
-                            name: "", description: "", city: "", adress: "", website: "",
+                            name: "", description: "", city: "", address: "", website: "",
                             rating: "", average_budget_requirment: "", opens_at: "", closes_at: "", latitude: "", longtitude: ""
                         }).map((key) => (
                             <input
                                 key={key}
                                 name={key}
                                 value={(formData as any)[key] || ""}
-                                onChange={handleInputChange}
+                                onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
                                 placeholder={key.replace("_", " ")}
                             />
                         ))}
@@ -197,11 +316,4 @@ export default function AdminPage() {
     );
 }
 
-function BackButton() {
-    return (
-        <button className="backButton">
-            <img src="adminIcons/arrow.svg" alt="arrow" />
-            <p>Back</p>
-        </button>
-    );
-}
+

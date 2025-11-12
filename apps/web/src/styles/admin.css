@@ -5,7 +5,7 @@
 }
 
 .container {
-  width: 1200px;
+  width: 80%;
   margin: 0 auto;
 }
 
@@ -80,7 +80,7 @@
 
 .admin-button {
   padding: 4px 70px;
-  font-size: 30px;
+  font-size: 27px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -90,14 +90,30 @@
 
 .admin-button-add {
   background-color: #60BB5A;
+  padding: 0px 31px;
+  border: 1px solid black;
 }
 
 .admin-button-edit {
   background-color: #7FA7FF;
+  padding: 0px 31px;
+  border: 1px solid black;
 }
 
 .admin-button-delete {
   background-color: #FF2A2A;
+  padding: 0px 31px;
+  border: 1px solid black;
+}
+
+.admin-row {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.selected-row {
+  background-color: #a8c7ff !important;
+  color: #000;
 }
 
 /* ========================= */
