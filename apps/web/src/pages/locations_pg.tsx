@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import LogoHeader from "../components/logoHeader";
 import { useNavigate } from "react-router-dom";
 import '../styles/locations.css';
-import { useAuth } from "../components/authProvider"; 
+import { useAuth, User } from "../components/authProvider"; 
 
 const FALLBACK_PICTURES = [
   "/beer1.jpg",
@@ -16,9 +16,7 @@ const LocationsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
-  const [cityList, setCityList] = useState<string[]>([]);
-  const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [showSuggestions, setShowSuggestions] = useState(false);
+ const [filteredLocations, setFilteredLocations] = useState<Location[]>([]);
 
   const [locations, setLocations] = useState<Location[]>([]);
   const [error, setError] = useState("");
@@ -43,77 +41,28 @@ const LocationsPage: React.FC = () => {
     fetchAllLocations();
   }, [fetchAllLocations]);
 
-  useEffect(() => {
-    const fetchCities = async () => {
-      try {
-        const res = await fetch(`https://beerism-backend.onrender.com/api/locations/cities`);
-        if (!res.ok) {
-          throw new Error('Failed to fetch cities');
-        }
-        const cities: string[] = await res.json();
-        setCityList(cities);
-      } catch (err: any) {
-        console.error("Error fetching city list:", err.message);
-      }
-    };
-
-    fetchCities();
-  }, []);
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
-    const value = e.target.value;
-    setSearchTerm(value);
-
-    if (value.length > 0) {
-      const filteredSuggestions = cityList.filter(city =>
-        city.toLowerCase().startsWith(value.toLowerCase())
-      );
-      setSuggestions(filteredSuggestions);
-      setShowSuggestions(true);
-    } else {
-      setSuggestions([]);
-      setShowSuggestions(false);
-    }
-  };
-
-  const handleSuggestionClick = (city: string) => {
-    setSearchTerm(city);
-    setSuggestions([]);
-    setShowSuggestions(false);
-  };
-
-  const handleSearch = async () => {
-    setSuggestions([]);
-    setShowSuggestions(false);
-    if (user && searchTerm) {
-      try {
-        const res = await fetch(
-          `https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user.user_id}&city=${encodeURIComponent(
-            searchTerm 
-          )}`
-        );
-
-        if (!res.ok) {
-          throw new Error(`Failed to fetch recommendations: ${res.statusText}`);
-        }
-
-        const data = await res.json();
-        setLocations(data);
-        setCurrentPage(1);
-        
-      } catch (err: any) {
-        setError(err.message || "Error fetching recommendations");
+ useEffect(() => {
+    if (searchTerm === "") {
+        setFilteredLocations(locations); 
+    } else {
+        const lowerSearch = searchTerm.toLowerCase();
+        setFilteredLocations(locations.filter(item => 
+            item.name.toLowerCase().includes(lowerSearch) ||
+            (item.city && item.city.toLowerCase().includes(lowerSearch)) ||
+            item.rating.toString().includes(lowerSearch)
+        ));
       }
-    }
-    else{
-      fetchAllLocations();
-    }
-  };
+    setCurrentPage(1);
+  }, [locations, searchTerm]);
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+    setSearchTerm(e.target.value);
+  };
 
-  const paginatedLocations = locations.slice(
-      (currentPage - 1) * itemsPerPage, 
-      currentPage * itemsPerPage
-  );
+  const totalPages = Math.ceil(filteredLocations.length / itemsPerPage);
+  const paginatedLocations = filteredLocations.slice(
+      (currentPage - 1) * itemsPerPage, 
+      currentPage * itemsPerPage
+  );
 
 
   return (
@@ -129,31 +78,30 @@ const LocationsPage: React.FC = () => {
             <div className="search-and-pagination">
               <div className="search-bar-container">
                 <div className="search-bar"> 
-                  <input
-                    type="text"
-                    placeholder="Search (name, city, rating...)"
-                    value={searchTerm}
-                    onChange={handleSearchChange}
-                    autoComplete="off"
-                  /> 
-                  <button onClick={handleSearch} className="searchButton"></button>
+                <form className="search-form" onSubmit={(e) => e.preventDefault()}>
+                    <input
+                      type="text"
+                      placeholder="Search (name, city, rating...)"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)} 
+                      autoComplete="off"
+                    /> 
+              </form>
+                 <button 
+                  type="button" 
+                  className="searchButton"
+                  onClick={() => setSearchTerm(searchTerm.trim())}
+                />
+
                  
                 </div>
-                 {showSuggestions && suggestions.length > 0 && (
-                    <ul className="suggestions-dropdown">
-                      {suggestions.map((city) => (
-                        <li key={city} onClick={() => handleSuggestionClick(city)}>
-                          {city}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+               
               </div>
              
 
               <PaginationControls
                 currentPage={currentPage}
-                totalPages={Math.ceil(locations.length / itemsPerPage)}
+                totalPages={Math.ceil(filteredLocations.length / itemsPerPage)}
                 onPageChange={setCurrentPage}
               />
             </div>

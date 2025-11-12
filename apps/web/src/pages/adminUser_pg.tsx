@@ -168,14 +168,14 @@ export default function AdminUserPage() {
                         />
                         <div className="search-buttons">
                             <button className="search"><img src="adminIcons/search.svg" alt="search" /></button>
-                            <button className="denie"><img src="adminIcons/denie.svg" alt="denie" /></button>
+                            <button className="denie" onClick={() => setSearchTerm("")}><img src="adminIcons/denie.svg" alt="denie" /></button>
                         </div>
                     </form>
                     <button className="backButton" onClick={() => navigate("/profile")}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
                 </div>
 
-                <div style={{ width: "100%"}}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #ccc", borderRadius: "10px", overflow: "hidden", textAlign: "center" }}>
+                <div style={{ width: "100%", fontSize: "15px", overflowX: "auto"}}>
+                    <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #ccc", borderRadius: "10px", overflow: "hidden", textAlign: "center", backgroundColor: "rgb(255, 255, 255)"}}>
                         <thead>
                             <tr style={{ backgroundColor: "#ffffff" }}>
                                 {tableHeaders.map((header, index) => (
@@ -233,7 +233,7 @@ export default function AdminUserPage() {
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal">
-                      D <h2>{editingUserId ? "Edit User" : "Add New User"}</h2>
+                      <h2>{editingUserId ? "Edit User" : "Add New User"}</h2>
                         
                         <label>Email</label>
                         <input name="email" value={formData.email || ""} onChange={handleInputChange} placeholder="Email" />

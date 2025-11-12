@@ -230,7 +230,7 @@ export default function AdminPage() {
                     <button className="backButton" onClick={() => navigate("/profile")}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
                 </div>
 
-                <div style={{ width: "100%" }}>
+                <div style={{ width: "100%", fontSize: "15px", overflowX: "auto" }}>
                     <table style={{ width: "100%", border: "1px solid #ccc", borderRadius: "10px", overflow: "hidden", textAlign: "center" }}>
                         <thead>
                             <tr style={{ backgroundColor: "#ffffff" }}>
