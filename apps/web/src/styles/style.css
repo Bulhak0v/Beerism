@@ -81,16 +81,15 @@ button:focus-visible {
   }
 }
 
-/* ==================== */
-/* 💻 Десктопная версия */
-/* ==================== */
+/* Desktop Adapt */
 
 .auth-container, .passwordRecovery-container {
   display: flex;
-  
-  /* min-height: 100vh; */
-   position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh; 
   position: relative;
+  overflow: hidden;
 }
 
 .slider-section {
@@ -123,6 +122,7 @@ button:focus-visible {
   border-radius: 8px;
   border-width: 0.1px;
   font-size: 18px;
+  font-family: inherit; 
 }
 
 .registerData_form button,
@@ -142,7 +142,7 @@ button:focus-visible {
 
 .logo-header {
   position: absolute;
-  top: -9px;
+  top: -5px;
   left: -5px;
   cursor: pointer;
   display: flex;
@@ -261,9 +261,7 @@ button:focus-visible {
     gap: 10px;
 }
 
-/* ======================== */
-/* 📱 Мобильная адаптация */
-/* ======================== */
+/* Mobile Adapt */
 
 @media (max-width: 768px) {
 
@@ -291,16 +289,21 @@ button:focus-visible {
   }
 
   .slider-section {
-    order: 3;
-    width: 100%;
-    margin-top: 30px;
-  }
+  flex: 0 0 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0;
+}
 
-  .form-section {
-    order: 2;
-    width: 100%;
-    margin-top: 20px;
-  }
+.form-section {
+  flex: 0 0 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%; 
+}
 
   .registration_form,
   .signIn_form {
@@ -348,7 +351,7 @@ button:focus-visible {
   }
 }
 
-/* 🔸 Дополнительная адаптация для узких экранов (iPhone SE и т.п.) */
+/* Very thin screens adapt */
 @media (max-width: 480px) {
   .registration_form,
   .signIn_form {
@@ -381,9 +384,7 @@ button:focus-visible {
   }
 }
 
-/* ==================== */
-/* 💻 PasswordRecovery — десктопная версия */
-/* ==================== */
+/* Password Recovery Desktop Adapt */
 
 .passwordRecovery-container {
   display: flex;
@@ -475,9 +476,7 @@ button:focus-visible {
   cursor: pointer;
 }
 
-/* ======================== */
-/* 📱 PasswordRecovery — мобильная адаптация */
-/* ======================== */
+/* Password Recovery Mobile Adapt */
 
 @media (max-width: 768px) {
   .passwordRecovery-container {
@@ -548,7 +547,7 @@ button:focus-visible {
   }
 }
 
-/* 🔸 Адаптация для очень узких экранов */
+/* Password Recovery Very thin screens adapt */
 @media (max-width: 480px) {
   .recovery_form {
     width: 100%;

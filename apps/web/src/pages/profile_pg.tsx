@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect, useRef } from "react"; 
 import avatarPlaceholder from "/avatar_placeholder.png"; 
 import '../styles/profile.css';
 import LogoHeader from "../components/logoHeader";
@@ -10,6 +10,8 @@ const ProfilePage: React.FC = () => {
   const UPLOAD_PRESET = "userImages"
   const { user, setUser, logout } = useAuth(); 
   const navigate = useNavigate();
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [nickname, setNickname] = useState(() => localStorage.getItem("nickname") || "");
   const [bio, setBio] = useState("");
@@ -147,12 +149,16 @@ const ProfilePage: React.FC = () => {
 
   const tabs = [
     { name: "Profile", path: "/profile" },
-    { name: "Locations", path: "/locations" },
     { name: "Security", path: "/profile" },
     { name: "Notifications", path: "/profile" },
     { name: "Privacy", path: "/profile" },
-    { name: "Map", path: "/map" },
   ];
+
+  const handleEditAvatarClick = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
   const handleTabClick = (tabName: string, path: string) => {
     setActiveTab(tabName);
@@ -160,7 +166,6 @@ const ProfilePage: React.FC = () => {
   };
   return (
     <>
-    <LogoHeader />
       <div className="profile-main">
         <div className="topTitle">
           <h2 className="account-title">Account settings</h2>
@@ -187,7 +192,7 @@ const ProfilePage: React.FC = () => {
                     : tab.name === "Notifications"
                     ? "Bell"
                     : "Eye"
-                }.png`}
+                }.svg`}
                 alt={tab.name}
               />
             </span>
@@ -199,11 +204,18 @@ const ProfilePage: React.FC = () => {
 
         <div className="profile-card">
           <div className="avatar-section">
-            <img
-              src={avatarPreview}
-              alt="Avatar"
-              className="avatar"
-            />
+            
+            <div className="avatar-wrapper">
+              <img
+                src={avatarPreview}
+                alt="Avatar"
+                className="avatar"
+              />
+              <button className="edit-avatar-btn" onClick={handleEditAvatarClick} title="Change Avatar">
+                 <img src="/profileIcons/Camera.svg" alt="Edit" />
+              </button>
+            </div>
+
             <div className="field"> 
               <label>Nickname</label>
               <input 
@@ -211,20 +223,23 @@ const ProfilePage: React.FC = () => {
                 placeholder="Nickname"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)} /> 
-                      <input 
-              className="upload-button"
-              type="file"
-              accept="image/*"
-              id="avatarUpload"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setAvatarFile(file);
-                  setAvatarPreview(URL.createObjectURL(file));
-                }
-              }}
-            />
-              </div>
+              
+              <input 
+                className="upload-button"
+                type="file"
+                accept="image/*"
+                id="avatarUpload"
+                ref={fileInputRef}
+                style={{ display: 'none' }} 
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setAvatarFile(file);
+                    setAvatarPreview(URL.createObjectURL(file));
+                  }
+                }}
+              />
+            </div>
             
           </div>
 
@@ -292,4 +307,3 @@ const ProfilePage: React.FC = () => {
 
 
 export default ProfilePage;
-

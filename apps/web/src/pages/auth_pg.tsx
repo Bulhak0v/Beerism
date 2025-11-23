@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import LogoHeader from "../components/logoHeader";
 import CustomSlider from "../components/slider";
 import { GoogleLogin } from "@react-oauth/google";
@@ -23,8 +23,10 @@ const SliderSection: React.FC = () => {
   );
 };
 
-const RegistrationForm: React.FC = () => {
-  const [isSignIn, setIsSignIn] = useState(false);
+const AuthForms: React.FC = () => {
+
+  const [view, setView] = useState<"signIn" | "signUp" | "recovery">("signIn");
+  
   const navigate = useNavigate();
   const { setUser } = useAuth();
   const [error, setError] = useState<string | null>(null);
@@ -39,6 +41,7 @@ const RegistrationForm: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -46,55 +49,23 @@ const RegistrationForm: React.FC = () => {
       setError("Паролі не співпадають!");
       return;
     }
-
     try {
       const res = await fetch(`https://beerism-backend.onrender.com/api/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formData.email,
-          nickname: formData.email.split("@")[0], 
+          nickname: formData.email.split("@")[0],
           password: formData.password
         }),
       });
-
-      let data: any = {};
-      try {
-        data = await res.json();
-
-      } catch {
-        console.log("Empty or invalid JSON response from server");
-      }
-
-      if (!res.ok) {
-        throw new Error(data.message || "Registration failed");
-        
-      }
-      console.log("Registered user:", data.user);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Registration failed");
+      
       setUser(data.user);
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const coords = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude
-            };
-            sessionStorage.setItem("user_location", JSON.stringify(coords));
-            console.log("User location saved:", coords);
-          },
-          (error) => {
-            console.warn("Geolocation error:", error.message);
-          }
-        );
-      } else {
-        console.warn("Geolocation not supported by this browser.");
-      }
-
+      saveLocation();
       navigate("/profile");
-
     } catch (err: any) {
-
       setError(err.message);
     }
   };
@@ -102,255 +73,164 @@ const RegistrationForm: React.FC = () => {
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-    
     try {
       const res = await fetch(`https://beerism-backend.onrender.com/api/users/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password
-        }),
+        body: JSON.stringify({ email: formData.email, password: formData.password }),
       });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Login failed");
 
-      let data: any = {};
-      try {
-        data = await res.json();
-
-      } catch {
-        console.log("Empty or invalid JSON response from server");
-      }
-
-      if (!res.ok) {
-        throw new Error(data?.message || "Login failed");
-      }
-
-      console.log("Loged in user:", data.user);
       setUser(data.user);
-
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const coords = {
-              latitude: position.coords.latitude,
-              longitude: position.coords.longitude
-            };
-            sessionStorage.setItem("user_location", JSON.stringify(coords));
-            console.log("User location saved:", coords);
-          },
-          (error) => {
-            console.warn("Geolocation error:", error.message);
-          }
-        );
-      } else {
-        console.warn("Geolocation not supported by this browser.");
-      }
-
-      
+      saveLocation();
       navigate("/profile");
-
     } catch (err: any) {
-
       setError(err.message);
     }
   };
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
-  const token = credentialResponse.credential;
-  if (!token) {
-    console.warn("No Google credential found");
-    return;
-  }
-
-  try {
-    
-    const res = await fetch("https://beerism-backend.onrender.com/api/users/google", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token }), 
-    });
-
-    let data: any = {};
+    const token = credentialResponse.credential;
+    if (!token) return;
     try {
-      data = await res.json();
-    } catch {
-      console.log("Empty or invalid JSON response from server");
+      const res = await fetch("https://beerism-backend.onrender.com/api/users/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.message || "Google authentication failed");
+
+      setUser(data.user);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      saveLocation();
+      navigate("/profile");
+    } catch (err: any) {
+      setError(err.message);
     }
-
-    if (!res.ok) {
-      throw new Error(data?.message || "Google authentication failed");
-    }
-
-    console.log("Google user:", data.user);
-    setUser(data.user);
-    localStorage.setItem("user", JSON.stringify(data.user));
-
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          };
-          sessionStorage.setItem("user_location", JSON.stringify(coords));
-          console.log("User location saved:", coords);
-        },
-        (error) => {
-          console.warn("Geolocation error:", error.message);
-        }
-      );
-    } else {
-      console.warn("Geolocation not supported by this browser.");
-    }
-
-    navigate("/profile");
-  } catch (err: any) {
-    console.error("Google login error:", err);
-    setError(err.message);
-  }
-};
-
-  const handleGoogleError = () => {
-    console.log("Google Sign In Failed");
   };
 
-  return (
-    <div className="form-section">
-      {isSignIn ? (
-        
-        <div className="signIn_form">
-          <h2>Sign in now</h2>
-          <p>Welcome back!</p>
-          
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            theme="outline"
-            shape="rectangular"
-            text="continue_with"
-            size="large"
-          />
+  const saveLocation = () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const coords = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+        sessionStorage.setItem("user_location", JSON.stringify(coords));
+      }, (err) => console.warn(err));
+    }
+  };
 
-          <div className="divider">
-            <p>or</p>
+
+
+
+  if (view === "recovery") {
+    return (
+      <div className="signIn_form"> {}
+        <h2>Forgot your password?</h2>
+        <p>Enter your email to reset instructions!</p>
+        
+        <div className="divider"></div>
+
+        <form onSubmit={(e) => { e.preventDefault(); alert("Reset logic here"); }}>
+          <div className="form-group">
+            <label htmlFor="rec-email">Email address</label>
+            <input
+              id="rec-email"
+              type="email"
+              placeholder="Enter your email"
+              required
+            />
           </div>
+          <button type="submit">Reset password</button>
+          
+          <h3>
+            Remembered your password?{" "}
+            <a onClick={() => setView("signIn")}>Sign In</a>
+          </h3>
+        </form>
+      </div>
+    );
+  }
+
+
+  if (view === "signIn") {
+    return (
+      <div className="signIn_form">
+        <h2>Sign in to Beerism!</h2>
+        <p>Welcome back!</p>
+        
+        <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => console.log("Failed")} theme="outline" shape="rectangular" text="continue_with" size="large" locale="en" />
+
+        <div className="divider"><p>or</p></div>
 
         <form onSubmit={handleSignInSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email address</label>
-            <input
-              id="email"
-              type="email"
-              name="email"
-              placeholder="Enter your email"
-              onChange={handleChange}
-              required
-            />
+            <input id="email" type="email" name="email" placeholder="Enter your email" onChange={handleChange} required />
           </div>
-
           <div className="form-group">
             <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              name="password"
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-            />
+            <input id="password" type="password" name="password" onChange={handleChange} placeholder="Enter your password" required />
           </div>
-          <a onClick={() => navigate("/passwordRecovery")}>Forgot your password?</a>
+          
+          <a onClick={() => setView("recovery")}>Forgot your password?</a>
+          
           {error && <p className="error-message">{error}</p>}
           <button type="submit">Sign In</button>
 
-          <h3>
-            Don’t have an account?{" "}
-            <a onClick={() => setIsSignIn(false)}>Sign Up</a>
-          </h3>
-          </form>
+          <h3>Don’t have an account? <a onClick={() => setView("signUp")}>Sign Up</a></h3>
+        </form>
+      </div>
+    );
+  }
+
+
+  return (
+    <div className="registration_form">
+      <h2>Sign up for Beerism!</h2>
+      <p>Start your journey!</p>
+
+      <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => console.log("Failed")} theme="outline" shape="rectangular" text="continue_with" size="large" locale="en"/>
+
+      <div className="divider"><p>or</p></div>
+
+      <form className="registerData_form" onSubmit={handleRegisterSubmit}>
+        <div className="form-group">
+          <label htmlFor="up-email">Email address</label>
+          <input id="up-email" type="email" name="email" onChange={handleChange} placeholder="Enter your email" required />
         </div>
-      ) : (
-        <div className="registration_form">
-          <h2>Sign up now</h2>
-          <p>Start your journey!</p>
-
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-            onError={handleGoogleError}
-            theme="outline"
-            shape="rectangular"
-            text="continue_with"
-            size="large"
-          />
-
-          <div className="divider">
-            <p>or</p>
-          </div>
-
-          <form className="registerData_form" onSubmit={handleRegisterSubmit}>
-            <div className="form-group">
-              <label htmlFor="email">Email address</label>
-              <input
-                id="email"
-                type="email"
-                name="email"
-                onChange={handleChange}
-                placeholder="Enter your email"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                id="password"
-                type="password"
-                onChange={handleChange}
-                name="password"
-                placeholder="Enter your password"
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="confirmPassword">Confirm password</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                onChange={handleChange}
-                name="confirmPassword"
-                placeholder="Confirm your password"
-                required
-              />
-            </div>
-            {error && <p className="error-message">{error}</p>}
-            <button type="submit">Sign Up</button>
-          </form>
-
-          <h3>
-            Already have an account?{" "}
-            <a onClick={() => setIsSignIn(true)}>Sign In</a>
-          </h3>
+        <div className="form-group">
+          <label htmlFor="up-password">Password</label>
+          <input id="up-password" type="password" onChange={handleChange} name="password" placeholder="Enter your password" required />
         </div>
-      )}
+        <div className="form-group">
+          <label htmlFor="confirmPassword">Confirm password</label>
+          <input id="confirmPassword" type="password" onChange={handleChange} name="confirmPassword" placeholder="Confirm your password" required />
+        </div>
+        {error && <p className="error-message">{error}</p>}
+        <button type="submit">Sign Up</button>
+      </form>
+
+      <h3>Already have an account? <a onClick={() => setView("signIn")}>Sign In</a></h3>
     </div>
   );
 };
 
-
-
 const AuthPage: React.FC = () => {
+  useEffect(() => {
+    document.body.style.overflow = "hidden"; 
+    return () => { document.body.style.overflow = "auto"; };
+  }, []);
+
   return (
     <div className="auth-container">
-      <LogoHeader />
-      <RegistrationForm />
+      <div className="form-section">
+        <AuthForms />
+      </div>
       <SliderSection />
     </div>
   );
 };
 
 export default AuthPage;
-function jwtDecode(credential: any): any {
-  throw new Error("Function not implemented.");
-}
 

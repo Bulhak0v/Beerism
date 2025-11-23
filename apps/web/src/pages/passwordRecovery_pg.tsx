@@ -59,7 +59,6 @@ const PasswordForm: React.FC = () => {
 export default function PasswordRecovery() {
   return (
     <div className="passwordRecovery-container">
-      <LogoHeader />
       <PasswordForm />
       <SliderSection />
     </div>

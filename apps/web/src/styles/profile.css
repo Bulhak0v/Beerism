@@ -11,7 +11,7 @@ body {
   justify-content: space-evenly;
   flex-flow: wrap;
   width: 80%;
-  margin: 95px auto ;
+  margin: 25px auto ;
 }
 
 .profile-card {
@@ -19,12 +19,12 @@ body {
 }
 
 .profile-settings {
-  padding: 34px 0px !important;
+  padding-top: 65px !important;
 }
 
 .profile-card,
 .profile-settings {
-  background-color: #f5f5f2;
+  background-color: #FCFCFC;
   padding: 50px;
   font-weight: 400;
   text-align: center;
@@ -42,12 +42,41 @@ body {
   gap: 10px;
 }
 
-.avatar {
+.avatar-wrapper {
+  position: relative;
   margin-right: 18%;
-  object-fit: cover;
   height: 98px;
   width: 96px;
+}
+
+.avatar {
+  margin-right: 0;
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
   border-radius: 53px;
+}
+
+.edit-avatar-btn {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: #F2EFE5;
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  padding: 0;
+}
+
+.edit-avatar-btn img {
+  width: 25px;
+  height: auto;
 }
 
 .profile-actions{
@@ -88,6 +117,7 @@ body {
   color: #20202099;
   font-size: 17px;
   border: 1px solid #ccc;
+  font-family: inherit; 
 }
 
 .settings-cover {
@@ -104,10 +134,33 @@ body {
   padding-bottom: 31px;
   font-size: 24px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  position: relative; 
+}
+
+.profile-settings ul li:last-child {
+  padding-bottom: 31px;
 }
 
 .profile-settings ul li.active {
-  text-decoration: underline;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.profile-settings ul li.active::after {
+  content: '';
+  position: absolute;
+  justify-content: center;
+  width: 60%;
+  height: 2px;
+  bottom: 25px;
+  left: 0;
+  background-color: #1a1a1a;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .account-title {
@@ -116,15 +169,17 @@ body {
 }
 
 .topTitle .backButton {
-  padding: 0px 36px;
+  padding: 0px 24px;
   border-radius: 24px;
   border: #20202080 1px solid;
-  background-color: #fdfdfaec;
+  background-color: #FCFCFC;
   font-size: 22px;
 }
 
 .backButton span {
-  margin-right: 6px;
+  display: inline-flex;
+  margin-right: 10px;
+  height: 12px;
 }
 
 .topTitle {
@@ -140,9 +195,7 @@ body {
   justify-content: space-between;
 }
 
-/* ========================= */
-/* 📱 Мобильная адаптация */
-/* ========================= */
+/* Mobile Adapt */
 
 @media (max-width: 768px) {
 
@@ -196,6 +249,9 @@ body {
   .profile-settings ul li {
     font-size: 18px;
     padding-bottom: 10px;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 5px;
   }
 
   .profile-card {
@@ -209,9 +265,7 @@ body {
   }
 
   .avatar {
-    margin-right: 0;
-    margin-bottom: 10px;
-    height: 80px;
+    height: 100%;
   }
 
   .field label {

@@ -8,18 +8,24 @@ import LocationsPage from "./pages/locations_pg";
 import LocationDetailsPage from "./pages/locationDetails_pg";
 import MapPage from "./pages/map_pg";
 import AdminUserPage from "./pages/adminUser_pg";
+import Layout from "./components/layout";
+import HomePage from "./pages/home_pg";
 
 const App: React.FC = () => {
   return (
     <Routes>
       <Route path="/auth" element={<AuthPage />} />
-      <Route path="/profile" element={<ProfilePage />} />
-      <Route path="/locations" element={<LocationsPage />} />
-      <Route path="/locationDetails/:id" element={<LocationDetailsPage />} />
-      <Route path="/admin" element={<AdminPage />} />
-      <Route path="/adminUser" element={<AdminUserPage />} />
-      <Route path="/recovery" element={<PasswordRecovery />} />
-      <Route path="/map" element={<MapPage />} />
+      <Route element={<Layout />}>
+        <Route path="/home" element={<HomePage />} /> 
+        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/locations" element={<LocationsPage />} />
+        <Route path="/locationDetails/:id" element={<LocationDetailsPage />} />
+        <Route path="/map" element={<MapPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/adminUser" element={<AdminUserPage />} />
+        {/* <Route path="/about" element={<AboutPage />} /> */}
+        {/* <Route path="/contact" element={<ContactPage />} /> */}
+      </Route>
       
       <Route path="*" element={<Navigate to="/auth" replace />} />
     </Routes>

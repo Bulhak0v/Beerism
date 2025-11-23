@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import '../styles/admin.css';
 import { useNavigate } from "react-router-dom";
-import LogoHeader from "../components/logoHeader";
 
 export interface User {
   user_id: number;
@@ -40,17 +39,17 @@ export default function AdminUserPage() {
     }, [data, searchTerm]);
 
     const handleInputChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
-    ) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-        ...prev,
-        [name]:
-            name === "preferred_beer_style_id"
-            ? value === "" ? null : parseInt(value)
-            : value === "" ? null : value, 
-        }));
-    };
+        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+        ...prev,
+        [name]:
+            name === "preferred_beer_style_id"
+            ? value === "" ? null : parseInt(value)
+            : value === "" ? null : value, 
+        }));
+    };
 
     useEffect(() => {
         async function fetchUsers() {
@@ -78,10 +77,10 @@ export default function AdminUserPage() {
             : `https://beerism-backend.onrender.com/api/users/add`;
 
         const response = await fetch(url, {
-            method,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dataToSend),
-        });
+            method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dataToSend),
+        });
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -130,111 +129,99 @@ export default function AdminUserPage() {
     };
 
     const handleDeleteClick = async (id: number) => {
-        if (!window.confirm("Are you sure you want to delete this user?")) return;
+        if (!window.confirm("Are you sure you want to delete this user?")) return;
 
-        try {
-        const res = await fetch(`https://beerism-backend.onrender.com/api/users/${id}`, { 
-            method: "DELETE",
-        });
+        try {
+        const res = await fetch(`https://beerism-backend.onrender.com/api/users/${id}`, { 
+            method: "DELETE",
+        });
 
-        if (res.ok) {
-            setData(data.filter(u => u.user_id !== id));
-        } else {
-            const text = await res.text();
-            console.error("Failed to delete user:", text);
-        }
-        } catch (err) {
-        console.error(err);
-        }
+        if (res.ok) {
+            setData(data.filter(u => u.user_id !== id));
+            if (selectedUserId === id) setSelectedUserId(null);
+        } else {
+            const text = await res.text();
+            console.error("Failed to delete user:", text);
+        }
+        } catch (err) {
+        console.error(err);
+        }
     };
 
     const tableHeaders = [
-        "ID", "Created At", "Email", "Nickname", "Profile Picture",
-        "Bio", "Budget", "Atmosphere", "Beer Style ID",
-    ];
+        "ID", "Created At", "Email", "Nickname", "Profile Picture",
+        "Bio", "Budget", "Atmosphere", "Beer Style ID",
+    ];
 
     return (
-        <>
-            <LogoHeader />
-            <div className="container">
-                <h1 className="admin-title">Users list</h1>
-                <div className="admin-top-buttons">
-                    <form className="search-form">
+        <div className="container">
+            <h1 className="admin-title">Users list</h1>
+            
+            <div className="admin-top-buttons">
+                <div className="search-bar-container">
+                    <div className="search-bar"> 
                         <input 
-                        type="text" 
-                        placeholder="Search (email, nickname...)" 
-                        value={searchTerm}            
-                        onChange={(e) => setSearchTerm(e.target.value)}
+                            type="text" 
+                            placeholder="Search (email, nickname...)" 
+                            value={searchTerm}            
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <div className="search-buttons">
-                            <button className="search"><img src="adminIcons/search.svg" alt="search" /></button>
-                            <button className="denie" onClick={() => setSearchTerm("")}><img src="adminIcons/denie.svg" alt="denie" /></button>
-                        </div>
-                    </form>
-                    <button className="backButton" onClick={() => navigate("/profile")}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
-                </div>
-
-                <div style={{ width: "100%", fontSize: "15px", overflowX: "auto"}}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid #ccc", borderRadius: "10px", overflow: "hidden", textAlign: "center", backgroundColor: "rgb(255, 255, 255)"}}>
-                        <thead>
-                            <tr style={{ backgroundColor: "#ffffff" }}>
-                                {tableHeaders.map((header, index) => (
-                                    <th
-                                        key={header}
-                                        style={{
-                                            color: "#456DC5",
-                                            fontSize: "20px",
-                                            borderRight: index !== tableHeaders.length - 1 ? "1px solid #000" : "none",
-                                            padding: "8px",
-                                            textAlign: "center"
-                                        }}
-                                    >
-                                        {header}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredData.map((item) => (
-                                <tr 
-                                key={item.user_id}
-                                className={`admin-row ${selectedUserId === item.user_id ? 'selected-row' : ''}`}
-                                onClick={() => setSelectedUserId(item.user_id)}
-                            >
-                                    <td>{item.user_id}</td>
-                                    <td>{new Date(item.created_at).toLocaleDateString()}</td>
-                                    <td className="cell-truncate">{item.email}</td>
-                                    <td>{item.nickname}</td>
-                                    <td className="cell-truncate">{item.profile_picture}</td>
-                                    <td className="cell-truncate">{item.bio}</td>
-                                    <td>{item.preferred_budget_range}</td>
-                                    <td>{item.preferred_venue_atmosphere}</td>
-                                    <td>{item.preferred_beer_style_id}</td>
-                                </tr>
-                           ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="admin-bottom-buttons">
-                     <button className="admin-button admin-button-add" onClick={handleAddClick}>Add</button>
-                     <button className="admin-button admin-button-edit" onClick={handleEditBottomClick}>Edit</button>
-                      <button className="admin-button admin-button-delete" onClick={() => {
-                        if (selectedUserId) {
-                            handleDeleteClick(selectedUserId);
-                        } else {
-                            alert("Please select a user to delete.");
-                        }
-                    }} >Delete</button>
+                        <button className="searchButton"></button>
+                    </div>
                 </div>
             </div>
 
-            {/* Модальное окно для Add/Edit */}
+            <div className="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            {tableHeaders.map((header) => (
+                                <th key={header}>
+                                    {header}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredData.map((item, idx) => (
+                            <tr 
+                                key={item.user_id}
+                                className={`admin-row ${selectedUserId === item.user_id ? 'selected-row' : ''}`}
+                                onClick={() => setSelectedUserId(item.user_id)}
+                                style={{ backgroundColor: idx % 2 === 0 ? "#F2EFE5" : "#ffffff" }}
+                            >
+                                <td>{item.user_id}</td>
+                                <td>{new Date(item.created_at).toLocaleDateString()}</td>
+                                <td className="cell-truncate" title={item.email}>{item.email}</td>
+                                <td>{item.nickname}</td>
+                                <td className="cell-truncate" title={item.profile_picture || ""}>{item.profile_picture}</td>
+                                <td className="cell-truncate" title={item.bio || ""}>{item.bio}</td>
+                                <td>{item.preferred_budget_range}</td>
+                                <td>{item.preferred_venue_atmosphere}</td>
+                                <td>{item.preferred_beer_style_id}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="admin-bottom-buttons">
+                 <button className="admin-button admin-button-add" onClick={handleAddClick}>Add</button>
+                 <button className="admin-button admin-button-edit" onClick={handleEditBottomClick}>Edit</button>
+                 <button className="admin-button admin-button-delete" onClick={() => {
+                    if (selectedUserId) {
+                        handleDeleteClick(selectedUserId);
+                    } else {
+                        alert("Please select a user to delete.");
+                    }
+                }} >Delete</button>
+            </div>
+
             {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="modal">
-                      <h2>{editingUserId ? "Edit User" : "Add New User"}</h2>
-                        
+                <div className="modal-overlay">
+                    <div className="modal">
+                        <h2>{editingUserId ? "Edit User" : "Add New User"}</h2>
+                        
                         <label>Email</label>
                         <input name="email" value={formData.email || ""} onChange={handleInputChange} placeholder="Email" />
                         
@@ -242,7 +229,7 @@ export default function AdminUserPage() {
                         <input name="nickname" value={formData.nickname || ""} onChange={handleInputChange} placeholder="Nickname" />
                         
                         <label>Password</label>
-                        <input name="password" type="password" onChange={handleInputChange} placeholder={editingUserId ? "Leave blank to keep same password" : "Password"} />
+                        <input name="password" type="password" onChange={handleInputChange} placeholder={editingUserId ? "Leave blank to keep same" : "Password"} />
                         
                         <label>Profile Picture URL</label>
                         <input name="profile_picture" value={formData.profile_picture || ""} onChange={handleInputChange} placeholder="http://..." />
@@ -273,14 +260,13 @@ export default function AdminUserPage() {
                         <label>Preferred Beer Style ID</label>
                         <input name="preferred_beer_style_id" type="number" value={formData.preferred_beer_style_id || ""} onChange={handleInputChange} placeholder="Beer Style ID" />
 
-                        <div className="modal-buttons">
-                            <button onClick={handleAddOrEditUser}>Save</button>
-                            <button type="button" onClick={() => { setIsModalOpen(false); setEditingUserId(null); setFormData({}); }}>Cancel</button>
-                        </div>
-                    </div>
-                </div>
+                        <div className="modal-buttons">
+                            <button onClick={handleAddOrEditUser}>Save</button>
+                            <button type="button" onClick={() => { setIsModalOpen(false); setEditingUserId(null); setFormData({}); }}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
             )}
-        </>
+        </div>
     );
 }
-

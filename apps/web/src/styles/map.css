@@ -1,0 +1,328 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.map-page-container {
+  min-height: 0;
+  background-color: #F2EFE5;
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  
+
+  font-family: "Gentium Book Plus", serif;
+  color: #202020;
+  overflow: hidden;
+}
+
+
+button, select, input, option {
+  font-family: inherit;
+}
+
+
+.back-btn {
+  padding: 10px 20px;
+  background-color: #fff;
+  color: #202020;
+  border: 1px solid #5C4033;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 17px;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+  background-color: #f2efe5;
+}
+
+
+.map-content-wrapper {
+  padding: 0 50px;
+  flex: 1;
+}
+
+.map-controls {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+
+.map-page-title {
+  font-size: 40px;
+  color: #202020;
+  margin: 0;
+  
+
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+
+.filter-container {
+  display: flex;
+  gap: 15px;
+  flex-direction: row;
+}
+
+.filter-select {
+  padding: 10px 15px;
+  background-color: white;
+  color: #202020;
+  border: 1px solid #ced4da;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%235C4033' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' viewBox='0 0 24 24'%3E%3Cpath d='m7 10 5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 30px;
+  min-width: 150px;
+}
+
+.filter-select:focus {
+  outline: 2px solid #5C4033;
+  border-color: transparent;
+}
+
+
+.map-wrapper {
+  border: 1px solid #ddd;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  height: 76vh; 
+  width: 100%;
+}
+
+.loading-map {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #e6ffe6;
+  font-weight: bold;
+  color: #5C4033;
+}
+
+
+.info-window-content {
+  padding: 5px;
+  max-width: 300px;
+  font-family: "Gentium Book Plus", serif;
+}
+
+.info-window-title {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  color: #202020;
+  font-weight: bold;
+}
+
+.info-window-desc {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  color: #555;
+}
+
+.info-window-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+.info-window-list li {
+  margin-bottom: 4px;
+}
+
+.info-window-list a {
+  color: #0077cc;
+  text-decoration: underline;
+}
+
+
+@media screen and (max-width: 768px) {
+  
+  .map-content-wrapper {
+    padding: 0 15px;
+  }
+
+  .map-controls {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .map-page-title {
+    font-size: 30px;
+    margin-bottom: 15px;
+    width: 100%;
+    text-align: center;
+  }
+
+  .filter-container {
+    width: 100%;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .filter-select {
+    width: 100%;
+    min-width: unset;
+    padding: 12px 15px;
+  }
+
+  .back-btn {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+  }
+
+  .map-wrapper {
+    height: 60vh; 
+    border-radius: 0;
+  }
+
+  .info-window-content {
+    max-width: 200px;
+  }
+}
+
+.map-info-card {
+  width: 320px;
+  font-family: "Gentium Book Plus", serif;
+  padding: 0;
+}
+
+.map-info-image-container {
+  position: relative;
+  width: 100%;
+  height: 170px; 
+  overflow: hidden;
+  border-radius: 8;
+}
+
+.map-info-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.map-info-title {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  margin: 0;
+  padding: 8px;
+  box-sizing: border-box;
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 30%, transparent 100%);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+
+.map-info-content {
+  padding: 8px; 
+}
+
+
+.info-window-desc {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #555;
+  line-height: 1.3;
+  
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.info-window-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 14px;
+  color: #333;
+}
+
+
+.info-window-list li {
+  margin-bottom: 3px;
+}
+
+.info-window-list a {
+  color: #0077cc;
+  text-decoration: underline;
+}
+
+
+.map-details-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 8px 0;
+  background-color: #F2EFE5;
+  color: #5C4033;
+  border: 1px solid #5C4033;;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.map-details-btn:hover {
+  background-color: #4a332a;
+  color: #FCFCFC;
+}
+
+
+@media screen and (max-width: 768px) {
+  .map-info-card {
+    width: 220px;
+  }
+  .map-info-image-container {
+    height: 110px;
+  }
+  .map-info-title {
+    font-size: 16px;
+  }
+}
+
+.gm-ui-hover-effect {
+  display: none !important;
+}
+
+
+.gm-style-iw-c {
+  padding: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+
+.gm-style-iw-d {
+  overflow: hidden !important;
+  max-height: none !important;
+  padding-bottom: 5px;
+}
+
+.gm-style-iw-chr {
+  display: none;
+}
+

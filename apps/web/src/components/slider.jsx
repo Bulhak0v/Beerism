@@ -1,67 +1,34 @@
 import React, { useState, useEffect } from "react";
-
 import "./slider.css";
 
 function CustomCarousel({ children }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [slideDone, setSlideDone] = useState(true);
-  const [timeID, setTimeID] = useState(null);
+  const [paused, setPaused] = useState(false);
+
 
   useEffect(() => {
-    if (slideDone) {
-      setSlideDone(false);
-      setTimeID(
-        setTimeout(() => {
-          slideNext();
-          setSlideDone(true);
-        }, 5000)
+    if (paused) return;
+
+    const timer = setTimeout(() => {
+      setActiveIndex((prevIndex) => 
+        prevIndex === children.length - 1 ? 0 : prevIndex + 1
       );
-    }
-  }, [slideDone]);
+    }, 5000);
 
-  const slideNext = () => {
-    setActiveIndex((val) => {
-      if (val >= children.length - 1) {
-        return 0;
-      } else {
-        return val + 1;
-      }
-    });
-  };
 
-  const slidePrev = () => {
-    setActiveIndex((val) => {
-      if (val <= 0) {
-        return children.length - 1;
-      } else {
-        return val - 1;
-      }
-    });
-  };
-
-  const AutoPlayStop = () => {
-    if (timeID > 0) {
-      clearTimeout(timeID);
-      setSlideDone(false);
-    }
-  };
-
-  const AutoPlayStart = () => {
-    if (!slideDone) {
-      setSlideDone(true);
-    }
-  };
+    return () => clearTimeout(timer);
+  }, [activeIndex, paused, children.length]);
 
   return (
     <div
       className="container__slider"
-      onMouseEnter={AutoPlayStop}
-      onMouseLeave={AutoPlayStart}
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
     >
       {children.map((item, index) => {
         return (
           <div
-            className={"slider__item slider__item-active-" + (activeIndex + 1)}
+            className={activeIndex === index ? "slider__item active" : "slider__item"}
             key={index}
           >
             {item}
@@ -87,7 +54,6 @@ function CustomCarousel({ children }) {
           );
         })}
       </div>
-
     </div>
   );
 }

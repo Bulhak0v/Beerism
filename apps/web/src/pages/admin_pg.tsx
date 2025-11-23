@@ -25,7 +25,7 @@ export default function AdminPage() {
               throw new Error('Failed to fetch locations');
             }
             const data = await res.json();
-               setData(data);
+            setData(data);
           } catch (err: any) {
             console.error("Error fetching recommendations");
           }
@@ -74,34 +74,32 @@ export default function AdminPage() {
         setShowSuggestions(false);
       };
     
-      
-
       const handleSearch = async () => {
         setSuggestions([]);
         setShowSuggestions(false);
-        if (searchTerm) {
-          try {
-            const res = await fetch(
-              `https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}&city=${encodeURIComponent(
-                searchTerm 
-              )}`
-            );
+        if (searchTerm) {
+          try {
+            const res = await fetch(
+              `https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}&city=${encodeURIComponent(
+                searchTerm 
+              )}`
+            );
     
-            if (!res.ok) {
-              throw new Error(`Failed to fetch recommendations: ${res.statusText}`);
-            }
+            if (!res.ok) {
+              throw new Error(`Failed to fetch recommendations: ${res.statusText}`);
+            }
     
-            const data = await res.json();
-            setData(data);
-            
-          } catch (err: any) {
-            console.error("Error fetching recommendations");
-          }
-        }
+            const data = await res.json();
+            setData(data);
+            
+          } catch (err: any) {
+            console.error("Error fetching recommendations");
+          }
+        }
         else{
           fetchAllLocations();
         }
-      };
+      };
 
     const handleAddClick = () => {
         setEditingLocationId(null);
@@ -111,7 +109,6 @@ export default function AdminPage() {
     };
 
     const handleAddOrEditLocation = async () => {
-    
         try {
             const dataToSend = {
                 ...formData,
@@ -197,16 +194,12 @@ export default function AdminPage() {
     ];
 
     return (
-        <>
-            <div className="logo">
-                <img src="logo.svg" alt="logo" />
-                <h1 className="title">Beerism</h1>
-            </div>
-            <div className="container">
-                <h1 className="admin-title">Location list</h1>
-                <div className="admin-top-buttons">
-                    <div className="search-bar-container">
-                        <div className="search-bar"> 
+        <div className="container">
+            <h1 className="admin-title">Location list</h1>
+            
+            <div className="admin-top-buttons">
+                <div className="search-bar-container">
+                    <div className="search-bar"> 
                         <input
                             type="text"
                             placeholder="Search (name, city, rating...)"
@@ -215,80 +208,69 @@ export default function AdminPage() {
                             autoComplete="off"
                         /> 
                         <button onClick={handleSearch} className="searchButton"></button>
-                        
-                        </div>
-                        {showSuggestions && suggestions.length > 0 && (
-                            <ul className="suggestions-dropdown">
-                            {suggestions.map((city) => (
-                                <li key={city} onClick={() => handleSuggestionClick(city)}>
-                                {city}
-                                </li>
-                            ))}
-                            </ul>
-                        )}
                     </div>
-                    <button className="backButton" onClick={() => navigate("/profile")}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
+                    
+                    {showSuggestions && suggestions.length > 0 && (
+                        <ul className="suggestions-dropdown">
+                        {suggestions.map((city) => (
+                            <li key={city} onClick={() => handleSuggestionClick(city)}>
+                            {city}
+                            </li>
+                        ))}
+                        </ul>
+                    )}
                 </div>
-
-                <div style={{ width: "100%", fontSize: "15px", overflowX: "auto" }}>
-                    <table style={{ width: "100%", border: "1px solid #ccc", borderRadius: "10px", overflow: "hidden", textAlign: "center" }}>
-                        <thead>
-                            <tr style={{ backgroundColor: "#ffffff" }}>
-                                {tableHeaders.map((header, index) => (
-                                    <th
-                                        key={header}
-                                        style={{
-                                            color: "#456DC5",
-                                            fontSize: "20px",
-                                            borderRight: index !== tableHeaders.length - 1 ? "1px solid #000" : "none",
-                                            padding: "8px",
-                                            textAlign: "center"
-                                        }}
-                                    >
-                                        {header}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {data.map((item, idx) => (
-                                <tr key={item.location_id}
-                                 className={`admin-row ${selectedLocationId === item.location_id ? 'selected-row' : ''}`}
-                                 onClick={() => setSelectedLocationId(item.location_id)}
-                                 style={{ backgroundColor: idx % 2 === 0 ? "#F2EFE5" : "#ffffff", fontSize: "16px" }}>
-                                    <td>{item.location_id}</td>
-                                    <td>{item.name}</td>
-                                    <td>{item.description}</td>
-                                    <td>{item.city}</td>
-                                    <td>{item.address}</td>
-                                    <td>{item.website}</td>
-                                    <td>{item.rating}</td>
-                                    <td>{item.average_budget_requirment}</td>
-                                    <td>{item.opens_at}</td>
-                                    <td>{item.closes_at}</td>
-                                    <td>{item.latitude}</td>
-                                    <td>{item.longtitude}</td>
-                                   
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div className="admin-bottom-buttons">
-                    <button className="admin-button admin-button-add" onClick={handleAddClick}>Add</button>
-                     <button className="admin-button admin-button-edit" onClick={handleEditBottomClick}>Edit</button>
-                      <button className="admin-button admin-button-delete" onClick={() => {
-                        if (selectedLocationId) {
-                            handleDeleteClick(selectedLocationId);
-                        } else {
-                            alert("Please select a location to delete.");
-                        }
-                    }} >Delete</button>
-                </div>
+            
             </div>
 
-            {/* Модальное окно для Add/Edit */}
+            <div className="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            {tableHeaders.map((header, index) => (
+                                <th key={header}>
+                                    {header}
+                                </th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.map((item, idx) => (
+                            <tr key={item.location_id}
+                                className={`admin-row ${selectedLocationId === item.location_id ? 'selected-row' : ''}`}
+                                onClick={() => setSelectedLocationId(item.location_id)}
+                                style={{ backgroundColor: idx % 2 === 0 ? "#F2EFE5" : "#ffffff" }}
+                            >
+                                <td>{item.location_id}</td>
+                                <td>{item.name}</td>
+                                <td className="cell-truncate" title={item.description || ""}>{item.description}</td>
+                                <td>{item.city}</td>
+                                <td>{item.address}</td>
+                                <td className="cell-truncate">{item.website}</td>
+                                <td>{item.rating}</td>
+                                <td>{item.average_budget_requirment}</td>
+                                <td>{item.opens_at}</td>
+                                <td>{item.closes_at}</td>
+                                <td>{item.latitude}</td>
+                                <td>{item.longtitude}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
+            <div className="admin-bottom-buttons">
+                <button className="admin-button admin-button-add" onClick={handleAddClick}>Add</button>
+                <button className="admin-button admin-button-edit" onClick={handleEditBottomClick}>Edit</button>
+                <button className="admin-button admin-button-delete" onClick={() => {
+                    if (selectedLocationId) {
+                        handleDeleteClick(selectedLocationId);
+                    } else {
+                        alert("Please select a location to delete.");
+                    }
+                }} >Delete</button>
+            </div>
+
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="modal">
@@ -297,13 +279,14 @@ export default function AdminPage() {
                             name: "", description: "", city: "", address: "", website: "",
                             rating: "", average_budget_requirment: "", opens_at: "", closes_at: "", latitude: "", longtitude: ""
                         }).map((key) => (
-                            <input
-                                key={key}
-                                name={key}
-                                value={(formData as any)[key] || ""}
-                                onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
-                                placeholder={key.replace("_", " ")}
-                            />
+                            <div key={key}>
+                                <label style={{textTransform: 'capitalize'}}>{key.replace(/_/g, " ")}</label>
+                                <input
+                                    name={key}
+                                    value={(formData as any)[key] || ""}
+                                    onChange={(e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))}
+                                />
+                            </div>
                         ))}
                         <div className="modal-buttons">
                             <button onClick={handleAddOrEditLocation}>Save</button>
@@ -312,8 +295,6 @@ export default function AdminPage() {
                     </div>
                 </div>
             )}
-        </>
+        </div>
     );
 }
-
-

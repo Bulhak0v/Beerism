@@ -13,7 +13,6 @@ const LogoHeader: React.FC = () => {
         style={{ cursor: "pointer" }}
       >
           <img src={logo} className="logo" />
-          <h1 className="title">Beerism</h1>
     </div>
   );
 };

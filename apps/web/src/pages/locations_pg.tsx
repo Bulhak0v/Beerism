@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
-import LogoHeader from "../components/logoHeader";
 import { useNavigate } from "react-router-dom";
 import '../styles/locations.css';
-import { useAuth, User } from "../components/authProvider"; 
+import { useAuth } from "../components/authProvider"; 
 
 const FALLBACK_PICTURES = [
   "/beer1.jpg",
@@ -16,12 +15,12 @@ const LocationsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
- const [filteredLocations, setFilteredLocations] = useState<Location[]>([]);
+  const [filteredLocations, setFilteredLocations] = useState<Location[]>([]);
 
   const [locations, setLocations] = useState<Location[]>([]);
   const [error, setError] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const itemsPerPage = 5;
 
   const fetchAllLocations = useCallback(async () => {
     try {
@@ -42,63 +41,61 @@ const LocationsPage: React.FC = () => {
   }, [fetchAllLocations]);
 
  useEffect(() => {
-    if (searchTerm === "") {
-        setFilteredLocations(locations); 
-    } else {
-        const lowerSearch = searchTerm.toLowerCase();
-        setFilteredLocations(locations.filter(item => 
-            item.name.toLowerCase().includes(lowerSearch) ||
-            (item.city && item.city.toLowerCase().includes(lowerSearch)) ||
-            item.rating.toString().includes(lowerSearch)
-        ));
-      }
-    setCurrentPage(1);
-  }, [locations, searchTerm]);
+    if (searchTerm === "") {
+        setFilteredLocations(locations); 
+    } else {
+        const lowerSearch = searchTerm.toLowerCase();
+        setFilteredLocations(locations.filter(item => 
+            item.name.toLowerCase().includes(lowerSearch) ||
+            (item.city && item.city.toLowerCase().includes(lowerSearch)) ||
+            item.rating.toString().includes(lowerSearch)
+        ));
+      }
+    setCurrentPage(1);
+  }, [locations, searchTerm]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
     setSearchTerm(e.target.value);
   };
 
-  const totalPages = Math.ceil(filteredLocations.length / itemsPerPage);
-  const paginatedLocations = filteredLocations.slice(
-      (currentPage - 1) * itemsPerPage, 
-      currentPage * itemsPerPage
-  );
+  const paginatedLocations = filteredLocations.slice(
+      (currentPage - 1) * itemsPerPage, 
+      currentPage * itemsPerPage
+  );
 
 
   return (
     <>
-      <LogoHeader />
        <div className="locations-main">
         <div className="topTitle">
           <h2>Locations</h2>
-          <button className="backButton" onClick={() => navigate("/profile")}><span><img src="/profileIcons/Arrow.svg"></img></span> Back</button>
+          <button className="backButton" onClick={() => navigate("/home")}>
+            <span><img src="/profileIcons/Arrow.svg" alt="back"></img></span> Back
+          </button>
         </div>
 
         <div className="locations-cover">
             <div className="search-and-pagination">
+              
               <div className="search-bar-container">
                 <div className="search-bar"> 
-                <form className="search-form" onSubmit={(e) => e.preventDefault()}>
-                    <input
-                      type="text"
-                      placeholder="Search (name, city, rating...)"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)} 
-                      autoComplete="off"
-                    /> 
-              </form>
-                 <button 
-                  type="button" 
-                  className="searchButton"
-                  onClick={() => setSearchTerm(searchTerm.trim())}
-                />
-
-                 
+                  <form className="search-form" onSubmit={(e) => e.preventDefault()}>
+                    <input
+                      type="text"
+                      placeholder="Search (name, city, rating...)"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)} 
+                      autoComplete="off"
+                    /> 
+                  </form>
+                  <button 
+                    type="button" 
+                    className="searchButton"
+                    onClick={() => setSearchTerm(searchTerm.trim())}
+                  />
                 </div>
-               
               </div>
              
-
               <PaginationControls
                 currentPage={currentPage}
                 totalPages={Math.ceil(filteredLocations.length / itemsPerPage)}
@@ -108,7 +105,6 @@ const LocationsPage: React.FC = () => {
             
             <div className="locations-card">
             {paginatedLocations.map(location => {
-          
               return (
                 <LocationCard 
                   key={location.location_id} 
@@ -148,20 +144,15 @@ interface LocationCardProps {
   onClick?: (location: Location) => void;
 }
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
-  const fullStars = Math.floor(rating);
-  const halfStar = rating % 1 >= 0.5;
-  const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
+  const percentage = Math.min(100, Math.max(0, (rating / 5) * 100));
 
   return (
-    <div className="star-rating">
-      {[...Array(fullStars)].map((_, i) => (
-        <span key={`full-${i}`}>★</span>
-      ))}
-      {halfStar && <span>☆</span>}
-
-      {[...Array(Math.max(0, emptyStars))].map((_, i) => (
-        <span key={`empty-${i}`} className="star-empty">★</span> 
-      ))}
+    <div className="star-rating-wrapper" title={`Rating: ${rating}`}>
+      <div className="star-rating-base">★★★★★</div>
+      
+      <div className="star-rating-fill" style={{ width: `${percentage}%` }}>
+        ★★★★★
+      </div>
     </div>
   );
 };
@@ -171,7 +162,7 @@ const LocationCard: React.FC<LocationCardProps> = ({ location, onClick }) => {
 
   return (
     <div className="location-card"  onClick={() => onClick && onClick(location)}>
-      <img src={FALLBACK_PICTURES[pictureIndex]} className="location-image" />
+      <img src={FALLBACK_PICTURES[pictureIndex]} className="location-image" alt={location.name} />
       <div className="location-info">
         <div className="location-info-title">
           <div className="location-info-titleName">{location.name}</div>
@@ -179,7 +170,7 @@ const LocationCard: React.FC<LocationCardProps> = ({ location, onClick }) => {
           <StarRating rating={location.rating} />
         </div>
         
-        <p>{location.description ?? "No description available"}</p>
+        <p className="location-description">{location.description ?? "No description available"}</p>
         <div className="location-meta">
           <span>City: {location.city ?? "Unknown"}</span>
           <span>Address: {location.address ?? "Unknown"}</span>
@@ -253,4 +244,3 @@ const PaginationControls: React.FC<PaginationControlsProps> = ({ currentPage, to
     </div>
   );
 };
-
