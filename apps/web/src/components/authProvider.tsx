@@ -1,23 +1,54 @@
-import React, { createContext, useState, useContext, useEffect } from "react";
+import React, { createContext, useState, useContext, useEffect, useCallback } from "react";
 
 interface AuthContextUser {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  routes: RouteData[]; 
+  addRoute: (newRoute: Omit<RouteData, 'client_route_id'>) => void;
+  setRoutes: React.Dispatch<React.SetStateAction<RouteData[]>>;
+  updateRoute: (updatedRoute: RouteData) => void;
   logout: () => void;
 }
 
+const getRouteKey = (userId: number) => `routes_user_${userId}`;
+export interface RouteData {
+    client_route_id: string;
+    name: string;
+    description: string;
+    travel_mode: 'Walking' | 'Driving' | 'Bicycling';
+    stops: {
+        location_id: string;
+        note: string;
+    }[];
+}
 const AuthContext = createContext<AuthContextUser | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
     console.log(user);
 
+  const [routes, setRoutes] = useState<RouteData[]>([]);
+
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
+    
     if (savedUser) {
       setUser(JSON.parse(savedUser));
+
+      const parsedUser = JSON.parse(savedUser);
+      setUser(parsedUser);
+
+      const savedRoutes = localStorage.getItem(getRouteKey(parsedUser.user_id));
+      if (savedRoutes) {
+        setRoutes(JSON.parse(savedRoutes));
+      }
+      else{
+        setRoutes([]);
+      }
     }
+   
   }, []);
+
   useEffect(() => {
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
@@ -26,12 +57,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
   }, [user]);
 
-  const logout = () => {
+  useEffect(() => {
+        if (user) {
+            localStorage.setItem(getRouteKey(user.user_id), JSON.stringify(routes));
+        }
+    }, [routes, user]);
+
+  const addRoute = (newRoute: Omit<RouteData, 'client_route_id'>) => {
+    const routeWithClientId: RouteData = {
+        ...newRoute,
+        client_route_id: Date.now().toString(),
+    };
+
+    setRoutes(prev => [...prev, routeWithClientId]);
+};
+
+  const updateRoute = useCallback((updatedRoute: RouteData) => {
+      setRoutes(prevRoutes => 
+          prevRoutes.map(route => 
+              route.client_route_id === updatedRoute.client_route_id
+                  ? updatedRoute
+                  : route
+          )
+      );
+  }, []);
+
+ const logout = () => {
+    if (user) {
+        localStorage.removeItem(getRouteKey(user.user_id));
+    }
     setUser(null);
-  
+    setRoutes([]);
   };
+
   return (
-    <AuthContext.Provider value={{ user, setUser, logout }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        setUser, 
+        routes,
+        setRoutes,
+        addRoute,
+        updateRoute,
+        logout 
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
