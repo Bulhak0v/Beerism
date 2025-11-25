@@ -28,6 +28,8 @@ const LocationsPage: React.FC = () => {
       // Temporary, remove after proper user geolocation is implemented. 
       let city = encodeURIComponent("Київ");
 
+      console.log(city)
+
       if (searchTerm)
       {
         city = encodeURIComponent(searchTerm);
