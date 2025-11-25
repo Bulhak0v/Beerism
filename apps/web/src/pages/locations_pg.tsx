@@ -22,9 +22,18 @@ const LocationsPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+
   const fetchAllLocations = useCallback(async () => {
     try {
-      const res = await fetch(`https://beerism-backend.onrender.com/api/locations/recommendations/byCity`);
+      // Temporary, remove after proper user geolocation is implemented. 
+      let city = encodeURIComponent("Київ");
+
+      if (searchTerm)
+      {
+        city = encodeURIComponent(searchTerm);
+      }
+
+      const res = await fetch(`https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}&city=${city}}`);
       if (!res.ok) {
         throw new Error('Failed to fetch locations');
       }
