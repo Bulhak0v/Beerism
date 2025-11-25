@@ -289,7 +289,8 @@ const MapPage = () => {
                             resetRouteCreationState={resetRouteCreationState}
                         />
                     )}
-            {isLoaded ? (
+            <div className="map">
+               {isLoaded ? (
                 <GoogleMap
                     mapContainerStyle={mapContainerStyle}
                     center={mapCenter} 
@@ -378,6 +379,7 @@ const MapPage = () => {
                     <p>Loading Google Maps API...</p>
                 </div>
             )}
+              </div>
         </div>
       </div>
     </div>
@@ -455,6 +457,7 @@ const RoutePlannerPanel: React.FC<RoutePlannerPanelProps> = ({
     };
     
     const handleBackToList = () => {
+        resetRouteCreationState();
         setIsCreatingNewRoute(false);
     };
 

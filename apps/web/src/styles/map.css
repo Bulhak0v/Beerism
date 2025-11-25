@@ -9,7 +9,7 @@ body {
   display: flex;
   flex-direction: column;
   padding-top: 20px;
-  
+  margin-bottom: 30px;
 
   font-family: "Gentium Book Plus", serif;
   color: #202020;
@@ -185,7 +185,6 @@ button, select, input, option {
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     padding: 15px;
-    
     border-top: 50px solid #794d33; 
     box-sizing: border-box;
 }
@@ -334,11 +333,33 @@ button, select, input, option {
     border-radius: 9px;
     transition: background-color 150ms;
 }
+.map {
+    width: 100%;
+    height: 100%; 
+}
 
 @media screen and (max-width: 768px) {
   
   .map-content-wrapper {
     padding: 0 15px;
+  }
+  .route-planning-btn img{
+    width: 3%;
+  }
+  .map-page-container{
+    overflow-y: auto;
+    min-height: auto;
+  }
+  .map-wrapper{
+    height: 149vh;
+    display: flex;
+    flex-wrap: wrap-reverse;
+  }
+  .map{
+    position: relative;
+    width: 100%;
+    height: 90vh;
+    flex-shrink: 0;
   }
 
   .map-controls {
@@ -372,14 +393,32 @@ button, select, input, option {
     padding: 12px;
   }
 
-  .map-wrapper {
-    height: 60vh; 
-    border-radius: 0;
-  }
 
   .info-window-content {
     max-width: 200px;
   }
+
+.route-planner-panel {
+    position: static; 
+    padding: 0;
+    width: 100%;
+    margin-top: 20px;
+    border-top: 0.2px solid #202020;
+}
+.route-list-view, .route-creation-form{
+    padding: 20px !important;
+}
+.route-planner-header {
+  position: static;
+  padding: 20px;
+  background-color: #794d33;
+  border-top-right-radius : 8px;
+  border-top-left-radius: 8px;
+  height: 50px; 
+}
+.stops-list-container{
+  max-height: none;
+}
 }
 
 .map-info-card {
