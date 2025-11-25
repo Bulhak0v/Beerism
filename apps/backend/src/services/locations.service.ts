@@ -95,6 +95,8 @@ export const LocationsService = {
         const result = await db.query(query, [city]);
         const locations = result.rows;
 
+        console.log(locations);
+
         const scored = locations.map(loc => {
             let score = 0;
             if (preferred_budget_range && loc.average_budget_requirment === preferred_budget_range) score += 1 * budget_coefficient;
@@ -103,6 +105,8 @@ export const LocationsService = {
             score += loc.rating * rating_coefficient;
             return { loc, score };
         });
+
+        console.log(scored);
 
         scored.sort((a, b) => {
             if (b.score !== a.score) return b.score - a.score;
