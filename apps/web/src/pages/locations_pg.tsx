@@ -33,10 +33,16 @@ const LocationsPage: React.FC = () => {
         city = encodeURIComponent(searchTerm);
       }
 
+      console.log(city)
+      console.log(user!.user_id)
+
       const res = await fetch(`https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}&city=${city}}`);
       if (!res.ok) {
         throw new Error('Failed to fetch locations');
       }
+
+      console.log(res);
+      
       const data = await res.json();
       setLocations(data);
       setCurrentPage(1); 
