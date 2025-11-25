@@ -24,7 +24,7 @@ const LocationsPage: React.FC = () => {
 
   const fetchAllLocations = useCallback(async () => {
     try {
-      const res = await fetch(`https://beerism-backend.onrender.com/api/locations`);
+      const res = await fetch(`https://beerism-backend.onrender.com/api/locations/recommendations/byCity`);
       if (!res.ok) {
         throw new Error('Failed to fetch locations');
       }

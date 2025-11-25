@@ -74,6 +74,11 @@ export const LocationsService = {
         const preferred_budget_range = (user as any).preferred_budget_range;
         const preferred_venue_atmosphere = (user as any).preferred_venue_atmosphere;
         const preferred_beer_style_id = (user as any).preferred_beer_style_id;
+        
+        const budget_coefficient = 80;
+        const venue_coefficient = 60;
+        const beer_style_coefficient = 20;
+        const rating_coefficient = 100;
 
         const query = `
             SELECT 
@@ -92,9 +97,10 @@ export const LocationsService = {
 
         const scored = locations.map(loc => {
             let score = 0;
-            if (preferred_budget_range && loc.average_budget_requirment === preferred_budget_range) score++;
-            if (preferred_venue_atmosphere && loc.atmospheres.includes(preferred_venue_atmosphere)) score++;
-            if (preferred_beer_style_id !== undefined && preferred_beer_style_id !== null && loc.beer_style_ids.includes(preferred_beer_style_id)) score++;
+            if (preferred_budget_range && loc.average_budget_requirment === preferred_budget_range) score += 1 * budget_coefficient;
+            if (preferred_venue_atmosphere && loc.atmospheres.includes(preferred_venue_atmosphere)) score += 1 * venue_coefficient;
+            if (preferred_beer_style_id !== undefined && preferred_beer_style_id !== null && loc.beer_style_ids.includes(preferred_beer_style_id)) score += 1 * beer_style_coefficient;
+            score += loc.rating * rating_coefficient;
             return { loc, score };
         });
 
