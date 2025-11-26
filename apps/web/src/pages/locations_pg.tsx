@@ -26,7 +26,7 @@ const LocationsPage: React.FC = () => {
   const fetchAllLocations = useCallback(async () => {
     try {
       // Temporary, remove after proper user geolocation is implemented. 
-      let city = "Київ";
+      let city = 'Київ';
 
       console.log(city)
       console.log(user!.user_id)

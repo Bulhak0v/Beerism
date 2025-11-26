@@ -74,7 +74,9 @@ export const LocationsService = {
         const preferred_budget_range = (user as any).preferred_budget_range;
         const preferred_venue_atmosphere = (user as any).preferred_venue_atmosphere;
         const preferred_beer_style_id = (user as any).preferred_beer_style_id;
-        
+
+        console.log(`preferred_budget_range = ${preferred_budget_range}, preferred_venue_atmosphere = ${preferred_venue_atmosphere}, preferred_beer_style_id = ${preferred_beer_style_id}`)
+        console.log(`city = ${city}, user_id = ${user_id}`)
         const budget_coefficient = 80;
         const venue_coefficient = 60;
         const beer_style_coefficient = 20;
