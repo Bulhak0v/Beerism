@@ -103,6 +103,7 @@ export const LocationsService = {
             if (preferred_venue_atmosphere && loc.atmospheres.includes(preferred_venue_atmosphere)) score += 1 * venue_coefficient;
             if (preferred_beer_style_id !== undefined && preferred_beer_style_id !== null && loc.beer_style_ids.includes(preferred_beer_style_id)) score += 1 * beer_style_coefficient;
             score += loc.rating * rating_coefficient;
+            score = Math.round(score);
             return { loc, score };
         });
 
