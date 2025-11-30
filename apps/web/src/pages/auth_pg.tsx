@@ -111,6 +111,46 @@ const AuthForms: React.FC = () => {
     }
   };
 
+  const saveCity = async () => {
+    const storedString = sessionStorage.getItem("user_location");
+
+    if (!storedString) {
+      console.log("⚠️ Нет данных в sessionStorage");
+      return;
+    }
+
+    try {
+      const locationData = JSON.parse(storedString);
+
+      if (!locationData.latitude || !locationData.longitude) {
+        console.error("Координаты не найдены в объекте:", locationData);
+        return;
+      }
+
+      const lat = locationData.latitude;
+      const lng = locationData.longitude;
+
+      console.log(`📍 Запрос города для: ${lat}, ${lng}`);
+
+      const response = await fetch(
+        `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+      );
+
+      if (!response.ok) throw new Error("Ошибка сети");
+
+      const data = await response.json();
+
+      const city = data.city || data.locality || "Unknown City";
+
+      console.log("ВАШ ГОРОД:", city);
+
+      localStorage.setItem("user_city", city);
+
+    } catch (e) {
+      console.error("Ошибка определения города:", e);
+    }
+  };
+
   const saveLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -118,6 +158,7 @@ const AuthForms: React.FC = () => {
         sessionStorage.setItem("user_location", JSON.stringify(coords));
       }, (err) => console.warn(err));
     }
+    saveCity();
   };
 
 

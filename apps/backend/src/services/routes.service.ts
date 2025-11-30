@@ -51,5 +51,66 @@ export const RoutesService = {
         }
 
         return result.rows[0];
+    },
+
+    async optimizeRouteStops(routeId: number, userLat: number, userLng: number): Promise<void> {
+        try {
+            await db.query('BEGIN');
+
+            const res = await db.query(
+                `SELECT rs.*, l.latitude, l.longtitude 
+                 FROM route_stops rs
+                 JOIN locations l ON rs.location_id = l.location_id
+                 WHERE rs.route_id = $1`,
+                [routeId]
+            );
+
+            const stops = [...res.rows];
+
+            if (stops.length === 0) {
+                await db.query('ROLLBACK');
+                return;
+            }
+
+            let currentLat = userLat;
+            let currentLng = userLng;
+            const sortedStops: any[] = [];
+
+            while (stops.length > 0) {
+                let nearestIndex = -1;
+                let minDistance = Infinity;
+
+                for (let i = 0; i < stops.length; i++) {
+                    const dist = Math.sqrt(
+                        Math.pow(stops[i].latitude - currentLat, 2) +
+                        Math.pow(stops[i].longtitude - currentLng, 2)
+                    );
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        nearestIndex = i;
+                    }
+                }
+
+                const nearestStop = stops[nearestIndex];
+                sortedStops.push(nearestStop);
+                currentLat = nearestStop.latitude;
+                currentLng = nearestStop.longtitude;
+                stops.splice(nearestIndex, 1);
+            }
+
+            for (let i = 0; i < sortedStops.length; i++) {
+                const stop = sortedStops[i];
+                await db.query(
+                    `UPDATE route_stops SET stop_order = $1 WHERE route_id = $2 AND location_id = $3`,
+                    [i + 1, routeId, stop.location_id]
+                );
+            }
+
+            await db.query('COMMIT');
+
+        } catch (e) {
+            await db.query('ROLLBACK');
+            throw e;
+        }
     }
 };

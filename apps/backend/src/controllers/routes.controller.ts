@@ -65,3 +65,28 @@ export async function updateRoute(req: Request, res: Response ) {
         res.status(500).json({ error: "An error occured while updating a location" });
     }
 }
+
+export async function optimizeRoute(req: Request, res: Response) {
+    try {
+        const { id } = req.params;
+        const routeId = parseInt(id, 10);
+        
+        const { userLat, userLng } = req.body; 
+
+        if (isNaN(routeId)) {
+            return res.status(400).json({ error: "Invalid Route ID" });
+        }
+        
+        if (!userLat || !userLng) {
+            return res.status(400).json({ error: "User location (lat, lng) is required for optimization" });
+        }
+
+        await RoutesService.optimizeRouteStops(routeId, userLat, userLng);
+
+        res.status(200).json({ message: "Route optimized successfully" });
+
+    } catch (err) {
+        console.error("Optimization error:", err);
+        res.status(500).json({ error: "Failed to optimize route" });
+    }
+}

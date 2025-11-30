@@ -27,6 +27,11 @@ const ProfilePage: React.FC = () => {
   const [avatarPreview, setAvatarPreview] = useState<string>(
     user?.profile_picture || avatarPlaceholder
   );
+const [userCity, setUserCity] = useState(() => {
+  const city = localStorage.getItem("user_city")?.toString();
+  console.log(city);
+  return city || "Not set";
+});
 
   const handleLogout = () => {
     logout(); 
@@ -294,6 +299,29 @@ const ProfilePage: React.FC = () => {
               </select>
             </div>
 
+            <div className="field">
+              <label>Your city</label>
+              <select
+                value={userCity}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setUserCity(val);
+                  localStorage.setItem("user_city", val);
+                }}
+              >
+                <option value="Not set">Not set</option>
+
+                <option value="Kyiv">Kyiv</option>
+                <option value="Lviv">Lviv</option>
+                <option value="Odessa">Odessa</option>
+
+                {userCity &&
+                  userCity !== "Not set" &&
+                  !["Kyiv", "Lviv", "Odessa"].includes(userCity) && (
+                    <option value={userCity}>{userCity}</option>
+                  )}
+              </select>
+            </div>
 
           </div>
            <div className="profile-actions">

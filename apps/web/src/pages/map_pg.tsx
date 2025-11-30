@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useMemo } from "react";
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow, DirectionsRenderer } from "@react-google-maps/api";
 import { useNavigate } from "react-router-dom";
 import "../styles/map.css";
 import { RouteData, useAuth } from "../components/authProvider";
@@ -53,6 +53,56 @@ const MapPage = () => {
     id: "google-map-script",
     googleMapsApiKey: "AIzaSyDi4S7u2L4oxzpOa3dNIyytp2Igly6fBVw", 
   });
+
+  const [directionsResponse, setDirectionsResponse] = useState<google.maps.DirectionsResult | null>(null);
+
+  const calculateRoute = async (stops: RouteStop[]) => {
+    if (!window.google) return;
+
+    let origin: google.maps.LatLngLiteral = defaultCenter; // По умолчанию - Киев
+    
+    const storedSession = sessionStorage.getItem("user_location");
+    if (storedSession) {
+       try {
+         const parsed = JSON.parse(storedSession);
+         if (parsed.latitude && parsed.longitude) {
+            origin = { lat: parsed.latitude, lng: parsed.longitude };
+         }
+       } catch(e) { console.error("Error parsing location", e); }
+    }
+
+    if (!stops || stops.length === 0) return;
+
+    const sortedStops = [...stops]; 
+
+    const destinationStop = sortedStops[sortedStops.length - 1];
+    const destination = { lat: destinationStop.latitude, lng: destinationStop.longtitude };
+
+    const waypoints = sortedStops.slice(0, sortedStops.length - 1).map(stop => ({
+        location: { lat: stop.latitude, lng: stop.longtitude },
+        stopover: true
+    }));
+
+    const directionsService = new google.maps.DirectionsService();
+
+    let mode = google.maps.TravelMode.WALKING;
+    if (travelMode === 'Driving') mode = google.maps.TravelMode.DRIVING;
+    if (travelMode === 'Bicycling') mode = google.maps.TravelMode.BICYCLING;
+
+try {
+      const results = await directionsService.route({
+          origin: origin,
+          destination: destination,
+          waypoints: waypoints,
+          travelMode: mode,
+      });
+
+      setDirectionsResponse(results);
+
+    } catch (error) {
+       console.error("Error calculating route:", error);
+    }
+  };
 
   const fetchAllLocations = useCallback(async () => {
     try {
@@ -180,6 +230,7 @@ const MapPage = () => {
         setSelectedStops(stopsToLoad); 
         setIsCreatingNewRoute(true); 
         setEditingRouteId(route.client_route_id);
+        calculateRoute(stopsToLoad);
         
     }, [locations, setRouteName, setRouteDescription, setTravelMode, setSelectedStops, setIsCreatingNewRoute, setEditingRouteId]);
 
@@ -372,6 +423,19 @@ const MapPage = () => {
                                 </div>
                             </div>
                         </InfoWindow>
+                    )}
+                    {directionsResponse && (
+                        <DirectionsRenderer 
+                            options={{
+                                directions: directionsResponse,
+                                suppressMarkers: true,
+                                polylineOptions: {
+                                    strokeColor: "#ff9900",
+                                    strokeWeight: 5,
+                                    strokeOpacity: 0.8
+                                }
+                            }} 
+                        />
                     )}
                 </GoogleMap>
             ) : (
