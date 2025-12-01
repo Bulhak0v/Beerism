@@ -25,8 +25,7 @@ const LocationsPage: React.FC = () => {
 
   const fetchAllLocations = useCallback(async () => {
     try {
-      // Temporary, remove after proper user geolocation is implemented. 
-      const city = 'Київ';
+      const city = localStorage.getItem("user_city")?.toString();
 
       const res = await fetch(`https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}&city=${city}`);
       if (!res.ok) {
