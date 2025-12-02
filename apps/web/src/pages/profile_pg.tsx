@@ -5,6 +5,11 @@ import LogoHeader from "../components/logoHeader";
 import { useNavigate } from "react-router-dom";
 import { useAuth, User } from "../components/authProvider"; 
 
+interface BeerStyleOption {
+    beer_style_id: number;
+    beer_style_name: string;
+}
+
 const ProfilePage: React.FC = () => {
   const CLOUD_NAME = "djtsu5y8b"; 
   const UPLOAD_PRESET = "userImages"
@@ -20,6 +25,7 @@ const ProfilePage: React.FC = () => {
     budget: "Not set",
     favoriteBarStyle: "Not set"
   });
+  const [availableBeerStyles, setAvailableBeerStyles] = useState<BeerStyleOption[]>([]);
   const [favoriteBeer, setFavoriteBeer] = useState("Not set");
   const [budget, setBudget] = useState("Not set");
   const [favoriteBarStyle, setFavoriteBarStyle] = useState("Not set");
@@ -38,6 +44,19 @@ const [userCity, setUserCity] = useState(() => {
     navigate("/auth");
   };
 
+  useEffect(() => {
+      const fetchStyles = async () => {
+          try {
+              const res = await fetch('https://beerism-backend.onrender.com/api/beer-styles');
+              if(res.ok) {
+                  const data = await res.json();
+                  setAvailableBeerStyles(data);
+              }
+          } catch (e) { console.error(e); }
+      };
+      fetchStyles();
+  }, []);
+
   const [activeTab, setActiveTab] = useState("Profile"); 
   useEffect(() => {
     if (user) {
@@ -52,7 +71,7 @@ const [userCity, setUserCity] = useState(() => {
       const bud = user.preferred_budget_range || "";
       const bar = user.preferred_venue_atmosphere || "";
 
-      setFavoriteBeer(beer);
+      setFavoriteBeer(user.preferred_beer_style_id ? user.preferred_beer_style_id.toString() : "");
       setBudget(bud);
       setFavoriteBarStyle(bar);
 
@@ -268,34 +287,35 @@ const [userCity, setUserCity] = useState(() => {
                 onChange={(e) => setFavoriteBeer(e.target.value)}
               >
                 <option value="">Not set</option>
-                <option value="1">Lager</option>
-                <option value="2">Ale</option>
-                <option value="3">Stout</option>
+                {availableBeerStyles.map(style => (
+                    <option key={style.beer_style_id} value={style.beer_style_id}>
+                        {style.beer_style_name}
+                    </option>
+                ))}
               </select>
             </div>
-
 
             <div className="field">
               <label>Budget</label>
               <select value={budget} onChange={(e) => setBudget(e.target.value)}>
                 <option value="">Not set</option>
-                <option value="Low">~50$</option>
-                <option value="Medium">~100$</option>
-                <option value="High">~200$</option>
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
               </select>
-
             </div>
 
             <div className="field">
               <label>Favorite bar style</label>
-              <select
-                value={favoriteBarStyle}
-                onChange={(e) => setFavoriteBarStyle(e.target.value)}
-              >
+              <select value={favoriteBarStyle} onChange={(e) => setFavoriteBarStyle(e.target.value)}>
                 <option value="">Not set</option>
                 <option value="Cozy">Cozy</option>
                 <option value="Modern">Modern</option>
                 <option value="Historic">Historic</option>
+                <option value="Lively">Lively</option>
+                <option value="Industrial">Industrial</option>
+                <option value="Outdoor">Outdoor</option>
+                <option value="Family_Friendly">Family Friendly</option>
               </select>
             </div>
 

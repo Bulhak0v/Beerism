@@ -57,7 +57,8 @@ export default function AdminUserPage() {
                 const response = await fetch(`https://beerism-backend.onrender.com/api/users/all`);
                if (!response.ok) throw new Error("Failed to fetch users");
                 const users: User[] = await response.json();
-                setData(users);
+                const sortedUsers = users.sort((a, b) => a.user_id - b.user_id);
+                setData(sortedUsers);
             } catch (err) {
                 console.error("Error fetching users:", err);
             }

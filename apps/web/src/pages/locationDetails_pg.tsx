@@ -19,6 +19,16 @@ interface Location {
   picture: string;
 }
 
+interface BeerStyle {
+    beer_style_id: number;
+    beer_style_name: string;
+}
+
+interface LocationDetails extends Location {
+    atmospheres: string[];
+    beer_styles: BeerStyle[];
+}
+
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
   const percentage = Math.min(100, Math.max(0, (rating / 5) * 100));
 
@@ -35,7 +45,7 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 const LocationDetailsPage: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [location, setLocation] = useState<Location | null>(null);
+  const [location, setLocation] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
   useEffect(() => {
     const fetchLocationDetails = async () => {
@@ -117,9 +127,22 @@ const LocationDetailsPage: React.FC = () => {
             </p>
 
             <div className="details-meta">
-              <p>Atmosphere Style: Historic 🏛️</p>
-              <p>Beer Style: (Dunkel) 🍺</p>
-              <p>Budget Range: {location.average_budget_requirment ?? "High $"}</p>
+
+              <p>
+                  <strong>Atmosphere: </strong> 
+                  {location.atmospheres && location.atmospheres.length > 0 
+                    ? location.atmospheres.join(", ") 
+                    : "Not specified"} 🏛️
+              </p>
+
+              <p>
+                  <strong>Beer Styles: </strong>
+                  {location.beer_styles && location.beer_styles.length > 0
+                    ? location.beer_styles.map((b: any) => b.beer_style_name).join(", ")
+                    : "Unknown"} 🍺
+              </p>
+
+              <p><strong>Budget Range:</strong> {location.average_budget_requirment ?? "High $"}</p>
             </div>
 
             <div className="details-tabs">

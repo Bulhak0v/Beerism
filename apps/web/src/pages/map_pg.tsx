@@ -36,6 +36,13 @@ interface Location {
   picture: string | null;
   rating: number;
   website: string;
+  atmospheres: string[];
+  beer_styles: BeerStyle[];
+}
+
+interface BeerStyle {
+    beer_style_id: number;
+    beer_style_name: string;
 }
 
 interface RouteStop extends Location {
@@ -62,7 +69,7 @@ const MapPage = () => {
   
   const [selectedBudget, setSelectedBudget] = useState<string>('');
   const [selectedAtmosphere, setSelectedAtmosphere] = useState<string>('');
-  const [selectedStyle, setSelectedStyle] = useState<string>('');
+  const [selectedStyleId, setSelectedStyleId] = useState<string>('');
 
   const [isRoutePlannerOpen, setIsRoutePlannerOpen] = useState(false);
   const [isCreatingNewRoute, setIsCreatingNewRoute] = useState(false);
@@ -75,6 +82,23 @@ const MapPage = () => {
 
   const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
   const [routeStats, setRouteStats] = useState<{ time: string; distance: string } | null>(null);
+
+  const [beerStyleOptions, setBeerStyleOptions] = useState<BeerStyle[]>([]);
+
+  useEffect(() => {
+      fetch('https://beerism-backend.onrender.com/api/beer-styles')
+        .then(res => res.json())
+        .then(data => setBeerStyleOptions(data))
+        .catch(err => console.error(err));
+  }, []);
+
+  useEffect(() => {
+      if(user) {
+          if(user.preferred_budget_range) setSelectedBudget(user.preferred_budget_range);
+          if(user.preferred_venue_atmosphere) setSelectedAtmosphere(user.preferred_venue_atmosphere);
+          if(user.preferred_beer_style_id) setSelectedStyleId(user.preferred_beer_style_id.toString());
+      }
+  }, [user]);
 
   const fetchAllLocations = useCallback(async () => {
     try {
@@ -113,15 +137,29 @@ const MapPage = () => {
     }
   }, [fetchAllLocations, fetchUserRoutes, user]);
 
-  const filteredLocations = useMemo(() => {
+   const filteredLocations = useMemo(() => {
     let current = locations;
-    if (selectedBudget) current = current.filter(loc => loc.average_budget_requirment === selectedBudget);
-    if (selectedStyle === 'Dunkel') current = current.filter(loc => loc.description.toLowerCase().includes('темне') || loc.description.toLowerCase().includes('стаут'));
-    else if (selectedStyle === 'IPA') current = current.filter(loc => loc.description.toLowerCase().includes('ipa') || loc.name.toLowerCase().includes('point'));
-    if (selectedAtmosphere === 'Historic') current = current.filter(loc => loc.description.toLowerCase().includes('історична') || loc.city === 'Львів');
-    else if (selectedAtmosphere === 'Modern') current = current.filter(loc => loc.description.toLowerCase().includes('модний') || loc.city === 'Одеса');
+
+    if (selectedBudget) {
+        current = current.filter(loc => loc.average_budget_requirment === selectedBudget);
+    }
+
+    if (selectedStyleId) {
+        const idToCheck = parseInt(selectedStyleId);
+        current = current.filter(loc => 
+            loc.beer_styles && loc.beer_styles.some(bs => bs.beer_style_id === idToCheck)
+        );
+    }
+
+    if (selectedAtmosphere) {
+        current = current.filter(loc => 
+            loc.atmospheres && loc.atmospheres.includes(selectedAtmosphere)
+        );
+    }
+
     return current;
-  }, [locations, selectedBudget, selectedStyle, selectedAtmosphere]);
+  }, [locations, selectedBudget, selectedStyleId, selectedAtmosphere]);
+
 
   const calculateRoute = async (stops: RouteStop[]) => {
     if (!stops || stops.length < 2) {
@@ -313,9 +351,38 @@ const MapPage = () => {
         <div className="map-controls">
             <h1 className="map-page-title">Locations Map</h1>
             <div className="filter-container">
-                <FilterDropdown value={selectedBudget} onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setSelectedBudget(e.target.value)} options={[{ label: 'High', value: 'High' }, { label: 'Medium', value: 'Medium' }, { label: 'Low', value: 'Low' }]} defaultLabel="Budget" />
-                <FilterDropdown value={selectedAtmosphere} onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setSelectedAtmosphere(e.target.value)} options={[{ label: 'Historic', value: 'Historic' }, { label: 'Modern', value: 'Modern' }]} defaultLabel="Atmosphere" />
-                <FilterDropdown value={selectedStyle} onChange={(e: { target: { value: React.SetStateAction<string>; }; }) => setSelectedStyle(e.target.value)} options={[{ label: 'Dunkel', value: 'Dunkel' }, { label: 'IPA', value: 'IPA' }]} defaultLabel="Style" />
+                <FilterDropdown 
+                    value={selectedBudget} 
+                    onChange={(e: any) => setSelectedBudget(e.target.value)} 
+                    options={[
+                        { label: 'Low', value: 'Low' }, 
+                        { label: 'Medium', value: 'Medium' }, 
+                        { label: 'High', value: 'High' }
+                    ]} 
+                    defaultLabel="Any Budget" 
+                />
+                
+                <FilterDropdown 
+                    value={selectedAtmosphere} 
+                    onChange={(e: any) => setSelectedAtmosphere(e.target.value)} 
+                    options={[
+                        { label: 'Historic', value: 'Historic' }, 
+                        { label: 'Modern', value: 'Modern' },
+                        { label: 'Cozy', value: 'Cozy' },
+                        { label: 'Lively', value: 'Lively' },
+                        { label: 'Industrial', value: 'Industrial' },
+                        { label: 'Outdoor', value: 'Outdoor' },
+                        { label: 'Family Friendly', value: 'Family_Friendly' }
+                    ]} 
+                    defaultLabel="Any Atmosphere" 
+                />
+
+                <select value={selectedStyleId} onChange={(e) => setSelectedStyleId(e.target.value)} className="filter-select">
+                    <option value="">Any Style</option>
+                    {beerStyleOptions.map(bs => (
+                        <option key={bs.beer_style_id} value={bs.beer_style_id}>{bs.beer_style_name}</option>
+                    ))}
+                </select>
                 
                 <button className="route-planning-btn" onClick={() => setIsRoutePlannerOpen(true)}>
                     Routes <img src="/Compass.png" alt="" />
