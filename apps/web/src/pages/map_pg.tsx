@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/map.css";
-import { RouteData, useAuth } from "../components/authProvider";
+import { useAuth } from "../components/authProvider";
 
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -20,20 +20,13 @@ const DefaultIcon = L.icon({
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-const BeerIcon = L.icon({
-    iconUrl: '/profileIcons/Beer.svg', 
-    iconSize: [30, 40],
-    iconAnchor: [15, 40],
-    popupAnchor: [0, -40],
-});
-
 const defaultCenter: [number, number] = [50.4501, 30.5234];
 
 interface Location {
-  location_id: string;
+  location_id: number;
   name: string;
   description: string;
-  adress: string;
+  address: string;
   average_budget_requirment: "Low" | "Medium" | "High";
   city: string;
   closes_at: string;
@@ -49,11 +42,21 @@ interface RouteStop extends Location {
   note: string;
 }
 
+interface BackendRoute {
+  route_id: number;
+  user_id: number;
+  name: string;
+  description: string;
+  visibility: string;
+  stops?: any[];
+}
+
 const MapPage = () => {
   const navigate = useNavigate();
-  const { addRoute, user, routes, updateRoute, deleteRoute } = useAuth();
+  const { user } = useAuth();
   
   const [locations, setLocations] = useState<Location[]>([]);
+  const [userRoutes, setUserRoutes] = useState<BackendRoute[]>([]);
   const [error, setError] = useState<string | null>(null);
   
   const [selectedBudget, setSelectedBudget] = useState<string>('');
@@ -62,7 +65,7 @@ const MapPage = () => {
 
   const [isRoutePlannerOpen, setIsRoutePlannerOpen] = useState(false);
   const [isCreatingNewRoute, setIsCreatingNewRoute] = useState(false);
-  const [editingRouteId, setEditingRouteId] = useState<string | null>(null);
+  const [editingRouteId, setEditingRouteId] = useState<number | null>(null);
   
   const [selectedStops, setSelectedStops] = useState<RouteStop[]>([]);
   const [routeName, setRouteName] = useState('Route #1');
@@ -88,7 +91,24 @@ const MapPage = () => {
     }
   }, []);
   
-  useEffect(() => { fetchAllLocations(); }, [fetchAllLocations]);
+  const fetchUserRoutes = useCallback(async () => {
+    if (!user) return;
+    try {
+      const res = await fetch(`https://beerism-backend.onrender.com/api/routes/${user.user_id}`);
+      if (!res.ok) throw new Error("Failed to fetch routes");
+      const data: BackendRoute[] = await res.json();
+      setUserRoutes(data);
+    } catch (err: any) {
+      console.error("Error fetching user routes:", err);
+    }
+  }, [user]);
+
+  useEffect(() => { 
+    fetchAllLocations(); 
+    if (user) {
+        fetchUserRoutes();
+    }
+  }, [fetchAllLocations, fetchUserRoutes, user]);
 
   const filteredLocations = useMemo(() => {
     let current = locations;
@@ -146,50 +166,96 @@ const MapPage = () => {
     });
   }, []);
 
-  const updateStopNote = useCallback((locationId: string, newNote: string) => {
+  const updateStopNote = useCallback((locationId: number, newNote: string) => {
     setSelectedStops(prevStops => prevStops.map(stop => stop.location_id === locationId ? { ...stop, note: newNote } : stop));
   }, []);
 
-  const saveRoute = useCallback(() => {
+  const saveRoute = useCallback(async () => {
     if (!user) { alert("Login required"); return; }
     if (!routeName.trim()) { alert("Enter route name"); return; }
 
-    const stopsWithNotes = selectedStops.map(stop => ({ location_id: stop.location_id, note: stop.note.trim() }));
-    const routePayload: any = {
-        name: routeName.trim(), description: routeDescription.trim(), travel_mode: travelMode, stops: stopsWithNotes,
-    }; 
-    if (editingRouteId) {
-        routePayload.client_route_id = editingRouteId;
-        updateRoute(routePayload as RouteData);
-    } else {
-        addRoute(routePayload); 
+    const stopsWithNotes = selectedStops.map((stop, index) => ({ 
+        location_id: stop.location_id, 
+        note: stop.note.trim(),
+        stop_order: index + 1
+    }));
+    
+    const routePayload = {
+        user_id: user.user_id,
+        name: routeName.trim(),
+        description: routeDescription.trim(),
+        visibility: "public",
+        stops: stopsWithNotes,
+        travel_mode: travelMode
+    };
+
+    try {
+        let res;
+        if (editingRouteId) {
+            res = await fetch(`https://beerism-backend.onrender.com/api/routes/${editingRouteId}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(routePayload)
+            });
+        } else {
+            res = await fetch(`https://beerism-backend.onrender.com/api/routes`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(routePayload)
+            });
+        }
+
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText || "Failed to save route");
+        }
+
+        fetchUserRoutes();
+        resetRouteCreationState();
+        setIsCreatingNewRoute(false);
+        alert("Route saved successfully!");
+
+    } catch (error) {
+        console.error("Error saving route:", error);
+        alert("Failed to save route. Check console.");
     }
-    resetRouteCreationState();
-    setIsCreatingNewRoute(false);
-  }, [routeName, routeDescription, travelMode, selectedStops, editingRouteId, updateRoute, addRoute, user]);
+  }, [routeName, routeDescription, travelMode, selectedStops, editingRouteId, user, fetchUserRoutes]);
 
-  const loadRoute = useCallback((route: RouteData) => {
-    const stopsToLoad: RouteStop[] = route.stops.map(savedStop => {
+  const loadRoute = useCallback((route: BackendRoute) => {
+    const rawStops = route.stops || []; 
+    
+    const stopsToLoad: RouteStop[] = rawStops.map((savedStop: any) => {
         const fullLocation = locations.find(loc => loc.location_id === savedStop.location_id);
-        if (fullLocation) return { ...fullLocation, note: savedStop.note || '' };
+        if (fullLocation) return { ...fullLocation, note: savedStop.notes || '' };
         return undefined; 
-    }).filter((stop): stop is RouteStop => stop !== undefined);
+    }).filter((stop: any): stop is RouteStop => stop !== undefined);
 
-    setRouteName(route.name); setRouteDescription(route.description); setTravelMode(route.travel_mode as any);
-    setSelectedStops(stopsToLoad); setIsCreatingNewRoute(true); setEditingRouteId(route.client_route_id);
+    setRouteName(route.name);
+    setRouteDescription(route.description || '');
+    setSelectedStops(stopsToLoad);
+    setIsCreatingNewRoute(true);
+    setEditingRouteId(route.route_id);
+    
     if(stopsToLoad.length > 1) calculateRoute(stopsToLoad);
   }, [locations]);
 
-  const handleDeleteRoute = useCallback((e: React.MouseEvent, routeId: string) => {
+  const handleDeleteRoute = useCallback(async (e: React.MouseEvent, routeId: number) => {
       e.stopPropagation();
-      if(window.confirm("Are you sure you want to delete this route?")) {
-        if (deleteRoute) {
-            deleteRoute(routeId);
-        } else {
-            alert("Delete function not connected in AuthProvider");
-        }
+      if(!window.confirm("Are you sure you want to delete this route?")) return;
+
+      try {
+        const res = await fetch(`https://beerism-backend.onrender.com/api/routes/${routeId}`, {
+            method: "DELETE"
+        });
+
+        if (!res.ok) throw new Error("Failed to delete route");
+
+        fetchUserRoutes();
+      } catch (error) {
+          console.error("Error deleting route:", error);
+          alert("Failed to delete route");
       }
-  }, [deleteRoute]);
+  }, [fetchUserRoutes]);
 
   const resetRouteCreationState = useCallback(() => {
     setRouteName(`Route #${Date.now().toString().slice(-4)}`); setRouteDescription(''); setTravelMode('Walking');
@@ -252,7 +318,7 @@ const MapPage = () => {
                 <RoutePlannerPanel 
                     isRoutePlannerOpen={isRoutePlannerOpen} setIsRoutePlannerOpen={setIsRoutePlannerOpen}
                     isCreatingNewRoute={isCreatingNewRoute} setIsCreatingNewRoute={setIsCreatingNewRoute}
-                    selectedStops={selectedStops} toggleStop={toggleStop} userRoutes={routes}
+                    selectedStops={selectedStops} toggleStop={toggleStop} userRoutes={userRoutes}
                     routeName={routeName} setRouteName={setRouteName}
                     routeDescription={routeDescription} setRouteDescription={setRouteDescription}
                     travelMode={travelMode} setTravelMode={setTravelMode}
@@ -277,7 +343,7 @@ const MapPage = () => {
                                     <p className="info-window-desc">{location.description}</p>
                                     <ul className="info-window-list">
                                         <li>⭐ {location.rating} | 💰 {location.average_budget_requirment}</li>
-                                        <li>⏱️ {location.opens_at.slice(0,5)} - {location.closes_at.slice(0,5)}</li>
+                                        <li>⏱️ {location.opens_at ? location.opens_at.slice(0,5) : ''} - {location.closes_at ? location.closes_at.slice(0,5) : ''}</li>
                                     </ul>
                                     <button className="map-details-btn" onClick={() => navigate(`/locationDetails/${location.location_id}`)}>View Full Details</button>
                                     
@@ -309,15 +375,15 @@ const FilterDropdown: React.FC<{ value: string; onChange: any; options: any[]; d
 interface RoutePlannerPanelProps {
     isRoutePlannerOpen: boolean; setIsRoutePlannerOpen: (isOpen: boolean) => void;
     isCreatingNewRoute: boolean; setIsCreatingNewRoute: (isCreating: boolean) => void;
-    loadRoute: (route: RouteData) => void; userRoutes: RouteData[];
+    loadRoute: (route: BackendRoute) => void; userRoutes: BackendRoute[];
     selectedStops: RouteStop[]; toggleStop: (location: Location) => void;
     routeName: string; setRouteName: (name: string) => void;
     routeDescription: string; setRouteDescription: (desc: string) => void;
     travelMode: 'Walking' | 'Driving' | 'Bicycling'; setTravelMode: (mode: any) => void;
-    updateStopNote: (locationId: string, newNote: string) => void;
+    updateStopNote: (locationId: number, newNote: string) => void;
     resetRouteCreationState: () => void; saveRoute: () => void; calculateRoute: () => void;
     routeStats: { time: string; distance: string } | null;
-    handleDeleteRoute: (e: React.MouseEvent, routeId: string) => void;
+    handleDeleteRoute: (e: React.MouseEvent, routeId: number) => void;
     // DnD
     handleDragStart: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
     handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
@@ -348,14 +414,14 @@ const RoutePlannerPanel: React.FC<RoutePlannerPanelProps> = ({
                     <div className="saved-routes-container">
                         <h4>Saved Routes ({userRoutes.length})</h4>
                         {userRoutes.length === 0 && <p>No routes yet.</p>}
-                        {userRoutes.map((route: any) => (
-                            <div key={route.client_route_id} className="saved-route-item" onClick={() => loadRoute(route)}>
+                        {userRoutes.map((route) => (
+                            <div key={route.route_id} className="saved-route-item" onClick={() => loadRoute(route)}>
                                 <div className="route-info">
                                     <span className="route-name">{route.name}</span>
-                                    <span className="route-mode"> ({route.travel_mode}) - {route.stops?.length || 0} stops</span>
+                                    <span className="route-mode"> {route.stops ? ` - ${route.stops.length} stops` : ''}</span>
                                 </div>
 
-                                <button className="route-delete-btn" onClick={(e) => handleDeleteRoute(e, route.client_route_id)}>
+                                <button className="route-delete-btn" onClick={(e) => handleDeleteRoute(e, route.route_id)}>
                                     <img src="/Trash.png" alt="Del" style={{width: '20px'}}/>
                                 </button>
                             </div>
@@ -385,7 +451,7 @@ const RoutePlannerPanel: React.FC<RoutePlannerPanelProps> = ({
                         </p>
 
                         <div className="stops-list-container">
-                            {selectedStops.map((stop: any, index: number) => (
+                            {selectedStops.map((stop, index) => (
                                 <div 
                                     key={stop.location_id} 
                                     className="stop-item"
