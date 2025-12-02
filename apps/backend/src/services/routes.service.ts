@@ -2,55 +2,137 @@
 import { Route } from "../models/routes.model.js";
 import { RouteStop } from "../models/routeStops.model.js";
 
+interface CreateRouteParams {
+    user_id: number;
+    name: string;
+    description: string;
+    visibility: string;
+    travel_mode: string;
+    stops: { location_id: number; note: string }[];
+}
+
 export const RoutesService = {
+
     async getAllRoutes(): Promise<Route[]> {
-        const result = await db.query("SELECT * FROM routes")
+        const query = `
+            SELECT 
+                r.*,
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'location_id', rs.location_id,
+                            'stop_order', rs.stop_order,
+                            'note', rs.notes
+                        ) ORDER BY rs.stop_order
+                    ) FILTER (WHERE rs.location_id IS NOT NULL),
+                    '[]'
+                ) as stops
+            FROM routes r
+            LEFT JOIN route_stops rs ON r.route_id = rs.route_id
+            GROUP BY r.route_id
+            ORDER BY r.created_at DESC;
+        `;
+        const result = await db.query(query);
         return result.rows;
     },
 
     async getAllRoutesByUserId(user_id: number): Promise<Route[]> {
-        const query = "SELECT * FROM routes WHERE user_id = $1";
-        const values = [user_id];
-        const result = await db.query(query, values);
+        const query = `
+            SELECT 
+                r.*,
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'location_id', rs.location_id,
+                            'stop_order', rs.stop_order,
+                            'note', rs.notes
+                        ) ORDER BY rs.stop_order
+                    ) FILTER (WHERE rs.location_id IS NOT NULL),
+                    '[]'
+                ) as stops
+            FROM routes r
+            LEFT JOIN route_stops rs ON r.route_id = rs.route_id
+            WHERE r.user_id = $1
+            GROUP BY r.route_id
+            ORDER BY r.created_at DESC;
+        `;
+        const result = await db.query(query, [user_id]);
         return result.rows;
     },
 
     async deleteRoute(route_id: number): Promise<number | null> {
-        const query = "DELETE FROM routes WHERE route_id = $1";
-        const values = [route_id];
-        const result = await db.query(query, values);
+        await db.query("DELETE FROM route_stops WHERE route_id = $1", [route_id]);
+        const result = await db.query("DELETE FROM routes WHERE route_id = $1", [route_id]);
         return result.rowCount;
     },
 
-    async addRoute(user_id: number, name: string, description: string, visibility: string): Promise<Route> {
-        const query = 
-        `
-        INSERT INTO routes (user_id, name, description, visibility)
-        VALUES ($1, $2, $3, $4)
-        RETURNING *;
-        `;
-        const values = [user_id, name, description, visibility];
-        const result = await db.query(query, values);
-        return result.rows[0];
+
+    async addRoute(params: CreateRouteParams): Promise<Route> {
+        try {
+            await db.query('BEGIN');
+
+            const routeRes = await db.query(
+                `INSERT INTO routes (user_id, name, description, visibility, travel_mode)
+                 VALUES ($1, $2, $3, $4, $5)
+                 RETURNING *`,
+                [params.user_id, params.name, params.description, params.visibility, params.travel_mode]
+            );
+            const newRoute = routeRes.rows[0];
+
+            if (params.stops && params.stops.length > 0) {
+                for (let i = 0; i < params.stops.length; i++) {
+                    const stop = params.stops[i];
+                    await db.query(
+                        `INSERT INTO route_stops (route_id, location_id, stop_order, notes)
+                         VALUES ($1, $2, $3, $4)`,
+                        [newRoute.route_id, stop.location_id, i + 1, stop.note]
+                    );
+                }
+            }
+
+            await db.query('COMMIT');
+            
+            return { ...newRoute, stops: params.stops };
+        } catch (e) {
+            await db.query('ROLLBACK');
+            throw e;
+        }
     },
 
-    async updateRoute(route_id: number, name: string, description: string, visibility: string): Promise<Route> {
-        let updated_at = Date.now()
-        const query = 
-        `
-        UPDATE routes
-        SET name = $1, description = $2, visibility = $3, updated_at = $4
-        WHERE route_id = $5
-        RETURNING *;
-        `;
-        const values = [name, description, visibility, updated_at, route_id];
-        const result = await db.query(query, values);
+    async updateRoute(route_id: number, params: Omit<CreateRouteParams, 'user_id'>): Promise<Route> {
+        try {
+            await db.query('BEGIN');
 
-        if (result.rows.length === 0) {
-            throw new Error("Route not found");
+            const updated_at = new Date();
+            const routeRes = await db.query(
+                `UPDATE routes
+                 SET name = $1, description = $2, visibility = $3, travel_mode = $4, updated_at = $5
+                 WHERE route_id = $6
+                 RETURNING *`,
+                [params.name, params.description, params.visibility, params.travel_mode, updated_at, route_id]
+            );
+
+            if (routeRes.rows.length === 0) throw new Error("Route not found");
+
+            await db.query(`DELETE FROM route_stops WHERE route_id = $1`, [route_id]);
+
+            if (params.stops && params.stops.length > 0) {
+                for (let i = 0; i < params.stops.length; i++) {
+                    const stop = params.stops[i];
+                    await db.query(
+                        `INSERT INTO route_stops (route_id, location_id, stop_order, notes)
+                         VALUES ($1, $2, $3, $4)`,
+                        [route_id, stop.location_id, i + 1, stop.note]
+                    );
+                }
+            }
+
+            await db.query('COMMIT');
+            return { ...routeRes.rows[0], stops: params.stops };
+        } catch (e) {
+            await db.query('ROLLBACK');
+            throw e;
         }
-
-        return result.rows[0];
     },
 
     async optimizeRouteStops(routeId: number, userLat: number, userLng: number): Promise<void> {
