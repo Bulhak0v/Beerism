@@ -25,10 +25,10 @@ export async function deleteLocation(req: Request, res: Response) {
 }
 
 export async function addLocation(req: Request, res: Response) {
-    const { name, description, city, adress, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude } = req.body;
+    const { name, description, city, address, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude } = req.body;
 
     try {
-        const newLocation = await LocationsService.addLocation(name, description, city, adress, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude);
+        const newLocation = await LocationsService.addLocation(name, description, city, address, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude);
         res.status(201).json(newLocation);
     } catch (error: any) {
         console.error("Error occured while creating a location:", error);
@@ -38,10 +38,10 @@ export async function addLocation(req: Request, res: Response) {
 
 export async function updateLocation(req: Request, res: Response) {
     const locationId = Number(req.params.id);
-    const { name, description, city, adress, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude } = req.body;
+    const { name, description, city, address, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude } = req.body;
 
     try {
-        const updatedLocation = await LocationsService.updateLocation(locationId, name, description, city, adress, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude);
+        const updatedLocation = await LocationsService.updateLocation(locationId, name, description, city, address, website, rating, average_budget_requirment, opens_at, closes_at, latitude, longtitude);
         res.status(201).json(updatedLocation);
     } catch (error: any) {
         console.error("Error occured while updating location:", error);

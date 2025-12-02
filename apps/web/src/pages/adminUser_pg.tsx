@@ -240,21 +240,21 @@ export default function AdminUserPage() {
                         <label>Preferred Budget</label>
                         <select name="preferred_budget_range" value={formData.preferred_budget_range || ""} onChange={handleInputChange}>
                             <option value="">Select Budget</option>
-                            <option value="low">Low</option>
-                            <option value="average">Average</option>
-                            <option value="high">High</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
                         </select>
 
                         <label>Preferred Atmosphere</label>
                         <select name="preferred_venue_atmosphere" value={formData.preferred_venue_atmosphere || ""} onChange={handleInputChange}>
                             <option value="">Select Atmosphere</option>
-                            <option value="cozy">Cozy</option>
-                            <option value="loud">Loud</option>
-                            <option value="modern">Modern</option>
-                            <option value="traditional">Traditional</option>
-                            <option value="sporty">Sporty</option>
-                            <option value="quiet">Quiet</option>
-                            <option value="lively">Lively</option>
+                            <option value="Cozy">Cozy</option>
+                            <option value="Modern">Modern</option>
+                            <option value="Historic">Historic</option>
+                            <option value="Lively">Lively</option>
+                            <option value="Industrial">Industrial</option>
+                            <option value="Outdoor">Outdoor</option>
+                            <option value="Family_Friendly">Family_Friendly</option>
                         </select>
 
                         <label>Preferred Beer Style ID</label>
