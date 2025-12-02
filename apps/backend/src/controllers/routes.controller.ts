@@ -39,27 +39,19 @@ export async function deleteRoute(req: Request, res: Response ) {
     }
 }
 
-export async function addRoute(req: Request, res: Response) {
-    const { user_id, name, description, visibility, travel_mode, stops } = req.body;
+export async function addRoute(req: Request, res: Response ) {
+    const {user_id, name, description, visibility} = req.body;
 
     try {
-        const newRoute = await RoutesService.addRoute({
-            user_id, 
-            name, 
-            description, 
-            visibility: visibility || 'private',
-            travel_mode: travel_mode || 'Walking',
-            stops: stops || []
-        });
+        const newRoute = await RoutesService.addRoute(user_id, name, description, visibility);
         res.status(201).json(newRoute);
-    } catch (err: any) {
-        console.error("Error adding route:", err);
-        res.status(500).json({ error: "An error occurred while creating a route" });
+    } catch (err: unknown) {
+        res.status(500).json({ error: "An error occured while creating a location" });
     }
 }
 
-export async function updateRoute(req: Request, res: Response) {
-    const { name, description, visibility, travel_mode, stops } = req.body;
+export async function updateRoute(req: Request, res: Response ) {
+    const {name, description, visibility} = req.body;
 
     try {
         const { id } = req.params;
@@ -67,18 +59,10 @@ export async function updateRoute(req: Request, res: Response) {
         if (isNaN(route_id)) {
             return res.status(400).json({ error: "Invalid Route ID format." });
         }
-        
-        const updatedRoute = await RoutesService.updateRoute(route_id, {
-            name, 
-            description, 
-            visibility, 
-            travel_mode, 
-            stops
-        });
+        const updatedRoute = await RoutesService.updateRoute(route_id, name, description, visibility);
         res.status(201).json(updatedRoute);
-    } catch (err: any) {
-        console.error("Error updating route:", err);
-        res.status(500).json({ error: "An error occurred while updating a route" });
+    } catch (err: unknown) {
+        res.status(500).json({ error: "An error occured while updating a location" });
     }
 }
 
