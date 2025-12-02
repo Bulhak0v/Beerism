@@ -1,15 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/locations.css';
-import { useAuth } from "../components/authProvider"; 
-
-const FALLBACK_PICTURES = [
-  "/beer1.jpg",
-  "/beer2.svg",
-  "/beer3.jpg",
-  "/beer4.jpg",
-  "/beer5.jpg"
-];
+import { useAuth } from "../components/authProvider";
+import LocationImage from "../components/locationImage";
 
 const LocationsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -170,11 +163,15 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
 };
 
 const LocationCard: React.FC<LocationCardProps> = ({ location, onClick }) => {
-  const pictureIndex = (location.location_id - 1) % FALLBACK_PICTURES.length;
 
   return (
     <div className="location-card"  onClick={() => onClick && onClick(location)}>
-      <img src={FALLBACK_PICTURES[pictureIndex]} className="location-image" alt={location.name} />
+      <LocationImage 
+        src={location.picture}
+        alt={location.name}
+        locationId={location.location_id}
+        className="location-image"
+      />
       <div className="location-info">
         <div className="location-info-title">
           <div className="location-info-titleName">{location.name}</div>

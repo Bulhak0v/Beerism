@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import LogoHeader from "../components/logoHeader";
 import "../styles/locationDetails.css";
+import LocationImage from "../components/locationImage";
 
 interface Location {
   location_id: number;
@@ -105,10 +106,11 @@ const LocationDetailsPage: React.FC = () => {
         <div className="details-card">
           
           <div className="details-image-container">
-            <img
-              src={location.picture || '/beer1.jpg'}
-              alt={location.name}
-              className="details-image"
+            <LocationImage 
+                src={location.picture} 
+                alt={location.name} 
+                locationId={location.location_id}
+                className="details-image"
             />
             
             <h2 className="details-title">{location.name}</h2>

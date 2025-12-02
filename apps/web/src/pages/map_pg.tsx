@@ -10,6 +10,8 @@ import L from "leaflet";
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
+import LocationImage from "../components/locationImage";
+
 const DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
@@ -429,7 +431,12 @@ const MapPage = () => {
                         <Popup>
                             <div className="map-info-card">
                                 <div className="map-info-image-container">
-                                    <img src={location.picture || "/beer1.jpg"} alt={location.name} className="map-info-image" onError={(e) => { e.currentTarget.src = "/beer1.jpg"; }} />
+                                    <LocationImage 
+                                        src={location.picture}
+                                        alt={location.name}
+                                        locationId={location.location_id}
+                                        className="map-info-image"
+                                    />
                                     <h3 className="map-info-title">{location.name}</h3>
                                 </div>
                                 <div className="map-info-content">
