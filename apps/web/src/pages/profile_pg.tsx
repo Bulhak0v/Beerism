@@ -38,6 +38,10 @@ const [userCity, setUserCity] = useState(() => {
   console.log(city);
   return city || "Not set";
 });
+  const [beerStyleOptions, setBeerStyleOptions] = useState<BeerStyleOption[]>([]);
+  const [atmosphereOptions, setAtmosphereOptions] = useState<string[]>([]);
+  const [budgetOptions, setBudgetOptions] = useState<string[]>([]);
+  const [cityOptions, setCityOptions] = useState<string[]>([]);
 
   const handleLogout = () => {
     logout(); 
@@ -45,16 +49,27 @@ const [userCity, setUserCity] = useState(() => {
   };
 
   useEffect(() => {
-      const fetchStyles = async () => {
+      const fetchDynamicData = async () => {
           try {
-              const res = await fetch('https://beerism-backend.onrender.com/api/beer-styles');
-              if(res.ok) {
-                  const data = await res.json();
-                  setAvailableBeerStyles(data);
+              const resStyles = await fetch('https://beerism-backend.onrender.com/api/beer-styles');
+              if (resStyles.ok) setBeerStyleOptions(await resStyles.json());
+
+              const resOptions = await fetch('https://beerism-backend.onrender.com/api/locations/options');
+              if (resOptions.ok) {
+                  const data = await resOptions.json();
+                  setAtmosphereOptions(data.atmospheres);
+                  setBudgetOptions(data.budgets);
               }
-          } catch (e) { console.error(e); }
+
+              const resCities = await fetch('https://beerism-backend.onrender.com/api/locations/cities');
+              if (resCities.ok) {
+                  setCityOptions(await resCities.json());
+              }
+
+          } catch (e) { console.error("Error fetching options:", e); }
       };
-      fetchStyles();
+      
+      fetchDynamicData();
   }, []);
 
   const [activeTab, setActiveTab] = useState("Profile"); 
@@ -282,12 +297,9 @@ const [userCity, setUserCity] = useState(() => {
             
             <div className="field">
               <label>Favorite kind of beer</label>
-              <select
-                value={favoriteBeer}
-                onChange={(e) => setFavoriteBeer(e.target.value)}
-              >
+              <select value={favoriteBeer} onChange={(e) => setFavoriteBeer(e.target.value)}>
                 <option value="">Not set</option>
-                {availableBeerStyles.map(style => (
+                {beerStyleOptions.map(style => (
                     <option key={style.beer_style_id} value={style.beer_style_id}>
                         {style.beer_style_name}
                     </option>
@@ -299,9 +311,9 @@ const [userCity, setUserCity] = useState(() => {
               <label>Budget</label>
               <select value={budget} onChange={(e) => setBudget(e.target.value)}>
                 <option value="">Not set</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
+                {budgetOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                ))}
               </select>
             </div>
 
@@ -309,13 +321,9 @@ const [userCity, setUserCity] = useState(() => {
               <label>Favorite bar style</label>
               <select value={favoriteBarStyle} onChange={(e) => setFavoriteBarStyle(e.target.value)}>
                 <option value="">Not set</option>
-                <option value="Cozy">Cozy</option>
-                <option value="Modern">Modern</option>
-                <option value="Historic">Historic</option>
-                <option value="Lively">Lively</option>
-                <option value="Industrial">Industrial</option>
-                <option value="Outdoor">Outdoor</option>
-                <option value="Family_Friendly">Family Friendly</option>
+                 {atmosphereOptions.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                ))}
               </select>
             </div>
 
@@ -330,16 +338,16 @@ const [userCity, setUserCity] = useState(() => {
                 }}
               >
                 <option value="Not set">Not set</option>
+                
+                {cityOptions.map((city) => (
+                    <option key={city} value={city}>{city}</option>
+                ))}
 
-                <option value="Kyiv">Kyiv</option>
-                <option value="Lviv">Lviv</option>
-                <option value="Odessa">Odessa</option>
-
-                {userCity &&
-                  userCity !== "Not set" &&
-                  !["Kyiv", "Lviv", "Odessa"].includes(userCity) && (
+                {userCity && 
+                 userCity !== "Not set" && 
+                 !cityOptions.includes(userCity) && (
                     <option value={userCity}>{userCity}</option>
-                  )}
+                )}
               </select>
             </div>
 

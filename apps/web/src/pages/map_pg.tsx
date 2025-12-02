@@ -59,6 +59,20 @@ interface BackendRoute {
   stops?: any[];
 }
 
+const DynamicFilterDropdown: React.FC<{ 
+    value: string; 
+    onChange: any; 
+    options: string[];
+    defaultLabel: string 
+}> = ({ value, onChange, options, defaultLabel }) => (
+    <select value={value} onChange={onChange} className="filter-select">
+        <option value="">{defaultLabel}</option>
+        {options.map(opt => (
+            <option key={opt} value={opt}>{opt}</option>
+        ))}
+    </select>
+);
+
 const MapPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -83,13 +97,24 @@ const MapPage = () => {
   const [routeCoordinates, setRouteCoordinates] = useState<[number, number][]>([]);
   const [routeStats, setRouteStats] = useState<{ time: string; distance: string } | null>(null);
 
-  const [beerStyleOptions, setBeerStyleOptions] = useState<BeerStyle[]>([]);
+  const [beerStyleOptions, setBeerStyleOptions] = useState<any[]>([]);
+  const [atmosphereOptions, setAtmosphereOptions] = useState<string[]>([]);
+  const [budgetOptions, setBudgetOptions] = useState<string[]>([]);
 
   useEffect(() => {
-      fetch('https://beerism-backend.onrender.com/api/beer-styles')
-        .then(res => res.json())
-        .then(data => setBeerStyleOptions(data))
-        .catch(err => console.error(err));
+      const fetchOptions = async () => {
+          try {
+             const resStyles = await fetch('https://beerism-backend.onrender.com/api/beer-styles');
+             const dataStyles = await resStyles.json();
+             setBeerStyleOptions(dataStyles);
+
+             const resMeta = await fetch('https://beerism-backend.onrender.com/api/locations/options');
+             const dataMeta = await resMeta.json();
+             setAtmosphereOptions(dataMeta.atmospheres);
+             setBudgetOptions(dataMeta.budgets);
+          } catch(e) { console.error(e); }
+      }
+      fetchOptions();
   }, []);
 
   useEffect(() => {
@@ -351,32 +376,20 @@ const MapPage = () => {
         <div className="map-controls">
             <h1 className="map-page-title">Locations Map</h1>
             <div className="filter-container">
-                <FilterDropdown 
+                <DynamicFilterDropdown 
                     value={selectedBudget} 
                     onChange={(e: any) => setSelectedBudget(e.target.value)} 
-                    options={[
-                        { label: 'Low', value: 'Low' }, 
-                        { label: 'Medium', value: 'Medium' }, 
-                        { label: 'High', value: 'High' }
-                    ]} 
+                    options={budgetOptions} 
                     defaultLabel="Any Budget" 
                 />
                 
-                <FilterDropdown 
+                <DynamicFilterDropdown 
                     value={selectedAtmosphere} 
                     onChange={(e: any) => setSelectedAtmosphere(e.target.value)} 
-                    options={[
-                        { label: 'Historic', value: 'Historic' }, 
-                        { label: 'Modern', value: 'Modern' },
-                        { label: 'Cozy', value: 'Cozy' },
-                        { label: 'Lively', value: 'Lively' },
-                        { label: 'Industrial', value: 'Industrial' },
-                        { label: 'Outdoor', value: 'Outdoor' },
-                        { label: 'Family Friendly', value: 'Family_Friendly' }
-                    ]} 
+                    options={atmosphereOptions} 
                     defaultLabel="Any Atmosphere" 
                 />
-
+                
                 <select value={selectedStyleId} onChange={(e) => setSelectedStyleId(e.target.value)} className="filter-select">
                     <option value="">Any Style</option>
                     {beerStyleOptions.map(bs => (

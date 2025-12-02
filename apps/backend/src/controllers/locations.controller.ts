@@ -10,6 +10,23 @@ export async function getLocations(req: Request, res: Response) {
     }
 }
 
+export async function getFilterOptions(req: Request, res: Response) {
+    try {
+        const [atmospheres, budgets] = await Promise.all([
+            LocationsService.getAtmosphereOptions(),
+            LocationsService.getBudgetOptions()
+        ]);
+        
+        res.status(200).json({
+            atmospheres,
+            budgets
+        });
+    } catch (err: any) {
+        console.error("Error fetching filter options:", err);
+        res.status(500).json({ error: "Failed to fetch filter options" });
+    }
+}
+
 export async function deleteLocation(req: Request, res: Response) {
     try {
         const { id } = req.params;

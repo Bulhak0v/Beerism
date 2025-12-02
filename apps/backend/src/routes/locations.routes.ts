@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getLocations, deleteLocation, addLocation, updateLocation, getLocationById, getRecommendedLocations, getAllCities } from "../controllers/locations.controller.js";
+import { getLocations, deleteLocation, addLocation, updateLocation, getLocationById, getRecommendedLocations, getAllCities, getFilterOptions } from "../controllers/locations.controller.js";
 
 const router = Router();
 
@@ -10,5 +10,6 @@ router.put("/:id", updateLocation);
 router.get("/recommendations/byCity", getRecommendedLocations);
 router.get("/cities", getAllCities);
 router.get("/:id", getLocationById);
+router.get("/options", getFilterOptions);
 
 export default router;
