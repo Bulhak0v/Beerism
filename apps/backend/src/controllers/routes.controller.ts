@@ -49,17 +49,20 @@ export async function addRoute(req: Request, res: Response ) {
 }
 
 export async function updateRoute(req: Request, res: Response ) {
-    const {name, description, visibility} = req.body;
+    const {name, description, visibility, stops} = req.body;
 
     try {
         const { id } = req.params;
         const route_id = parseInt(id, 10);
-        if (isNaN(route_id)) return res.status(400).json({ error: "Invalid Route ID format." });
-
-        const updatedRoute = await RoutesService.updateRoute(route_id, name, description, visibility);
+        if (isNaN(route_id)) {
+            return res.status(400).json({ error: "Invalid Route ID format." });
+        }
+        
+        const updatedRoute = await RoutesService.updateRoute(route_id, name, description, visibility, stops);
         res.status(201).json(updatedRoute);
     } catch (err: unknown) {
-        res.status(500).json({ error: "An error occured while updating a location" });
+        console.error(err);
+        res.status(500).json({ error: "An error occured while updating a route" });
     }
 }
 

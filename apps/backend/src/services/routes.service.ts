@@ -1,13 +1,7 @@
 ﻿import { db } from "../config/db.js";
 import { Route } from "../models/routes.model.js";
-import { RouteStopsService } from "./routeStops.service.js";
 
 export const RoutesService = {
-    async getAllRoutes(): Promise<Route[]> {
-        const result = await db.query("SELECT * FROM routes");
-        return result.rows;
-    },
-
     async getAllRoutesByUserId(user_id: number): Promise<any[]> {
         const query = `
             SELECT 
@@ -31,14 +25,13 @@ export const RoutesService = {
         return result.rows;
     },
 
-    async deleteRoute(route_id: number): Promise<number | null> {
-        const query = "DELETE FROM routes WHERE route_id = $1";
-        const result = await db.query(query, [route_id]);
-        return result.rowCount;
+    async getAllRoutes(): Promise<Route[]> {
+        const result = await db.query("SELECT * FROM routes");
+        return result.rows;
     },
 
     async addRoute(user_id: number, name: string, description: string, visibility: string, stops: any[]): Promise<Route> {
-        const client = await db.connect(); 
+        const client = await db.connect();
         
         try {
             await client.query('BEGIN');
@@ -72,24 +65,60 @@ export const RoutesService = {
         }
     },
 
-    async updateRoute(route_id: number, name: string, description: string, visibility: string): Promise<Route> {
-        const updated_at = new Date();
-        const query = `
-            UPDATE routes
-            SET name = $1, description = $2, visibility = $3, updated_at = $4
-            WHERE route_id = $5
-            RETURNING *;
-        `;
-        const result = await db.query(query, [name, description, visibility, updated_at, route_id]);
-
-        if (result.rows.length === 0) {
-            throw new Error("Route not found");
-        }
-        return result.rows[0];
+    async deleteRoute(route_id: number): Promise<number | null> {
+        const query = "DELETE FROM routes WHERE route_id = $1";
+        const values = [route_id];
+        const result = await db.query(query, values);
+        return result.rowCount;
     },
-    
+
+    async updateRoute(route_id: number, name: string, description: string, visibility: string, stops: any[]): Promise<Route> {
+        const client = await db.connect();
+
+        try {
+            await client.query('BEGIN');
+
+            const updated_at = new Date();
+            
+            const query = `
+                UPDATE routes
+                SET name = $1, description = $2, visibility = $3, updated_at = $4
+                WHERE route_id = $5
+                RETURNING *;
+            `;
+            const result = await client.query(query, [name, description, visibility, updated_at, route_id]);
+
+            if (result.rows.length === 0) {
+                throw new Error("Route not found");
+            }
+
+            if (stops) {
+                await client.query("DELETE FROM route_stops WHERE route_id = $1", [route_id]);
+
+                if (stops.length > 0) {
+                    for (const stop of stops) {
+                        await client.query(
+                            `INSERT INTO route_stops (route_id, location_id, stop_order, notes)
+                             VALUES ($1, $2, $3, $4)`,
+                            [route_id, stop.location_id, stop.stop_order, stop.note || ""]
+                        );
+                    }
+                }
+            }
+
+            await client.query('COMMIT');
+            return result.rows[0];
+
+        } catch (e) {
+            await client.query('ROLLBACK');
+            throw e;
+        } finally {
+            client.release();
+        }
+    },
+
     async optimizeRouteStops(routeId: number, userLat: number, userLng: number): Promise<void> {
-         try {
+        try {
             await db.query('BEGIN');
 
             const res = await db.query(
