@@ -1,6 +1,4 @@
-﻿import { RouteStop } from "./routeStops.model.ts";
-
-export interface Route {
+﻿export interface Route {
     route_id: number;
     user_id: number;
     name: string;
@@ -8,5 +6,4 @@ export interface Route {
     visibility: string | null;
     created_at: Date | null;
     updated_at: Date | null;
-    stops?: RouteStop[];
 }
