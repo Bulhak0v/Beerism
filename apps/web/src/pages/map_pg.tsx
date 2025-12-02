@@ -40,6 +40,7 @@ interface Location {
 
 interface RouteStop extends Location {
   note: string;
+  stop_order?: number;
 }
 
 interface BackendRoute {
@@ -96,7 +97,9 @@ const MapPage = () => {
     try {
       const res = await fetch(`https://beerism-backend.onrender.com/api/routes/${user.user_id}`);
       if (!res.ok) throw new Error("Failed to fetch routes");
+      
       const data: BackendRoute[] = await res.json();
+      console.log("Fetched Routes from Backend:", data);
       setUserRoutes(data);
     } catch (err: any) {
       console.error("Error fetching user routes:", err);
@@ -210,7 +213,7 @@ const MapPage = () => {
             throw new Error(errText || "Failed to save route");
         }
 
-        fetchUserRoutes();
+        await fetchUserRoutes();
         resetRouteCreationState();
         setIsCreatingNewRoute(false);
         alert("Route saved successfully!");
@@ -222,13 +225,23 @@ const MapPage = () => {
   }, [routeName, routeDescription, travelMode, selectedStops, editingRouteId, user, fetchUserRoutes]);
 
   const loadRoute = useCallback((route: BackendRoute) => {
+    console.log("Loading route:", route);
     const rawStops = route.stops || []; 
     
-    const stopsToLoad: RouteStop[] = rawStops.map((savedStop: any) => {
-        const fullLocation = locations.find(loc => loc.location_id === savedStop.location_id);
-        if (fullLocation) return { ...fullLocation, note: savedStop.notes || '' };
-        return undefined; 
-    }).filter((stop: any): stop is RouteStop => stop !== undefined);
+    const stopsToLoad = rawStops.reduce<RouteStop[]>((acc, savedStop: any) => {
+        const fullLocation = locations.find(loc => loc.location_id == savedStop.location_id);
+        
+        if (fullLocation) {
+            acc.push({ 
+                ...fullLocation, 
+                note: savedStop.notes || '', 
+                stop_order: savedStop.stop_order 
+            });
+        }
+        return acc;
+    }, []);
+
+    stopsToLoad.sort((a, b) => (a.stop_order || 0) - (b.stop_order || 0));
 
     setRouteName(route.name);
     setRouteDescription(route.description || '');
@@ -418,7 +431,7 @@ const RoutePlannerPanel: React.FC<RoutePlannerPanelProps> = ({
                             <div key={route.route_id} className="saved-route-item" onClick={() => loadRoute(route)}>
                                 <div className="route-info">
                                     <span className="route-name">{route.name}</span>
-                                    <span className="route-mode"> {route.stops ? ` - ${route.stops.length} stops` : ''}</span>
+                                    <span className="route-mode"> {route.stops && route.stops.length > 0 ? ` - ${route.stops.length} stops` : ''}</span>
                                 </div>
 
                                 <button className="route-delete-btn" onClick={(e) => handleDeleteRoute(e, route.route_id)}>
