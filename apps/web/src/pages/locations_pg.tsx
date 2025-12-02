@@ -25,9 +25,18 @@ const LocationsPage: React.FC = () => {
 
   const fetchAllLocations = useCallback(async () => {
     try {
-      const city = localStorage.getItem("user_city")?.toString();
+      const rawCity = localStorage.getItem("user_city");
+    
+    let city = "";
+    if (rawCity && rawCity !== "Not set" && rawCity !== "undefined" && rawCity !== "null") {
+        city = rawCity;
+    }
 
-      const res = await fetch(`https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}&city=${city}`);
+    const url = city 
+        ? `https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}&city=${city}`
+        : `https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user!.user_id}`;
+
+    const res = await fetch(url);
       if (!res.ok) {
         throw new Error('Failed to fetch locations');
       }

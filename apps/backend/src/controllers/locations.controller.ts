@@ -85,26 +85,29 @@ export async function getLocationById(req: Request, res: Response) {
 }
 
 export async function getRecommendedLocations(req: Request, res: Response) {
-  try {
-    const { user_id, city } = req.query;
+    try {
+        const { user_id, city } = req.query;
 
-    if (!user_id || !city) {
-      return res.status(400).json({ message: "Missing user_id or city parameter" });
-    }
+        if (!user_id) {
+            return res.status(400).json({ message: "Missing user_id parameter" });
+        }
 
-    const userIdNum = parseInt(user_id as string, 10);
-    if (isNaN(userIdNum)) {
-      return res.status(400).json({ message: "Invalid user_id format" });
-    }
+        const userIdNum = parseInt(user_id as string, 10);
+        if (isNaN(userIdNum)) {
+            return res.status(400).json({ message: "Invalid user_id format" });
+        }
 
-    const recommended = await LocationsService.getRecommendedLocations(userIdNum, city as string);
-    res.status(200).json(recommended);
-  } catch (error: any) {
-    console.error("Error getting recommended locations:", error);
-    if (error.message === "User not found") {
-      return res.status(404).json({ message: "User not found" });
+        const cityParam = city === "undefined" || city === "null" || city === "" ? undefined : (city as string);
+
+        const recommended = await LocationsService.getRecommendedLocations(userIdNum, cityParam);
+        res.status(200).json(recommended);
+
+    } catch (error: any) {
+        console.error("Error getting recommended locations:", error);
+        if (error.message === "User not found") {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(500).json({ message: "Internal server error" });
     }
-    res.status(500).json({ message: "Internal server error" });
-  }
 }
 

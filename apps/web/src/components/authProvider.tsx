@@ -7,6 +7,7 @@ interface AuthContextUser {
   addRoute: (newRoute: Omit<RouteData, 'client_route_id'>) => void;
   setRoutes: React.Dispatch<React.SetStateAction<RouteData[]>>;
   updateRoute: (updatedRoute: RouteData) => void;
+  deleteRoute: (routeId: string) => void;
   logout: () => void;
 }
 
@@ -82,6 +83,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       );
   }, []);
 
+  const deleteRoute = useCallback((routeId: string) => {
+      setRoutes(prevRoutes => prevRoutes.filter(route => route.client_route_id !== routeId));
+  }, []);
+
  const logout = () => {
     if (user) {
         localStorage.removeItem(getRouteKey(user.user_id));
@@ -99,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setRoutes,
         addRoute,
         updateRoute,
+        deleteRoute,
         logout 
       }}
     >

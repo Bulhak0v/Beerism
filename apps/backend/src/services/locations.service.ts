@@ -65,7 +65,7 @@ export const LocationsService = {
         return uniqueCities;
     },
 
-    async getRecommendedLocations(user_id: number, city: string): Promise<Location[]> {
+    async getRecommendedLocations(user_id: number, city: string | undefined): Promise<Location[]> { // Allow city to be undefined
         const user = await UserService.getUserById(user_id);
         if (!user) {
             throw new Error("User not found");
@@ -75,6 +75,7 @@ export const LocationsService = {
         const preferred_venue_atmosphere = (user as any).preferred_venue_atmosphere;
         const preferred_beer_style_id = (user as any).preferred_beer_style_id;
 
+        const city_coefficient = 500;
         const budget_coefficient = 80;
         const venue_coefficient = 60;
         const beer_style_coefficient = 20;
@@ -88,18 +89,23 @@ export const LocationsService = {
             FROM locations l
             LEFT JOIN location_atmosphere_tags lat ON l.location_id = lat.location_id
             LEFT JOIN location_beer_styles lbs ON l.location_id = lbs.location_id
-            WHERE l.city = $1
-            GROUP BY l.location_id;
+            GROUP BY l.location_id; 
         `;
 
-        const result = await db.query(query, [city]);
+        const result = await db.query(query);
         const locations = result.rows;
 
         const scored = locations.map(loc => {
             let score = 0;
+
+            if (city && loc.city && loc.city.toLowerCase() === city.toLowerCase()) {
+                score += 1 * city_coefficient;
+            }
+
             if (preferred_budget_range && loc.average_budget_requirment === preferred_budget_range) score += 1 * budget_coefficient;
             if (preferred_venue_atmosphere && loc.atmospheres.includes(preferred_venue_atmosphere)) score += 1 * venue_coefficient;
             if (preferred_beer_style_id !== undefined && preferred_beer_style_id !== null && loc.beer_style_ids.includes(preferred_beer_style_id)) score += 1 * beer_style_coefficient;
+            
             score += loc.rating * rating_coefficient;
             score = Math.round(score);
             return { loc, score };
