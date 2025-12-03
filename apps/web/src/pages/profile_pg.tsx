@@ -26,9 +26,9 @@ const ProfilePage: React.FC = () => {
     favoriteBarStyle: ""
   });
   const [availableBeerStyles, setAvailableBeerStyles] = useState<BeerStyleOption[]>([]);
-  const [favoriteBeer, setFavoriteBeer] = useState("Not set");
-  const [budget, setBudget] = useState("Not set");
-  const [favoriteBarStyle, setFavoriteBarStyle] = useState("Not set");
+  const [favoriteBeer, setFavoriteBeer] = useState("");
+  const [budget, setBudget] = useState("");
+  const [favoriteBarStyle, setFavoriteBarStyle] = useState("");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string>(
     user?.profile_picture || avatarPlaceholder
