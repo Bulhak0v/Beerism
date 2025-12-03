@@ -21,9 +21,9 @@ const ProfilePage: React.FC = () => {
   const [nickname, setNickname] = useState(() => localStorage.getItem("nickname") || "");
   const [bio, setBio] = useState("");
   const [initialPrefs, setInitialPrefs] = useState({
-    favoriteBeer: "Not set",
-    budget: "Not set",
-    favoriteBarStyle: "Not set"
+    favoriteBeer: "",
+    budget: "",
+    favoriteBarStyle: ""
   });
   const [availableBeerStyles, setAvailableBeerStyles] = useState<BeerStyleOption[]>([]);
   const [favoriteBeer, setFavoriteBeer] = useState("Not set");
@@ -36,7 +36,7 @@ const ProfilePage: React.FC = () => {
 const [userCity, setUserCity] = useState(() => {
   const city = localStorage.getItem("user_city")?.toString();
   console.log(city);
-  return city || "Not set";
+  return city || "";
 });
   const [beerStyleOptions, setBeerStyleOptions] = useState<BeerStyleOption[]>([]);
   const [atmosphereOptions, setAtmosphereOptions] = useState<string[]>([]);
@@ -337,7 +337,7 @@ const [userCity, setUserCity] = useState(() => {
                   localStorage.setItem("user_city", val);
                 }}
               >
-                <option value="Not set">Not set</option>
+                <option value="">Not set</option>
                 
                 {cityOptions.map((city) => (
                     <option key={city} value={city}>{city}</option>

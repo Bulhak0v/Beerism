@@ -62,7 +62,7 @@ const AuthForms: React.FC = () => {
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Registration failed");
       
-      setUser(data.user);
+      setUser(data.user || data); 
       saveLocation();
       navigate("/profile");
     } catch (err: any) {

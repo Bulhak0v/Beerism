@@ -16,28 +16,42 @@ interface LocationImageProps {
 }
 
 const LocationImage: React.FC<LocationImageProps> = ({ src, alt, locationId, className }) => {
+
   const fallbackIndex = (locationId - 1) % FALLBACK_PICTURES.length;
   const safeIndex = fallbackIndex < 0 ? 0 : fallbackIndex;
   const fallbackSrc = FALLBACK_PICTURES[safeIndex];
 
-  const [imgSrc, setImgSrc] = useState<string>(src || fallbackSrc);
+  const [currentSrc, setCurrentSrc] = useState<string>(fallbackSrc);
 
   useEffect(() => {
-    setImgSrc(src || fallbackSrc);
-  }, [src, fallbackSrc]);
-
-  const handleError = () => {
-    if (imgSrc !== fallbackSrc) {
-      setImgSrc(fallbackSrc);
+    if (!src) {
+      setCurrentSrc(fallbackSrc);
+      return;
     }
-  };
+
+    setCurrentSrc(fallbackSrc);
+
+    const img = new Image();
+    img.src = src;
+
+    img.onload = () => {
+      setCurrentSrc(src);
+    };
+
+    img.onerror = () => {
+    };
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
+  }, [src, fallbackSrc]);
 
   return (
     <img 
-      src={imgSrc} 
+      src={currentSrc} 
       alt={alt} 
       className={className} 
-      onError={handleError}
       loading="lazy" 
     />
   );

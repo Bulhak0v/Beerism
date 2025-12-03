@@ -96,12 +96,10 @@ export async function editUserPreference(req: AuthenticatedRequest, res: Respons
         preferred_beer_style_id
     } = req.body;
 
-
-
     const updateData: Partial<User> = {
-      ...(preferred_budget_range && { preferred_budget_range }),
-      ...(preferred_venue_atmosphere && { preferred_venue_atmosphere }),
-      ...(preferred_beer_style_id && { preferred_beer_style_id })
+      ...(preferred_budget_range !== undefined && { preferred_budget_range }),
+      ...(preferred_venue_atmosphere !== undefined && { preferred_venue_atmosphere }),
+      ...(preferred_beer_style_id !== undefined && { preferred_beer_style_id })
     };
 
     const updatedUser = await UserService.editUserPreference(userId, updateData);
@@ -183,9 +181,9 @@ export async function updateUser(req: Request, res: Response) {
       ...(password && { password }),
       ...(profile_picture && { profile_picture }),
       ...(bio && { bio }),
-      ...(preferred_budget_range && { preferred_budget_range }),
-      ...(preferred_venue_atmosphere && { preferred_venue_atmosphere }),
-      ...(preferred_beer_style_id && { preferred_beer_style_id }),
+      ...(preferred_budget_range !== undefined && { preferred_budget_range }),
+      ...(preferred_venue_atmosphere !== undefined && { preferred_venue_atmosphere }),
+      ...(preferred_beer_style_id !== undefined && { preferred_beer_style_id }),
       ...(xp !== undefined && { xp }),
       ...(level !== undefined && { level })
     };
