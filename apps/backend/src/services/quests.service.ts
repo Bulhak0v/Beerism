@@ -108,7 +108,7 @@ export const QuestsService = {
         }
     },
 
-    async getAvailableQuestsForUser(userId: number): Promise<Quest[]> {
+    async getAvailableQuestsForUser(userId: number): Promise<any[]> {
         const query = `
             SELECT q.*
             FROM quests q
@@ -120,6 +120,16 @@ export const QuestsService = {
                 );
         `;
         const result = await db.query(query, [userId]);
-        return result.rows;
-    },
+        
+        return result.rows.map(row => ({
+            quest_id: row.quest_id,
+            title: row.title,
+            description: row.description,
+            xp_reward: row.rewards?.xp || 0,
+            target: (row.requirements?.visits || row.requirements?.count || 1),
+            progress: 0,
+            status: 'available',
+            validity_end: row.validity_end,
+        }));
+    }
 };
