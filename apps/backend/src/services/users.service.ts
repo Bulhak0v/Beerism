@@ -256,12 +256,13 @@ export const UserService = {
                 SELECT 
                     q.*, 
                     uq.progress,
-                    COALESCE(JSON_AGG(ql.location_id) FILTER (WHERE ql.location_id IS NOT NULL), '[]') as linked_location_ids
+                    COALESCE(
+                        (SELECT ARRAY_AGG(location_id) FROM quest_locations ql WHERE ql.quest_id = q.quest_id), 
+                        '{}'
+                    ) as linked_location_ids
                 FROM user_quests uq
                 JOIN quests q ON uq.quest_id = q.quest_id
-                LEFT JOIN quest_locations ql ON q.quest_id = ql.quest_id
                 WHERE uq.user_id = $1 AND uq.completed_at IS NULL
-                GROUP BY q.quest_id, uq.progress, uq.user_id
             `, [userId]);
 
             if (activeQuestsRes.rows.length === 0) {
@@ -286,47 +287,72 @@ export const UserService = {
                 const req = quest.requirements;
                 if (!req || req.type === 'review') continue;
 
-                const currentProgress = quest.progress?.current_count || 0;
-                let progressMade = 0;
+                let currentCount = parseInt(quest.progress?.current_count || '0');
+                let visitedIds: number[] = quest.progress?.visited_ids || [];
+
+                const questLinkedIds: number[] = quest.linked_location_ids || [];
 
                 const qualifyingLocations = locationsInRoute.filter(loc => {
-                    if (quest.linked_location_ids && quest.linked_location_ids.length > 0 && !quest.linked_location_ids.includes(loc.location_id)) {
+                    if (questLinkedIds.length > 0 && !questLinkedIds.includes(loc.location_id)) {
                         return false;
                     }
                     
                     switch(req.type) {
-                        case 'visit': return true;
-                        case 'atmosphere': return loc.atmospheres.includes(req.target);
-                        case 'budget': return loc.average_budget_requirment === req.target;
-                        case 'beer_style': return loc.beer_styles.includes(req.target_id);
-                        default: return false;
+                        case 'visit': 
+                            return true; 
+                        case 'atmosphere': 
+                            return loc.atmospheres.includes(req.target);
+                        case 'budget': 
+                            return loc.average_budget_requirment === req.target;
+                        case 'beer_style': 
+                            return loc.beer_styles.some((id: number) => id === Number(req.target_id));
+                        default: 
+                            return false;
                     }
                 });
-                
-                progressMade = qualifyingLocations.length;
-                
-                if (progressMade > 0) {
-                    const newProgressCount = currentProgress + progressMade;
+
+                let newIdsToAdd: number[] = [];
+
+                if (req.unique) {
+                    for (const loc of qualifyingLocations) {
+                        if (!visitedIds.includes(loc.location_id)) {
+                            newIdsToAdd.push(loc.location_id);
+                        }
+                    }
+                } else {
+                    newIdsToAdd = qualifyingLocations.map(l => l.location_id);
+                }
+
+                if (newIdsToAdd.length > 0) {
+                    currentCount += newIdsToAdd.length;
                     
+                    const updatedVisitedIds = Array.from(new Set([...visitedIds, ...newIdsToAdd]));
+
+                    const newProgressJson = {
+                        current_count: currentCount,
+                        visited_ids: updatedVisitedIds
+                    };
+
                     await client.query(`
                         UPDATE user_quests 
-                        SET progress = jsonb_set(progress, '{current_count}', $1::jsonb)
+                        SET progress = $1
                         WHERE user_id = $2 AND quest_id = $3
-                    `, [newProgressCount, userId, quest.quest_id]);
+                    `, [newProgressJson, userId, quest.quest_id]);
                     
-                    const target = req.visits || req.count;
-                    if (newProgressCount >= target) {
+                    const target = parseInt(req.visits || req.count || '1');
+                    
+                    if (currentCount >= target) {
                         await client.query(`
                             UPDATE user_quests
                             SET completed_at = NOW()
                             WHERE user_id = $1 AND quest_id = $2 AND completed_at IS NULL
                         `, [userId, quest.quest_id]);
 
-                        const xpReward = quest.rewards?.xp || 0;
+                        const xpReward = parseInt(quest.rewards?.xp || '0');
                         if (xpReward > 0) {
                             await client.query(`
                                 UPDATE users
-                                SET xp = xp + $1
+                                SET xp = COALESCE(xp, 0) + $1
                                 WHERE user_id = $2
                             `, [xpReward, userId]);
                         }
