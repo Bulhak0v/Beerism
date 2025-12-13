@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import "../styles/map.css";
 import { useAuth } from "../components/authProvider";
 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
@@ -233,6 +236,29 @@ const MapPage = () => {
         if (!response.ok) throw new Error("Routing failed");
         const data = await response.json();
         const path = data.paths[0];
+
+        if (user) {
+            try {
+                const locationIdsInRoute = stops.map(s => s.location_id);
+                const progressRes = await fetch(`https://beerism-backend.onrender.com/api/users/${user.user_id}/check-route-progress`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ locationIds: locationIdsInRoute })
+                });
+
+                if (progressRes.ok) {
+                    const { completedQuests } = await progressRes.json();
+                    if (completedQuests && completedQuests.length > 0) {
+                        completedQuests.forEach((q: any) => {
+                            toast.success(`🎉 Quest Complete: "${q.title}" (+${q.xp} XP)`);
+                        });
+                    }
+                }
+            } catch (progressError) {
+                console.error("Failed to check quest progress:", progressError);
+            }
+        }
+        
         const coords: [number, number][] = path.points.coordinates.map((p: number[]) => [p[1], p[0]]);
         setRouteCoordinates(coords);
         
@@ -417,6 +443,18 @@ const MapPage = () => {
 
   return (
     <div className="map-page-container">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       <div className="map-content-wrapper">
         <div className="map-controls">
             <h1 className="map-page-title">Locations Map</h1>

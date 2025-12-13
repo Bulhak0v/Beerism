@@ -244,4 +244,105 @@ export const UserService = {
         );
         return result.rowCount;
     },
+
+    async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ completedQuests: any[] }> {
+        const client = await db.connect();
+        try {
+            await client.query('BEGIN');
+
+            const completedQuests = [];
+
+            const activeQuestsRes = await client.query(`
+                SELECT 
+                    q.*, 
+                    uq.progress,
+                    COALESCE(JSON_AGG(ql.location_id) FILTER (WHERE ql.location_id IS NOT NULL), '[]') as linked_location_ids
+                FROM user_quests uq
+                JOIN quests q ON uq.quest_id = q.quest_id
+                LEFT JOIN quest_locations ql ON q.quest_id = ql.quest_id
+                WHERE uq.user_id = $1 AND uq.completed_at IS NULL
+                GROUP BY q.quest_id, uq.progress, uq.user_id
+            `, [userId]);
+
+            if (activeQuestsRes.rows.length === 0) {
+                await client.query('COMMIT');
+                return { completedQuests: [] };
+            }
+            
+            const locationsInRouteRes = await client.query(`
+                SELECT 
+                    l.location_id, l.average_budget_requirment,
+                    COALESCE(ARRAY_AGG(DISTINCT lat.atmosphere_tag), '{}') as atmospheres,
+                    COALESCE(ARRAY_AGG(DISTINCT lbs.beer_style_id), '{}') as beer_styles
+                FROM locations l
+                LEFT JOIN location_atmosphere_tags lat ON l.location_id = lat.location_id
+                LEFT JOIN location_beer_styles lbs ON l.location_id = lbs.location_id
+                WHERE l.location_id = ANY($1::int[])
+                GROUP BY l.location_id;
+            `, [locationIds]);
+            const locationsInRoute = locationsInRouteRes.rows;
+
+            for (const quest of activeQuestsRes.rows) {
+                const req = quest.requirements;
+                if (!req || req.type === 'review') continue;
+
+                const currentProgress = quest.progress?.current_count || 0;
+                let progressMade = 0;
+
+                const qualifyingLocations = locationsInRoute.filter(loc => {
+                    if (quest.linked_location_ids && quest.linked_location_ids.length > 0 && !quest.linked_location_ids.includes(loc.location_id)) {
+                        return false;
+                    }
+                    
+                    switch(req.type) {
+                        case 'visit': return true;
+                        case 'atmosphere': return loc.atmospheres.includes(req.target);
+                        case 'budget': return loc.average_budget_requirment === req.target;
+                        case 'beer_style': return loc.beer_styles.includes(req.target_id);
+                        default: return false;
+                    }
+                });
+                
+                progressMade = qualifyingLocations.length;
+                
+                if (progressMade > 0) {
+                    const newProgressCount = currentProgress + progressMade;
+                    
+                    await client.query(`
+                        UPDATE user_quests 
+                        SET progress = jsonb_set(progress, '{current_count}', $1::jsonb)
+                        WHERE user_id = $2 AND quest_id = $3
+                    `, [newProgressCount, userId, quest.quest_id]);
+                    
+                    const target = req.visits || req.count;
+                    if (newProgressCount >= target) {
+                        await client.query(`
+                            UPDATE user_quests
+                            SET completed_at = NOW()
+                            WHERE user_id = $1 AND quest_id = $2 AND completed_at IS NULL
+                        `, [userId, quest.quest_id]);
+
+                        const xpReward = quest.rewards?.xp || 0;
+                        if (xpReward > 0) {
+                            await client.query(`
+                                UPDATE users
+                                SET xp = xp + $1
+                                WHERE user_id = $2
+                            `, [xpReward, userId]);
+                        }
+                        
+                        completedQuests.push({ title: quest.title, xp: xpReward });
+                    }
+                }
+            }
+
+            await client.query('COMMIT');
+            return { completedQuests };
+        } catch (e) {
+            await client.query('ROLLBACK');
+            throw e;
+        } finally {
+            client.release();
+        }
+    },
 }

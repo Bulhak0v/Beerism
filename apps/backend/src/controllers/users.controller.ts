@@ -307,3 +307,21 @@ export async function abandonUserQuest(req: Request, res: Response) {
         res.status(500).json({ message: error.message });
     }
 }
+
+export async function checkRouteProgress(req: Request, res: Response) {
+    try {
+        const userId = parseInt(req.params.id);
+        const { locationIds } = req.body;
+
+        if (isNaN(userId) || !Array.isArray(locationIds)) {
+            return res.status(400).json({ message: "Invalid user ID or locationIds format." });
+        }
+
+        const result = await UserService.checkRouteProgress(userId, locationIds);
+        res.status(200).json(result);
+
+    } catch (error: any) {
+        console.error("Error checking route progress:", error);
+        return res.status(500).json({ message: "Error checking route progress." });
+    }
+}
