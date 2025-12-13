@@ -65,3 +65,17 @@ export async function updateQuest(req: Request, res: Response) {
         res.status(500).json({ message: "Error updating quest" });
     }
 }
+
+export async function getAvailableQuests(req: Request, res: Response) {
+    try {
+        const userId = parseInt(req.params.userId);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid User ID." });
+        }
+        const data = await QuestsService.getAvailableQuestsForUser(userId);
+        res.json(data);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error fetching available quests" });
+    }
+}

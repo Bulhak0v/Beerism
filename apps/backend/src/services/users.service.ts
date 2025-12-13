@@ -217,5 +217,31 @@ export const UserService = {
             status: row.completed_at ? 'completed' : 'active',
             validity_end: row.validity_end,
         }));
-    }
+    },
+
+    async acceptQuest(userId: number, questId: number): Promise<any> {
+        const existing = await db.query(
+            `SELECT * FROM user_quests WHERE user_id = $1 AND quest_id = $2`,
+            [userId, questId]
+        );
+        if (existing.rows.length > 0) {
+            throw new Error("Quest already accepted.");
+        }
+
+        const initialProgress = { "current_count": 0 };
+
+        const result = await db.query(
+            `INSERT INTO user_quests (user_id, quest_id, progress) VALUES ($1, $2, $3) RETURNING *`,
+            [userId, questId, initialProgress]
+        );
+        return result.rows[0];
+    },
+
+    async abandonQuest(userId: number, questId: number): Promise<number | null> {
+        const result = await db.query(
+            `DELETE FROM user_quests WHERE user_id = $1 AND quest_id = $2`,
+            [userId, questId]
+        );
+        return result.rowCount;
+    },
 }

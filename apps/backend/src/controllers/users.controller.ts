@@ -277,3 +277,33 @@ export async function googleAuth(req: Request, res: Response) {
       .json({ message: err.message || "Google authentication failed" });
   }
 }
+
+export async function acceptUserQuest(req: Request, res: Response) {
+    try {
+        const userId = parseInt(req.params.id);
+        const questId = parseInt(req.params.questId);
+        if (isNaN(userId) || isNaN(questId)) {
+            return res.status(400).json({ message: "Invalid ID format." });
+        }
+        await UserService.acceptQuest(userId, questId);
+        res.status(201).json({ message: "Quest accepted." });
+    } catch (error: any) {
+        console.error("Error accepting quest:", error);
+        res.status(500).json({ message: error.message });
+    }
+}
+
+export async function abandonUserQuest(req: Request, res: Response) {
+    try {
+        const userId = parseInt(req.params.id);
+        const questId = parseInt(req.params.questId);
+        if (isNaN(userId) || isNaN(questId)) {
+            return res.status(400).json({ message: "Invalid ID format." });
+        }
+        await UserService.abandonQuest(userId, questId);
+        res.status(200).json({ message: "Quest abandoned." });
+    } catch (error: any) {
+        console.error("Error abandoning quest:", error);
+        res.status(500).json({ message: error.message });
+    }
+}

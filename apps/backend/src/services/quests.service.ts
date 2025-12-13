@@ -106,5 +106,20 @@ export const QuestsService = {
         } finally {
             client.release();
         }
-    }
+    },
+
+    async getAvailableQuestsForUser(userId: number): Promise<Quest[]> {
+        const query = `
+            SELECT q.*,
+            FROM quests q
+            WHERE 
+                q.validity_start <= NOW() AND q.validity_end >= NOW()
+                AND NOT EXISTS (
+                    SELECT 1 FROM user_quests uq 
+                    WHERE uq.quest_id = q.quest_id AND uq.user_id = $1
+                );
+        `;
+        const result = await db.query(query, [userId]);
+        return result.rows;
+    },
 };
