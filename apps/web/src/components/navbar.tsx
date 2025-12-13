@@ -36,6 +36,7 @@ const Navbar: React.FC = () => {
             <NavLink to="/adminUser" className="nav-item">
               Users
             </NavLink>
+            <NavLink to="/adminQuests" className="nav-item">Quests</NavLink>
           </>
         ) : (
           <>

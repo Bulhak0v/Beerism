@@ -10,6 +10,7 @@ import MapPage from "./pages/map_pg";
 import AdminUserPage from "./pages/adminUser_pg";
 import Layout from "./components/layout";
 import HomePage from "./pages/home_pg";
+import AdminQuestsPage from "./pages/adminQuests_pg";
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
         <Route path="/map" element={<MapPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/adminUser" element={<AdminUserPage />} />
+        <Route path="/adminQuests" element={<AdminQuestsPage />} />
         {/* <Route path="/about" element={<AboutPage />} /> */}
         {/* <Route path="/contact" element={<ContactPage />} /> */}
       </Route>

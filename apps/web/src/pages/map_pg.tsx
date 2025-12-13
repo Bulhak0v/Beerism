@@ -103,6 +103,11 @@ const MapPage = () => {
   const [atmosphereOptions, setAtmosphereOptions] = useState<string[]>([]);
   const [budgetOptions, setBudgetOptions] = useState<string[]>([]);
 
+  const [isRecPanelOpen, setIsRecPanelOpen] = useState(false);
+  const [allRecommendations, setAllRecommendations] = useState<Location[]>([]);
+  const [dismissedRecIds, setDismissedRecIds] = useState<number[]>([]); 
+  const [recCount, setRecCount] = useState<number>(5);
+
   useEffect(() => {
       const fetchOptions = async () => {
           try {
@@ -142,6 +147,22 @@ const MapPage = () => {
       setError(err.message || "Error fetching locations");
     }
   }, []);
+
+  const fetchRecommendations = useCallback(async () => {
+      if (!user) return;
+      try {
+          const rawCity = localStorage.getItem("user_city");
+          const city = rawCity ? rawCity.toString() : ""; 
+          
+          const res = await fetch(`https://beerism-backend.onrender.com/api/locations/recommendations/byCity?user_id=${user.user_id}&city=${encodeURIComponent(city)}`);
+          if (res.ok) {
+              const data = await res.json();
+              setAllRecommendations(data);
+          }
+      } catch (err) {
+          console.error("Failed to fetch recs", err);
+      }
+  }, [user]);
   
   const fetchUserRoutes = useCallback(async () => {
     if (!user) return;
@@ -163,6 +184,11 @@ const MapPage = () => {
         fetchUserRoutes();
     }
   }, [fetchAllLocations, fetchUserRoutes, user]);
+
+  useEffect(() => { 
+      fetchAllLocations(); 
+      if(user) fetchRecommendations();
+  }, [fetchAllLocations, fetchRecommendations, user]);
 
    const filteredLocations = useMemo(() => {
     let current = locations;
@@ -372,12 +398,33 @@ const MapPage = () => {
       setRouteStats(null);
   };
 
+  const visibleRecommendations = useMemo(() => {
+      return allRecommendations
+        .filter(loc => !dismissedRecIds.includes(loc.location_id))
+        .slice(0, recCount);
+  }, [allRecommendations, dismissedRecIds, recCount]);
+
+  const handleCreateRouteFromRecs = () => {
+      setIsRecPanelOpen(false);
+      const stops: RouteStop[] = visibleRecommendations.map(loc => ({ ...loc, note: "" }));
+      resetRouteCreationState();
+      setSelectedStops(stops);
+      setIsCreatingNewRoute(true);
+      setIsRoutePlannerOpen(true);
+      setRouteName(`Top ${recCount} Recommendations`);
+      if(stops.length > 1) calculateRoute(stops);
+  };
+
   return (
     <div className="map-page-container">
       <div className="map-content-wrapper">
         <div className="map-controls">
             <h1 className="map-page-title">Locations Map</h1>
             <div className="filter-container">
+                <button className="rec-btn" onClick={() => setIsRecPanelOpen(true)}>
+                    ★ Recommendations
+                </button>
+
                 <DynamicFilterDropdown 
                     value={selectedBudget} 
                     onChange={(e: any) => setSelectedBudget(e.target.value)} 
@@ -409,6 +456,59 @@ const MapPage = () => {
         {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
         <div className="map-wrapper">
+            {isRecPanelOpen && (
+                <div className="rec-panel">
+                    <div className="rec-header">
+                        <h3>Top Recommendations</h3>
+                        <button className="close-btn" onClick={() => setIsRecPanelOpen(false)}>&times;</button>
+                    </div>
+                    <div className="rec-content">
+                        <div className="rec-controls">
+                            <label>Show top:</label>
+                            <input 
+                                type="number" 
+                                min="1" max="10" 
+                                value={recCount} 
+                                onChange={(e) => setRecCount(Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))} 
+                                className="rec-count-input"
+                            />
+                        <button 
+                            className="rec-reset-btn" 
+                            onClick={() => setDismissedRecIds([])}
+                            title="Restore all dismissed locations"
+                        >
+                            Reset List
+                        </button>
+                        </div>
+                        
+                        {visibleRecommendations.length === 0 ? (
+                            <p>No more recommendations available.</p>
+                        ) : (
+                            visibleRecommendations.map((loc, idx) => (
+                                <div key={loc.location_id} className="rec-item">
+                                    <div className="rec-info">
+                                        <span className="rec-name">#{idx+1} {loc.name}</span>
+                                        <div className="rec-meta">⭐ {loc.rating} • {loc.city}</div>
+                                    </div>
+                                    <button 
+                                        className="rec-dismiss-btn" 
+                                        onClick={() => setDismissedRecIds(prev => [...prev, loc.location_id])}
+                                        title="Dismiss / Show Next"
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))
+                        )}
+
+                        {visibleRecommendations.length > 0 && (
+                            <button className="convert-route-btn" onClick={handleCreateRouteFromRecs}>
+                                Turn into Route ➔
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
             {isRoutePlannerOpen && (
                 <RoutePlannerPanel 
                     isRoutePlannerOpen={isRoutePlannerOpen} setIsRoutePlannerOpen={setIsRoutePlannerOpen}
