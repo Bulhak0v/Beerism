@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getLocations, deleteLocation, addLocation, updateLocation, getLocationById, getRecommendedLocations, getAllCities, getFilterOptions } from "../controllers/locations.controller.js";
+import { getLocations, deleteLocation, addLocation, updateLocation, getLocationById, getRecommendedLocations, getAllCities, getBeerStyles, getFilterOptions } from "../controllers/locations.controller.js";
 
 const router = Router();
 
@@ -11,5 +11,6 @@ router.delete("/:id", deleteLocation);
 router.post("/", addLocation);
 router.put("/:id", updateLocation);
 router.get("/:id", getLocationById);
+router.get("/beer-styles", getBeerStyles);
 
 export default router;

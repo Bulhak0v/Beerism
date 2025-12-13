@@ -19,6 +19,11 @@ interface SimpleLocation {
     city: string;
 }
 
+interface BeerStyle {
+    style_id: number;
+    name: string;
+}
+
 type QuestType = 'visit' | 'review' | 'atmosphere' | 'budget' | 'beer_style';
 
 export default function AdminQuestsPage() {
@@ -28,6 +33,7 @@ export default function AdminQuestsPage() {
     const [locations, setLocations] = useState<SimpleLocation[]>([]);
     const [filteredData, setFilteredData] = useState<Quest[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
+    const [beerStyles, setBeerStyles] = useState<BeerStyle[]>([]);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingId, setEditingId] = useState<number | null>(null);
@@ -57,6 +63,9 @@ export default function AdminQuestsPage() {
             
             const lRes = await fetch(`https://beerism-backend.onrender.com/api/locations`);
             if (lRes.ok) setLocations(await lRes.json());
+
+            const bRes = await fetch(`https://beerism-backend.onrender.com/api/locations/beer-styles`);
+            if (bRes.ok) setBeerStyles(await bRes.json());
         } catch (err) { console.error(err); }
     }, []);
 
@@ -188,6 +197,11 @@ export default function AdminQuestsPage() {
         });
     };
 
+    const getStyleName = (id: number) => {
+        const style = beerStyles.find(s => s.style_id === id);
+        return style ? style.name : `ID #${id}`;
+    };
+
     const renderReqString = (req: any) => {
         if (!req) return "N/A";
         switch (req.type) {
@@ -195,7 +209,7 @@ export default function AdminQuestsPage() {
             case 'review': return `${req.count} Reviews (Min ${req.min_rating}★)`;
             case 'atmosphere': return `${req.count}x '${req.target}' Vibe`;
             case 'budget': return `${req.count}x '${req.target}' Cost`;
-            case 'beer_style': return `${req.count}x Style #${req.target_id}`;
+            case 'beer_style': return `${req.count}x ${getStyleName(req.target_id)}`;
             default: return JSON.stringify(req);
         }
     };
@@ -232,7 +246,11 @@ export default function AdminQuestsPage() {
                                 <td style={{fontWeight:'bold', color: '#456DC5'}}>{renderReqString(q.requirements)}</td>
                                 <td>{new Date(q.validity_start).toLocaleDateString()}</td>
                                 <td>{new Date(q.validity_end).toLocaleDateString()}</td>
-                                <td>{q.linked_location_ids?.length || 0} Pubs</td>
+                                <td>
+                                    {q.linked_location_ids && q.linked_location_ids.length > 0 
+                                        ? `${q.linked_location_ids.length} Specific` 
+                                        : `Any (${locations.length} total)`}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -307,8 +325,10 @@ export default function AdminQuestsPage() {
                                             <option value="Cozy">Cozy</option>
                                             <option value="Modern">Modern</option>
                                             <option value="Historic">Historic</option>
-                                            <option value="Loud">Loud</option>
-                                            <option value="Sporty">Sporty</option>
+                                            <option value="Lively">Lively</option>
+                                            <option value="Industrial">Industrial</option>
+                                            <option value="Outdoor">Outdoor</option>
+                                            <option value="Family_Friendly">Family_Friendly</option>
                                         </select>
                                     </div>
                                 )}
@@ -327,8 +347,13 @@ export default function AdminQuestsPage() {
 
                                 {questType === 'beer_style' && (
                                     <div className="form-col">
-                                        <label>Beer Style ID</label>
-                                        <input type="number" placeholder="e.g. 1" value={reqTargetId} onChange={e => setReqTargetId(parseInt(e.target.value))} />
+                                        <label>Target Beer Style</label>
+                                        <select value={reqTargetId} onChange={e => setReqTargetId(parseInt(e.target.value))}>
+                                            <option value="0">Select Style...</option>
+                                            {beerStyles.map(s => (
+                                                <option key={s.style_id} value={s.style_id}>{s.name}</option>
+                                            ))}
+                                        </select>
                                     </div>
                                 )}
                             </div>
@@ -350,7 +375,7 @@ export default function AdminQuestsPage() {
                         </div>
 
                         <div className="form-col">
-                            <label>Linked Locations (Optional: Restrict quest to these places)</label>
+                            <label>Linked Locations (Leave empty for ALL locations)</label>
                             <div style={{height: '120px', overflowY: 'auto', border:'1px solid #ccc', borderRadius:'6px', padding:'10px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:'5px'}}>
                                 {locations.map(loc => (
                                     <div key={loc.location_id} style={{display:'flex', alignItems:'center'}}>

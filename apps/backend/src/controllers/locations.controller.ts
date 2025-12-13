@@ -79,6 +79,16 @@ export async function getAllCities(req: Request, res: Response) {
     }
 }
 
+export async function getBeerStyles(req: Request, res: Response) {
+    try {
+        const styles = await LocationsService.getAllBeerStyles();
+        res.status(200).json(styles);
+    } catch (error: any) {
+        console.error("Error fetching beer styles:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export async function getLocationById(req: Request, res: Response) {
   try {
     const { id } = req.params;

@@ -90,6 +90,11 @@ export const LocationsService = {
         return result.rows.map(item => item.city as string);
     },
 
+    async getAllBeerStyles(): Promise<{ style_id: number; name: string }[]> {
+        const result = await db.query("SELECT style_id, name FROM beer_styles ORDER BY name ASC");
+        return result.rows;
+    },
+
     async getRecommendedLocations(user_id: number, city: string | undefined): Promise<Location[]> {
         const user = await UserService.getUserById(user_id);
         if (!user) {
