@@ -110,7 +110,7 @@ export const QuestsService = {
 
     async getAvailableQuestsForUser(userId: number): Promise<Quest[]> {
         const query = `
-            SELECT q.*,
+            SELECT q.*
             FROM quests q
             WHERE 
                 q.validity_start <= NOW() AND q.validity_end >= NOW()
