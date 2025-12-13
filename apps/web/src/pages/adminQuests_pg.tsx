@@ -20,7 +20,7 @@ interface SimpleLocation {
 }
 
 interface BeerStyle {
-    style_id: number;
+    beer_style_id: number;
     name: string;
 }
 
@@ -198,7 +198,7 @@ export default function AdminQuestsPage() {
     };
 
     const getStyleName = (id: number) => {
-        const style = beerStyles.find(s => s.style_id === id);
+        const style = beerStyles.find(s => s.beer_style_id === id);
         return style ? style.name : `ID #${id}`;
     };
 
@@ -351,7 +351,7 @@ export default function AdminQuestsPage() {
                                         <select value={reqTargetId} onChange={e => setReqTargetId(parseInt(e.target.value))}>
                                             <option value="0">Select Style...</option>
                                             {beerStyles.map(s => (
-                                                <option key={s.style_id} value={s.style_id}>{s.name}</option>
+                                                <option key={s.beer_style_id} value={s.beer_style_id}>{s.name}</option>
                                             ))}
                                         </select>
                                     </div>
