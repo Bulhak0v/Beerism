@@ -21,7 +21,7 @@ interface SimpleLocation {
 
 interface BeerStyle {
     beer_style_id: number;
-    name: string;
+    beer_style_name: string;
 }
 
 type QuestType = 'visit' | 'review' | 'atmosphere' | 'budget' | 'beer_style';
@@ -64,8 +64,11 @@ export default function AdminQuestsPage() {
             const lRes = await fetch(`https://beerism-backend.onrender.com/api/locations`);
             if (lRes.ok) setLocations(await lRes.json());
 
-            const bRes = await fetch(`https://beerism-backend.onrender.com/api/locations/beer-styles`);
-            if (bRes.ok) setBeerStyles(await bRes.json());
+            const bRes = await fetch(`https://beerism-backend.onrender.com/api/beer-styles`);
+            if (bRes.ok) {
+                const data = await bRes.json();
+                setBeerStyles(data);
+            }
         } catch (err) { console.error(err); }
     }, []);
 
@@ -198,8 +201,8 @@ export default function AdminQuestsPage() {
     };
 
     const getStyleName = (id: number) => {
-        const style = beerStyles.find(s => s.beer_style_id === id);
-        return style ? style.name : `ID #${id}`;
+        const style = beerStyles.find(s => s.beer_style_id == id);
+        return style ? style.beer_style_name : `ID #${id}`;
     };
 
     const renderReqString = (req: any) => {
@@ -227,9 +230,6 @@ export default function AdminQuestsPage() {
                         <button className="searchButton"></button>
                     </div>
                 </div>
-                <button className="backButton" onClick={() => navigate("/profile")}>
-                    <span><img src="/profileIcons/Arrow.svg" alt="back"></img></span> Back
-                </button>
             </div>
 
             <div className="table-wrapper">
@@ -351,7 +351,7 @@ export default function AdminQuestsPage() {
                                         <select value={reqTargetId} onChange={e => setReqTargetId(parseInt(e.target.value))}>
                                             <option value="0">Select Style...</option>
                                             {beerStyles.map(s => (
-                                                <option key={s.beer_style_id} value={s.beer_style_id}>{s.name}</option>
+                                                <option key={s.beer_style_id} value={s.beer_style_id}>{s.beer_style_name}</option>
                                             ))}
                                         </select>
                                     </div>
