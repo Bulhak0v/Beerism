@@ -23,14 +23,19 @@ export async function deleteQuest(req: Request, res: Response) {
 }
 
 export async function addQuest(req: Request, res: Response) {
-    const { title, description, xp_reward, visit_count, validity_start, validity_end, location_ids } = req.body;
+    const { 
+        title, description, xp_reward, 
+        validity_start, validity_end, location_ids,
+        requirements
+    } = req.body;
 
     const rewards = { xp: parseInt(xp_reward) || 0 };
-    const requirements = { visits: parseInt(visit_count) || 1 };
+    
+    const finalRequirements = requirements || { type: 'visit', visits: 1, unique: true };
 
     try {
         const newQuest = await QuestsService.addQuest(
-            title, description, requirements, rewards, validity_start, validity_end, location_ids || []
+            title, description, finalRequirements, rewards, validity_start, validity_end, location_ids || []
         );
         res.status(201).json(newQuest);
     } catch (err: any) {
@@ -41,14 +46,18 @@ export async function addQuest(req: Request, res: Response) {
 
 export async function updateQuest(req: Request, res: Response) {
     const id = parseInt(req.params.id);
-    const { title, description, xp_reward, visit_count, validity_start, validity_end, location_ids } = req.body;
+    const { 
+        title, description, xp_reward, 
+        validity_start, validity_end, location_ids,
+        requirements
+    } = req.body;
 
     const rewards = { xp: parseInt(xp_reward) || 0 };
-    const requirements = { visits: parseInt(visit_count) || 1 };
+    const finalRequirements = requirements || { type: 'visit', visits: 1, unique: true };
 
     try {
         const updated = await QuestsService.updateQuest(
-            id, title, description, requirements, rewards, validity_start, validity_end, location_ids || []
+            id, title, description, finalRequirements, rewards, validity_start, validity_end, location_ids || []
         );
         res.status(200).json(updated);
     } catch (err: any) {

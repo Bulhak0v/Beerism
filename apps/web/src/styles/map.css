@@ -474,7 +474,6 @@ button, select, input, option {
   color: #ffffff;
 }
 
-/* --- Mobile --- */
 @media screen and (max-width: 768px) {
   .map-content-wrapper {
     padding: 0 15px;
@@ -492,7 +491,6 @@ button, select, input, option {
     flex-wrap: wrap-reverse;
   }
   
-  /* Ensure Leaflet container gets height */
   .leaflet-container {
     height: 90vh !important;
   }
@@ -560,7 +558,7 @@ button, select, input, option {
   justify-content: center;
   align-items: center;
   padding: 10px 15px;
-  background-color: #e69500; /* Distinctive Gold/Orange color */
+  background-color: #e69500;
   color: #fff;
   border: 1px solid #202020;
   border-radius: 8px;
@@ -577,7 +575,7 @@ button, select, input, option {
 .rec-panel {
   position: absolute; 
   top: 10px;        
-  left: 10px; /* positioned on the LEFT side as requested (relative to map wrapper) */
+  left: 10px;
   width: 320px;   
   z-index: 1000;    
   border: 0.5px solid #202020;
@@ -587,7 +585,7 @@ button, select, input, option {
   display: flex;
   flex-direction: column;
   max-height: 95%;
-  border-top: 50px solid #e69500; /* Gold header */
+  border-top: 50px solid #e69500;
   box-sizing: border-box;
 }
 
@@ -694,7 +692,7 @@ button, select, input, option {
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  margin-top: auto; /* Push to bottom */
+  margin-top: auto;
 }
 
 .convert-route-btn:hover {
@@ -718,7 +716,6 @@ button, select, input, option {
   color: white;
 }
 
-/* Mobile: Stack nicely */
 @media screen and (max-width: 768px) {
   .rec-panel {
     top: auto;
