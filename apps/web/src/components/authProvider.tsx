@@ -132,4 +132,6 @@ export interface User {
     preferred_budget_range: string | null;
     preferred_venue_atmosphere: string | null;
     preferred_beer_style_id: number | null;
+    xp?: number;
+    level?: number;
 }

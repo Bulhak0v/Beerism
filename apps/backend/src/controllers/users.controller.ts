@@ -43,6 +43,8 @@ export async function loginUser(req: Request, res: Response) {
 interface AuthenticatedRequest extends Request {
   user?: {
     id: number;
+    xp?: number;
+    level?: number;
   };
 }
 
@@ -241,6 +243,22 @@ export async function getRecommendedLocations(req: Request, res: Response) {
     console.error("Error getting recommendations:", err);
     return res.status(500).json({ message: "An error occurred while fetching recommendations." });
   }
+}
+
+export async function getUserQuests(req: Request, res: Response) {
+    try {
+        const userId = parseInt(req.params.id);
+        if (isNaN(userId)) {
+            return res.status(400).json({ message: "Invalid user ID." });
+        }
+
+        const quests = await UserService.getUserQuests(userId);
+        res.status(200).json(quests);
+
+    } catch (error: any) {
+        console.error("Error fetching user quests:", error);
+        return res.status(500).json({ message: "Error fetching user quests." });
+    }
 }
 
 export async function googleAuth(req: Request, res: Response) {

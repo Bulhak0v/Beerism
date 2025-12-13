@@ -187,4 +187,35 @@ export const UserService = {
         const result = await db.query<User>(`SELECT * FROM users;`);
         return result.rows;
     },
+
+    async getUserQuests(userId: number): Promise<any[]> {
+        const query = `
+            SELECT 
+                q.quest_id,
+                q.title,
+                q.description,
+                q.requirements,
+                q.rewards,
+                q.validity_end,
+                uq.progress,
+                uq.completed_at
+            FROM user_quests uq
+            JOIN quests q ON uq.quest_id = q.quest_id
+            WHERE uq.user_id = $1
+            ORDER BY uq.completed_at DESC, q.validity_end ASC;
+        `;
+
+        const result = await db.query(query, [userId]);
+        
+        return result.rows.map(row => ({
+            quest_id: row.quest_id,
+            title: row.title,
+            description: row.description,
+            xp_reward: row.rewards?.xp || 0,
+            target: (row.requirements?.visits || row.requirements?.count || 1),
+            progress: row.progress?.current_count || 0,
+            status: row.completed_at ? 'completed' : 'active',
+            validity_end: row.validity_end,
+        }));
+    }
 }
