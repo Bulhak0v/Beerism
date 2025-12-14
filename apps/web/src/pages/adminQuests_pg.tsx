@@ -111,7 +111,7 @@ export default function AdminQuestsPage() {
                 xp_reward: quest.rewards?.xp || 0,
                 validity_start: quest.validity_start ? new Date(quest.validity_start).toISOString().split('T')[0] : "",
                 validity_end: quest.validity_end ? new Date(quest.validity_end).toISOString().split('T')[0] : "",
-                location_ids: quest.linked_location_ids || []
+                location_ids: (quest.linked_location_ids || []).map(id => Number(id))
             });
 
             const req = quest.requirements || {};

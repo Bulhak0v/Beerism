@@ -6,7 +6,7 @@ export const QuestsService = {
         const query = `
             SELECT 
                 q.*,
-                COALESCE(JSON_AGG(ql.location_id) FILTER (WHERE ql.location_id IS NOT NULL), '[]') as linked_location_ids
+                COALESCE(JSON_AGG(ql.location_id::int) FILTER (WHERE ql.location_id IS NOT NULL), '[]') as linked_location_ids
             FROM quests q
             LEFT JOIN quest_locations ql ON q.quest_id = ql.quest_id
             GROUP BY q.quest_id
@@ -37,9 +37,9 @@ export const QuestsService = {
 
             const res = await client.query(
                 `INSERT INTO quests (title, description, requirements, rewards, validity_start, validity_end)
-                 VALUES ($1, $2, $3, $4, $5, $6)
-                 RETURNING *`,
-                [title, description, JSON.stringify(requirements), JSON.stringify(rewards), validity_start, validity_end]
+                VALUES ($1, $2, $3, $4, $5, $6)
+                RETURNING *`,
+                [title, description, requirements, rewards, validity_start, validity_end] // Remove JSON.stringify
             );
             const newQuest = res.rows[0];
 
@@ -78,10 +78,10 @@ export const QuestsService = {
 
             const res = await client.query(
                 `UPDATE quests 
-                 SET title = $1, description = $2, requirements = $3, rewards = $4, validity_start = $5, validity_end = $6
-                 WHERE quest_id = $7
-                 RETURNING *`,
-                [title, description, JSON.stringify(requirements), JSON.stringify(rewards), validity_start, validity_end, id]
+                SET title = $1, description = $2, requirements = $3, rewards = $4, validity_start = $5, validity_end = $6
+                WHERE quest_id = $7
+                RETURNING *`,
+                [title, description, requirements, rewards, validity_start, validity_end, id] // Remove JSON.stringify
             );
 
             if (res.rows.length === 0) throw new Error("Quest not found");
@@ -107,7 +107,6 @@ export const QuestsService = {
             client.release();
         }
     },
-
     async getAvailableQuestsForUser(userId: number): Promise<any[]> {
         const query = `
             SELECT q.*
