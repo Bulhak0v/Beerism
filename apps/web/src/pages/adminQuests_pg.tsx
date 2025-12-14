@@ -172,12 +172,23 @@ export default function AdminQuestsPage() {
             });
 
             if (res.ok) {
+                const data = await res.json();
+                console.log("Quest saved successfully:", data);
                 fetchData();
                 setIsModalOpen(false);
             } else {
-                console.error("Failed to save quest");
+                const errorText = await res.text();
+                console.error("Failed to save quest:", {
+                    status: res.status,
+                    statusText: res.statusText,
+                    error: errorText
+                });
+                alert(`Failed to save quest: ${res.status} ${res.statusText}\n${errorText}`);
             }
-        } catch (err) { console.error(err); }
+        } catch (err) { 
+            console.error("Network or parsing error:", err);
+            alert(`Error saving quest: ${err instanceof Error ? err.message : String(err)}`);
+        }
     };
 
     const handleDelete = async () => {
