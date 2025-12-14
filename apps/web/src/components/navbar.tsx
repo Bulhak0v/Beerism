@@ -46,6 +46,9 @@ const Navbar: React.FC = () => {
             <NavLink to="/profile" className="nav-item">
               Profile
             </NavLink>
+            <NavLink to="/leaderboard" className="nav-item">
+              Leaderboard
+            </NavLink>
             <NavLink to="/about" className="nav-item">
               About
             </NavLink>

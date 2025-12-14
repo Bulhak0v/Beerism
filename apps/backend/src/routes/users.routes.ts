@@ -1,5 +1,5 @@
 ﻿import { Router } from "express";
-import { loginUser, registerUser, editUser, editUserPreference, addUser, updateUser, deleteUser, getRecommendedLocations, googleAuth, getAllUsers, getUserQuests, acceptUserQuest, abandonUserQuest, checkRouteProgress } from "../controllers/users.controller.js";
+import { loginUser, registerUser, editUser, editUserPreference, addUser, updateUser, deleteUser, getRecommendedLocations, googleAuth, getAllUsers, getUserQuests, acceptUserQuest, abandonUserQuest, checkRouteProgress, getLeaderboard } from "../controllers/users.controller.js";
 
 const router = Router();
 
@@ -23,5 +23,7 @@ router.post("/:id/quests/:questId", acceptUserQuest);
 router.delete("/:id/quests/:questId", abandonUserQuest);
 
 router.post("/:id/check-route-progress", checkRouteProgress);
+
+router.get("/leaderboard", getLeaderboard);
 
 export default router;

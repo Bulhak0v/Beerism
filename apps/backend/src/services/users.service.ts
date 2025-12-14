@@ -410,4 +410,22 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
         client.release();
     }
 },
+
+async getLeaderboard(): Promise<any[]> {
+        const query = `
+            SELECT
+                u.user_id,
+                u.nickname,
+                u.profile_picture,
+                COALESCE(u.level, 0) as level,
+                COALESCE(u.xp, 0) as xp,
+                COUNT(uq.quest_id) FILTER (WHERE uq.completed_at IS NOT NULL) as completed_quests
+            FROM users u
+            LEFT JOIN user_quests uq ON u.user_id = uq.user_id
+            GROUP BY u.user_id
+            ORDER BY u.level DESC NULLS LAST, u.xp DESC NULLS LAST;
+        `;
+        const result = await db.query(query);
+        return result.rows;
+    }
 }

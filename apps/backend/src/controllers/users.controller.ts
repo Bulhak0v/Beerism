@@ -325,3 +325,13 @@ export async function checkRouteProgress(req: Request, res: Response) {
         return res.status(500).json({ message: "Error checking route progress." });
     }
 }
+
+export async function getLeaderboard(req: Request, res: Response) {
+    try {
+        const leaderboard = await UserService.getLeaderboard();
+        res.status(200).json(leaderboard);
+    } catch (error: any) {
+        console.error("Error fetching leaderboard:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}

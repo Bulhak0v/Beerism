@@ -1,0 +1,127 @@
+.leaderboard-main {
+    display: flex;
+    flex-flow: wrap;
+    width: 80%;
+    margin: 25px auto;
+    align-items: center;
+    justify-content: center;
+    font-family: "Gentium Book Plus", serif;
+}
+
+.leaderboard-cover {
+    background-color: #FCFCFC;
+    padding: 25px 50px;
+    border-radius: 10px;
+    border: 1px solid #20202080;
+    width: 92%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.leaderboard-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 20px;
+    color: #202020;
+}
+
+.leaderboard-table th {
+    text-align: left;
+    padding: 15px;
+    border-bottom: 2px solid #5C4033;
+    color: #5C4033;
+    font-weight: bold;
+    font-size: 22px;
+}
+
+.leaderboard-table td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.leaderboard-table tr:last-child td {
+    border-bottom: none;
+}
+
+.leaderboard-table tr:hover {
+    background-color: #f2efe566;
+}
+
+.lb-rank-cell {
+    font-weight: bold;
+    width: 80px;
+    text-align: center !important;
+}
+
+.rank-medal {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 50%;
+    text-align: center;
+    font-weight: bold;
+    color: white;
+}
+
+.rank-1 { background-color: #FFD700; box-shadow: 0 2px 5px rgba(255, 215, 0, 0.4); }
+.rank-2 { background-color: #C0C0C0; box-shadow: 0 2px 5px rgba(192, 192, 192, 0.4); }
+.rank-3 { background-color: #CD7F32; box-shadow: 0 2px 5px rgba(205, 127, 50, 0.4); }
+.rank-other { color: #202020; font-size: 18px; }
+
+.lb-user-cell {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.lb-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ccc;
+}
+
+.lb-nickname {
+    font-weight: bold;
+}
+
+.lb-level-badge {
+    background-color: #5C4033;
+    color: #fff;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.lb-quest-count {
+    color: #444;
+}
+
+@media screen and (max-width: 768px) {
+    .leaderboard-main {
+        width: 95%;
+    }
+    
+    .leaderboard-cover {
+        padding: 15px;
+        width: 100%;
+    }
+
+    .leaderboard-table th, .leaderboard-table td {
+        padding: 10px;
+        font-size: 16px;
+    }
+
+    .lb-avatar {
+        width: 35px;
+        height: 35px;
+    }
+}
