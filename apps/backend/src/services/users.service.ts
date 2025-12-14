@@ -373,7 +373,7 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
             const currentXp = Number(userRes.rows[0]?.xp || 0);
             
             const newXp = currentXp + totalXpGained;
-            const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+            const newLevel = Math.floor(newXp / 100) + 1;
 
             await client.query(`
                 UPDATE users
