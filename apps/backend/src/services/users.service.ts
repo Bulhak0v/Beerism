@@ -228,7 +228,7 @@ export const UserService = {
             throw new Error("Quest already accepted.");
         }
 
-        const initialProgress = { "current_count": 0 };
+        const initialProgress = { "current_count": 0, "visited_ids": [] };
 
         const result = await db.query(
             `INSERT INTO user_quests (user_id, quest_id, progress) VALUES ($1, $2, $3) RETURNING *`,
@@ -274,7 +274,7 @@ export const UserService = {
                 SELECT 
                     l.location_id, l.average_budget_requirment,
                     COALESCE(ARRAY_AGG(DISTINCT lat.atmosphere_tag), '{}') as atmospheres,
-                    COALESCE(ARRAY_AGG(DISTINCT lbs.beer_style_id), '{}') as beer_styles
+                    COALESCE(ARRAY_AGG(DISTINCT lbs.beer_style_id) FILTER (WHERE lbs.beer_style_id IS NOT NULL), '{}') as beer_styles
                 FROM locations l
                 LEFT JOIN location_atmosphere_tags lat ON l.location_id = lat.location_id
                 LEFT JOIN location_beer_styles lbs ON l.location_id = lbs.location_id
@@ -305,7 +305,7 @@ export const UserService = {
                         case 'budget': 
                             return loc.average_budget_requirment === req.target;
                         case 'beer_style': 
-                            return loc.beer_styles.some((id: number) => id === Number(req.target_id));
+                            return loc.beer_styles.some((id: number) => id == Number(req.target_id));
                         default: 
                             return false;
                     }
