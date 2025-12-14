@@ -17,370 +17,361 @@ export const UserService = {
 
 
     async registerUser(email: string, nickname: string, password: string): Promise<User> {
-        const existingUser = await this.getUser(email);
-        if (existingUser) {
-            throw new Error("User with this email already exists");
-        }
+    const existingUser = await this.getUser(email);
+    if (existingUser) {
+        throw new Error("User with this email already exists");
+    }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const result = await db.query<User>(
-            `
-            INSERT INTO users (email, nickname, password, created_at)
-            VALUES ($1, $2, $3, NOW())
-            RETURNING *;
-            `,
-            [email, nickname, hashedPassword]
-        );
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await db.query<User>(
+        `
+        INSERT INTO users (email, nickname, password, created_at)
+        VALUES ($1, $2, $3, NOW())
+        RETURNING *;
+        `,
+        [email, nickname, hashedPassword]
+    );
 
-        return result.rows[0];
-    },
+    return result.rows[0];
+},
 
-    async googleAuth(idToken: string): Promise<User> {
-        const ticket = await client.verifyIdToken({
-        idToken,
-        audience: process.env.GOOGLE_CLIENT_ID,
-        });
+async googleAuth(idToken: string): Promise<User> {
+    const ticket = await client.verifyIdToken({
+    idToken,
+    audience: process.env.GOOGLE_CLIENT_ID,
+    });
 
-        const payload = ticket.getPayload();
-        if (!payload || !payload.email) throw new Error("Invalid Google token");
+    const payload = ticket.getPayload();
+    if (!payload || !payload.email) throw new Error("Invalid Google token");
 
-        const email = payload.email;
-        const nickname = payload.name || payload.given_name || email.split("@")[0];
+    const email = payload.email;
+    const nickname = payload.name || payload.given_name || email.split("@")[0];
 
-        let user = await this.getUser(email);
+    let user = await this.getUser(email);
 
-        if (!user) {
-        const randomPassword = crypto.randomBytes(32).toString("hex"); 
-        const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    if (!user) {
+    const randomPassword = crypto.randomBytes(32).toString("hex"); 
+    const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
-        const result = await db.query<User>(
-            `
-            INSERT INTO users (email, nickname, password, auth_provider, created_at)
-            VALUES ($1, $2, $3, $4, NOW())
-            RETURNING *;
-            `,
-            [email, nickname, hashedPassword, "google"]
-        );
-        user = result.rows[0];
-        }
+    const result = await db.query<User>(
+        `
+        INSERT INTO users (email, nickname, password, auth_provider, created_at)
+        VALUES ($1, $2, $3, $4, NOW())
+        RETURNING *;
+        `,
+        [email, nickname, hashedPassword, "google"]
+    );
+    user = result.rows[0];
+    }
 
+    return user;
+},
+
+async loginUser(email: string, password: string): Promise<User> {
+    const user = await this.getUser(email);
+    if (!user) throw new Error("Invalid email");
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) throw new Error("Invalid password");
+
+    return user;
+},
+
+async addUser(email: string, nickname: string, password: string, profile_picture: string, bio: string, preferred_budget_range: string, preferred_venue_atmosphere: string, preferred_beer_style_id: number, xp: number, level: number): Promise<User> {
+    const result = await db.query<User>(
+        `
+        INSERT INTO users (email, nickname, password, profile_picture, bio, preferred_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        RETURNING *;
+        `,
+        [email, nickname, password, profile_picture, bio, preferred_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level]
+    );
+
+    return result.rows[0];
+},
+
+async getUserById(user_id: number): Promise<User | null> {
+    const result = await db.query<User>(`SELECT * FROM users WHERE user_id = $1 LIMIT 1;`, [user_id]);
+    return result.rows[0] || null;
+},
+
+async editUser(user_id: number, updateData: Partial<User>): Promise<User | null> {
+    const user = await this.getUserById(user_id);
+    if (!user) {
+        return null;
+    }
+
+    const fields = Object.keys(updateData).filter(key => (updateData as any)[key] !== undefined);
+
+    if (fields.length === 0) {
         return user;
-    },
+    }
 
-    async loginUser(email: string, password: string): Promise<User> {
-        const user = await this.getUser(email);
-        if (!user) throw new Error("Invalid email");
+    const setClause = fields.map((field, index) => `"${field}" = $${index + 1}`).join(", ");
 
-        const validPassword = await bcrypt.compare(password, user.password);
-        if (!validPassword) throw new Error("Invalid password");
+    const values = fields.map(field => updateData[field as keyof User]);
 
+    const query = `
+    UPDATE users
+    SET ${setClause}
+    WHERE user_id = $${fields.length + 1}
+    RETURNING *;
+`;
+
+    const result = await db.query<User>(query, [...values, user_id]);
+
+    return result.rows[0];
+},
+
+async updateUser(user_id: number, updateData: Partial<User>): Promise<User | null> {
+    const user = await this.getUserById(user_id);
+    if (!user) return null;
+
+    const fields = Object.keys(updateData).filter(
+        key => (updateData as any)[key] !== undefined
+    );
+
+    if (fields.length === 0) return user;
+
+    const setClause = fields.map((field, i) => `"${field}" = $${i + 1}`).join(", ");
+    const values = fields.map(field => updateData[field as keyof User]);
+
+    const query = `
+    UPDATE users
+    SET ${setClause}
+    WHERE user_id = $${fields.length + 1}
+    RETURNING *;
+`;
+
+    const result = await db.query<User>(query, [...values, user_id]);
+    return result.rows[0];
+},
+
+
+async editUserPreference(user_id: number, updateData: Partial<User>): Promise<User | null> {
+    const user = await this.getUserById(user_id);
+    if (!user) {
+        return null;
+    }
+
+    const fields = Object.keys(updateData).filter(key => (updateData as any)[key] !== undefined);
+
+    if (fields.length === 0) {
         return user;
-    },
+    }
 
-    async addUser(email: string, nickname: string, password: string, profile_picture: string, bio: string, preferred_budget_range: string, preferred_venue_atmosphere: string, preferred_beer_style_id: number, xp: number, level: number): Promise<User> {
-        const result = await db.query<User>(
-            `
-            INSERT INTO users (email, nickname, password, profile_picture, bio, preferred_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-            RETURNING *;
-            `,
-            [email, nickname, password, profile_picture, bio, preferred_budget_range, preferred_venue_atmosphere, preferred_beer_style_id, xp, level]
-        );
+    const setClause = fields.map((field, index) => `"${field}" = $${index + 1}`).join(", ");
 
-        return result.rows[0];
-    },
+    const values = fields.map(field => updateData[field as keyof User]);
 
-    async getUserById(user_id: number): Promise<User | null> {
-        const result = await db.query<User>(`SELECT * FROM users WHERE user_id = $1 LIMIT 1;`, [user_id]);
-        return result.rows[0] || null;
-    },
+    const query = `
+    UPDATE users
+    SET ${setClause}
+    WHERE user_id = $${fields.length + 1}
+    RETURNING *;
+`;
 
-    async editUser(user_id: number, updateData: Partial<User>): Promise<User | null> {
-        const user = await this.getUserById(user_id);
-        if (!user) {
-            return null;
-        }
+    const result = await db.query<User>(query, [...values, user_id]);
 
-        const fields = Object.keys(updateData).filter(key => (updateData as any)[key] !== undefined);
+    return result.rows[0];
+},
 
-        if (fields.length === 0) {
-            return user;
-        }
+async deleteUser(id: number): Promise<number | null> {
+    const query = "DELETE FROM users WHERE user_id = $1";
+    const values = [id];
+    const result = await db.query(query, values);
+    return result.rowCount;
+},
 
-        const setClause = fields.map((field, index) => `"${field}" = $${index + 1}`).join(", ");
+async getAllUsers(): Promise<User[]> {
+    const result = await db.query<User>(`SELECT * FROM users;`);
+    return result.rows;
+},
 
-        const values = fields.map(field => updateData[field as keyof User]);
-
-        const query = `
-        UPDATE users
-        SET ${setClause}
-        WHERE user_id = $${fields.length + 1}
-        RETURNING *;
+async getUserQuests(userId: number): Promise<any[]> {
+    const query = `
+        SELECT 
+            q.quest_id,
+            q.title,
+            q.description,
+            q.requirements,
+            q.rewards,
+            q.validity_end,
+            uq.progress,
+            uq.completed_at
+        FROM user_quests uq
+        JOIN quests q ON uq.quest_id = q.quest_id
+        WHERE uq.user_id = $1
+        ORDER BY uq.completed_at DESC, q.validity_end ASC;
     `;
 
-        const result = await db.query<User>(query, [...values, user_id]);
+    const result = await db.query(query, [userId]);
+    
+    return result.rows.map(row => ({
+        quest_id: row.quest_id,
+        title: row.title,
+        description: row.description,
+        xp_reward: row.rewards?.xp || 0,
+        target: (row.requirements?.visits || row.requirements?.count || 1),
+        progress: row.progress?.current_count || 0,
+        status: row.completed_at ? 'completed' : 'active',
+        validity_end: row.validity_end,
+    }));
+},
 
-        return result.rows[0];
-    },
+async acceptQuest(userId: number, questId: number): Promise<any> {
+    const existing = await db.query(
+        `SELECT * FROM user_quests WHERE user_id = $1 AND quest_id = $2`,
+        [userId, questId]
+    );
+    if (existing.rows.length > 0) {
+        throw new Error("Quest already accepted.");
+    }
 
-    async updateUser(user_id: number, updateData: Partial<User>): Promise<User | null> {
-        const user = await this.getUserById(user_id);
-        if (!user) return null;
+    const initialProgress = { "current_count": 0, "visited_ids": [] };
 
-        const fields = Object.keys(updateData).filter(
-            key => (updateData as any)[key] !== undefined
-        );
+    const result = await db.query(
+        `INSERT INTO user_quests (user_id, quest_id, progress) VALUES ($1, $2, $3) RETURNING *`,
+        [userId, questId, initialProgress]
+    );
+    return result.rows[0];
+},
 
-        if (fields.length === 0) return user;
+async abandonQuest(userId: number, questId: number): Promise<number | null> {
+    const result = await db.query(
+        `DELETE FROM user_quests WHERE user_id = $1 AND quest_id = $2`,
+        [userId, questId]
+    );
+    return result.rowCount;
+},
 
-        const setClause = fields.map((field, i) => `"${field}" = $${i + 1}`).join(", ");
-        const values = fields.map(field => updateData[field as keyof User]);
+async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ completedQuests: any[] }> {
+    const client = await db.connect();
+    try {
+        await client.query('BEGIN');
 
-        const query = `
-        UPDATE users
-        SET ${setClause}
-        WHERE user_id = $${fields.length + 1}
-        RETURNING *;
-    `;
+        const completedQuests = [];
 
-        const result = await db.query<User>(query, [...values, user_id]);
-        return result.rows[0];
-    },
-
-
-    async editUserPreference(user_id: number, updateData: Partial<User>): Promise<User | null> {
-        const user = await this.getUserById(user_id);
-        if (!user) {
-            return null;
-        }
-
-        const fields = Object.keys(updateData).filter(key => (updateData as any)[key] !== undefined);
-
-        if (fields.length === 0) {
-            return user;
-        }
-
-        const setClause = fields.map((field, index) => `"${field}" = $${index + 1}`).join(", ");
-
-        const values = fields.map(field => updateData[field as keyof User]);
-
-        const query = `
-        UPDATE users
-        SET ${setClause}
-        WHERE user_id = $${fields.length + 1}
-        RETURNING *;
-    `;
-
-        const result = await db.query<User>(query, [...values, user_id]);
-
-        return result.rows[0];
-    },
-
-    async deleteUser(id: number): Promise<number | null> {
-        const query = "DELETE FROM users WHERE user_id = $1";
-        const values = [id];
-        const result = await db.query(query, values);
-        return result.rowCount;
-    },
-
-    async getAllUsers(): Promise<User[]> {
-        const result = await db.query<User>(`SELECT * FROM users;`);
-        return result.rows;
-    },
-
-    async getUserQuests(userId: number): Promise<any[]> {
-        const query = `
+        const activeQuestsRes = await client.query(`
             SELECT 
-                q.quest_id,
-                q.title,
-                q.description,
-                q.requirements,
-                q.rewards,
-                q.validity_end,
+                q.*, 
                 uq.progress,
-                uq.completed_at
+                COALESCE(
+                    (SELECT ARRAY_AGG(location_id::int) FROM quest_locations ql WHERE ql.quest_id = q.quest_id), 
+                    '{}'
+                ) as linked_location_ids
             FROM user_quests uq
             JOIN quests q ON uq.quest_id = q.quest_id
-            WHERE uq.user_id = $1
-            ORDER BY uq.completed_at DESC, q.validity_end ASC;
-        `;
+            WHERE uq.user_id = $1 AND uq.completed_at IS NULL
+        `, [userId]);
 
-        const result = await db.query(query, [userId]);
-        
-        return result.rows.map(row => ({
-            quest_id: row.quest_id,
-            title: row.title,
-            description: row.description,
-            xp_reward: row.rewards?.xp || 0,
-            target: (row.requirements?.visits || row.requirements?.count || 1),
-            progress: row.progress?.current_count || 0,
-            status: row.completed_at ? 'completed' : 'active',
-            validity_end: row.validity_end,
-        }));
-    },
-
-    async acceptQuest(userId: number, questId: number): Promise<any> {
-        const existing = await db.query(
-            `SELECT * FROM user_quests WHERE user_id = $1 AND quest_id = $2`,
-            [userId, questId]
-        );
-        if (existing.rows.length > 0) {
-            throw new Error("Quest already accepted.");
-        }
-
-        const initialProgress = { "current_count": 0, "visited_ids": [] };
-
-        const result = await db.query(
-            `INSERT INTO user_quests (user_id, quest_id, progress) VALUES ($1, $2, $3) RETURNING *`,
-            [userId, questId, initialProgress]
-        );
-        return result.rows[0];
-    },
-
-    async abandonQuest(userId: number, questId: number): Promise<number | null> {
-        const result = await db.query(
-            `DELETE FROM user_quests WHERE user_id = $1 AND quest_id = $2`,
-            [userId, questId]
-        );
-        return result.rowCount;
-    },
-
-    async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ completedQuests: any[] }> {
-        const client = await db.connect();
-        try {
-            await client.query('BEGIN');
-
-            const completedQuests = [];
-
-            const activeQuestsRes = await client.query(`
-                SELECT 
-                    q.*, 
-                    uq.progress,
-                    COALESCE(
-                        (SELECT ARRAY_AGG(location_id::int) FROM quest_locations ql WHERE ql.quest_id = q.quest_id), 
-                        '{}'
-                    ) as linked_location_ids
-                FROM user_quests uq
-                JOIN quests q ON uq.quest_id = q.quest_id
-                WHERE uq.user_id = $1 AND uq.completed_at IS NULL
-            `, [userId]);
-
-            if (activeQuestsRes.rows.length === 0) {
-                await client.query('COMMIT');
-                return { completedQuests: [] };
-            }
-            
-            const locationsInRouteRes = await client.query(`
-                SELECT 
-                    l.location_id, l.average_budget_requirment,
-                    COALESCE(ARRAY_AGG(DISTINCT lat.atmosphere_tag), '{}') as atmospheres,
-                    COALESCE(ARRAY_AGG(DISTINCT lbs.beer_style_id) FILTER (WHERE lbs.beer_style_id IS NOT NULL), '{}') as beer_styles
-                FROM locations l
-                LEFT JOIN location_atmosphere_tags lat ON l.location_id = lat.location_id
-                LEFT JOIN location_beer_styles lbs ON l.location_id = lbs.location_id
-                WHERE l.location_id = ANY($1::int[])
-                GROUP BY l.location_id, l.average_budget_requirment;
-            `, [locationIds]);
-            const locationsInRoute = locationsInRouteRes.rows;
-
-            for (const quest of activeQuestsRes.rows) {
-                const req = quest.requirements;
-                if (!req || req.type === 'review') continue;
-
-                console.log("Processing quest:", quest.quest_id, quest.title);
-                console.log("Quest linked_location_ids:", quest.linked_location_ids);
-                console.log("Type of first linked ID:", typeof quest.linked_location_ids?.[0]);
-                console.log("Location IDs in route:", locationIds);
-
-                let currentCount = parseInt(quest.progress?.current_count || '0');
-                let visitedIds: number[] = quest.progress?.visited_ids || [];
-
-                const questLinkedIds: number[] = quest.linked_location_ids || [];
-                
-                console.log("Quest linked IDs after cast:", questLinkedIds);
-
-                const qualifyingLocations = locationsInRoute.filter(loc => {
-                    console.log(`Checking location ${loc.location_id} against quest linked IDs:`, questLinkedIds);
-                    
-                    if (questLinkedIds.length > 0 && !questLinkedIds.includes(loc.location_id)) {
-                        console.log(`Location ${loc.location_id} NOT in quest's linked locations, skipping`);
-                        return false;
-                    }
-                    
-                    console.log(`Location ${loc.location_id} passed linked location check`);
-                    
-                    switch(req.type) {
-                        case 'visit': 
-                            return true; 
-                        case 'atmosphere': 
-                            return loc.atmospheres && loc.atmospheres.includes(req.target);
-                        case 'budget': 
-                            return loc.average_budget_requirment === req.target;
-                        case 'beer_style': 
-                            return loc.beer_styles && loc.beer_styles.some((id: any) => Number(id) === Number(req.target_id));
-                        default: 
-                            return false;
-                    }
-                });
-
-                let newIdsToAdd: number[] = [];
-
-                if (req.unique) {
-                    for (const loc of qualifyingLocations) {
-                        if (!visitedIds.includes(loc.location_id)) {
-                            newIdsToAdd.push(loc.location_id);
-                        }
-                    }
-                } else {
-                    newIdsToAdd = qualifyingLocations.map(l => l.location_id);
-                }
-
-                if (newIdsToAdd.length > 0) {
-                    currentCount += newIdsToAdd.length;
-                    
-                    const updatedVisitedIds = Array.from(new Set([...visitedIds, ...newIdsToAdd]));
-
-                    const newProgressJson = {
-                        current_count: currentCount,
-                        visited_ids: updatedVisitedIds
-                    };
-
-                    await client.query(`
-                        UPDATE user_quests 
-                        SET progress = $1
-                        WHERE user_id = $2 AND quest_id = $3
-                    `, [newProgressJson, userId, quest.quest_id]);
-                    
-                    const target = parseInt(req.visits || req.count || '1');
-                    
-                    if (currentCount >= target) {
-                        await client.query(`
-                            UPDATE user_quests
-                            SET completed_at = NOW()
-                            WHERE user_id = $1 AND quest_id = $2 AND completed_at IS NULL
-                        `, [userId, quest.quest_id]);
-
-                        const xpReward = parseInt(quest.rewards?.xp || '0');
-                        if (xpReward > 0) {
-                            await client.query(`
-                                UPDATE users
-                                SET xp = COALESCE(xp, 0) + $1
-                                WHERE user_id = $2
-                            `, [xpReward, userId]);
-                        }
-                        
-                        completedQuests.push({ title: quest.title, xp: xpReward });
-                    }
-                }
-            }
-
+        if (activeQuestsRes.rows.length === 0) {
             await client.query('COMMIT');
-            return { completedQuests };
-        } catch (e) {
-            await client.query('ROLLBACK');
-            throw e;
-        } finally {
-            client.release();
+            return { completedQuests: [] };
         }
-    },
+        
+        const locationsInRouteRes = await client.query(`
+            SELECT 
+                l.location_id, l.average_budget_requirment,
+                COALESCE(ARRAY_AGG(DISTINCT lat.atmosphere_tag), '{}') as atmospheres,
+                COALESCE(ARRAY_AGG(DISTINCT lbs.beer_style_id) FILTER (WHERE lbs.beer_style_id IS NOT NULL), '{}') as beer_styles
+            FROM locations l
+            LEFT JOIN location_atmosphere_tags lat ON l.location_id = lat.location_id
+            LEFT JOIN location_beer_styles lbs ON l.location_id = lbs.location_id
+            WHERE l.location_id = ANY($1::int[])
+            GROUP BY l.location_id, l.average_budget_requirment;
+        `, [locationIds]);
+        const locationsInRoute = locationsInRouteRes.rows;
+
+        for (const quest of activeQuestsRes.rows) {
+            const req = quest.requirements;
+            if (!req || req.type === 'review') continue;
+
+            let currentCount = parseInt(quest.progress?.current_count || '0');
+            let visitedIds: number[] = quest.progress?.visited_ids || [];
+
+            const questLinkedIds = (quest.linked_location_ids || []).map((id: any) => Number(id));
+
+            const qualifyingLocations = locationsInRoute.filter(loc => {
+                const currentLocId = Number(loc.location_id);
+                
+                if (questLinkedIds.length > 0 && !questLinkedIds.includes(currentLocId)) {
+                    return false;
+                }
+                
+                switch(req.type) {
+                    case 'visit': 
+                        return true; 
+                    case 'atmosphere': 
+                        return loc.atmospheres && loc.atmospheres.includes(req.target);
+                    case 'budget': 
+                        return loc.average_budget_requirment === req.target;
+                    case 'beer_style': 
+                        return loc.beer_styles && loc.beer_styles.some((id: any) => Number(id) === Number(req.target_id));
+                    default: 
+                        return false;
+                }
+            });
+
+            let newIdsToAdd: number[] = [];
+
+            if (req.unique) {
+                for (const loc of qualifyingLocations) {
+                    const locId = Number(loc.location_id);
+                    if (!visitedIds.includes(locId)) {
+                        newIdsToAdd.push(locId);
+                    }
+                }
+            } else {
+                newIdsToAdd = qualifyingLocations.map(l => Number(l.location_id));
+            }
+
+            if (newIdsToAdd.length > 0) {
+                currentCount += newIdsToAdd.length;
+                
+                const updatedVisitedIds = Array.from(new Set([...visitedIds, ...newIdsToAdd]));
+
+                const newProgressJson = {
+                    current_count: currentCount,
+                    visited_ids: updatedVisitedIds
+                };
+
+                await client.query(`
+                    UPDATE user_quests 
+                    SET progress = $1
+                    WHERE user_id = $2 AND quest_id = $3
+                `, [newProgressJson, userId, quest.quest_id]);
+                
+                const target = parseInt(req.visits || req.count || '1');
+                
+                if (currentCount >= target) {
+                    await client.query(`
+                        UPDATE user_quests
+                        SET completed_at = NOW()
+                        WHERE user_id = $1 AND quest_id = $2 AND completed_at IS NULL
+                    `, [userId, quest.quest_id]);
+
+                    const xpReward = parseInt(quest.rewards?.xp || '0');
+                    if (xpReward > 0) {
+                        await client.query(`
+                            UPDATE users
+                            SET xp = COALESCE(xp, 0) + $1
+                            WHERE user_id = $2
+                        `, [xpReward, userId]);
+                    }
+                    
+                    completedQuests.push({ title: quest.title, xp: xpReward });
+                }
+            }
+        }
+
+        await client.query('COMMIT');
+        return { completedQuests };
+    } catch (e) {
+        await client.query('ROLLBACK');
+        throw e;
+    } finally {
+        client.release();
+    }
+},
 }
