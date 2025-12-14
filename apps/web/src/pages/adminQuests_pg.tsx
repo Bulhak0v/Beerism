@@ -62,7 +62,10 @@ export default function AdminQuestsPage() {
             if (qRes.ok) setQuests(await qRes.json());
             
             const lRes = await fetch(`https://beerism-backend.onrender.com/api/locations`);
-            if (lRes.ok) setLocations(await lRes.json());
+            if (lRes.ok) {
+            const data = await lRes.json();
+            setLocations(data.map((l: any) => ({ ...l, location_id: Number(l.location_id) })));
+            }
 
             const bRes = await fetch(`https://beerism-backend.onrender.com/api/beer-styles`);
             if (bRes.ok) {
@@ -209,12 +212,13 @@ export default function AdminQuestsPage() {
         } catch (err) { console.error(err); }
     };
 
-    const toggleLocation = (locId: number) => {
-        setBaseForm(prev => {
-            const exists = prev.location_ids.includes(locId);
-            if (exists) return { ...prev, location_ids: prev.location_ids.filter(id => id !== locId) };
-            return { ...prev, location_ids: [...prev.location_ids, locId] };
-        });
+    const toggleLocation = (locId: number | string) => {
+    const id = Number(locId);
+    setBaseForm(prev => {
+        const exists = prev.location_ids.includes(id);
+        if (exists) return { ...prev, location_ids: prev.location_ids.filter(i => i !== id) };
+        return { ...prev, location_ids: [...prev.location_ids, id] };
+    });
     };
 
     const getStyleName = (id: number) => {

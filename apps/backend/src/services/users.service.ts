@@ -257,7 +257,7 @@ export const UserService = {
                     q.*, 
                     uq.progress,
                     COALESCE(
-                        (SELECT ARRAY_AGG(location_id) FROM quest_locations ql WHERE ql.quest_id = q.quest_id), 
+                        (SELECT ARRAY_AGG(location_id::int) FROM quest_locations ql WHERE ql.quest_id = q.quest_id), 
                         '{}'
                     ) as linked_location_ids
                 FROM user_quests uq

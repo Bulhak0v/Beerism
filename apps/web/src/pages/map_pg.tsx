@@ -137,19 +137,30 @@ const MapPage = () => {
 
   const fetchAllLocations = useCallback(async () => {
     try {
-      const res = await fetch(`https://beerism-backend.onrender.com/api/locations`);
-      if (!res.ok) throw new Error("Failed to fetch locations");
-      const data: Location[] = await res.json();
-      
-      const validLocations = data.filter(loc => 
-        typeof loc.latitude === 'number' && loc.latitude >= -90 && loc.latitude <= 90 &&
-        typeof loc.longtitude === 'number' && loc.longtitude >= -180 && loc.longtitude <= 180
-      );
-      setLocations(validLocations);
+        const res = await fetch(`https://beerism-backend.onrender.com/api/locations`);
+        if (!res.ok) throw new Error("Failed to fetch locations");
+        const data: any[] = await res.json();
+
+        const normalized = data.map(loc => ({
+        ...loc,
+        location_id: Number(loc.location_id),
+        latitude: Number(loc.latitude),
+        longtitude: Number(loc.longtitude),
+        beer_styles: Array.isArray(loc.beer_styles)
+            ? loc.beer_styles.map((bs: any) => ({ ...bs, beer_style_id: Number(bs.beer_style_id) }))
+            : []
+        }));
+
+        const validLocations = normalized.filter(loc =>
+        Number.isFinite(loc.latitude) && loc.latitude >= -90 && loc.latitude <= 90 &&
+        Number.isFinite(loc.longtitude) && loc.longtitude >= -180 && loc.longtitude <= 180
+        );
+
+        setLocations(validLocations);
     } catch (err: any) {
-      setError(err.message || "Error fetching locations");
+        setError(err.message || "Error fetching locations");
     }
-  }, []);
+    }, []);
 
   const fetchRecommendations = useCallback(async () => {
       if (!user) return;
@@ -239,25 +250,36 @@ const MapPage = () => {
 
         if (user) {
             try {
-                const locationIdsInRoute = stops.map(s => s.location_id);
-                const progressRes = await fetch(`https://beerism-backend.onrender.com/api/users/${user.user_id}/check-route-progress`, {
+                const locationIdsInRoute = stops.map(s => Number(s.location_id));
+                console.log("check-route-progress -> sending locationIds:", locationIdsInRoute, typeof locationIdsInRoute[0]);
+
+                const progressRes = await fetch(
+                `https://beerism-backend.onrender.com/api/users/${user.user_id}/check-route-progress`,
+                {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ locationIds: locationIdsInRoute })
-                });
+                    body: JSON.stringify({ locationIds: locationIdsInRoute, location_ids: locationIdsInRoute })
+                }
+                );
 
+                console.log("check-route-progress status:", progressRes.status);
                 if (progressRes.ok) {
-                    const { completedQuests } = await progressRes.json();
-                    if (completedQuests && completedQuests.length > 0) {
-                        completedQuests.forEach((q: any) => {
-                            toast.success(`🎉 Quest Complete: "${q.title}" (+${q.xp} XP)`);
-                        });
-                    }
+                const parsed = await progressRes.json();
+                console.log("check-route-progress response:", parsed);
+                const { completedQuests } = parsed;
+                if (completedQuests && completedQuests.length > 0) {
+                    completedQuests.forEach((q: any) => {
+                    toast.success(`🎉 Quest Complete: "${q.title}" (+${q.xp} XP)`);
+                    });
+                }
+                } else {
+                const txt = await progressRes.text();
+                console.warn("Progress check failed:", progressRes.status, txt);
                 }
             } catch (progressError) {
                 console.error("Failed to check quest progress:", progressError);
             }
-        }
+            }
         
         const coords: [number, number][] = path.points.coordinates.map((p: number[]) => [p[1], p[0]]);
         setRouteCoordinates(coords);
@@ -274,17 +296,18 @@ const MapPage = () => {
 
   const toggleStop = useCallback((location: Location) => {
     setSelectedStops(prevStops => {
-        const isAlreadyAdded = prevStops.some(stop => stop.location_id === location.location_id);
+        const id = Number(location.location_id);
+        const isAlreadyAdded = prevStops.some(stop => Number(stop.location_id) === id);
         if (isAlreadyAdded) {
-            setRouteCoordinates([]); setRouteStats(null);
-            return prevStops.filter(stop => stop.location_id !== location.location_id);
+        setRouteCoordinates([]); setRouteStats(null);
+        return prevStops.filter(stop => Number(stop.location_id) !== id);
         } else {
-            if (prevStops.length >= 10) { alert("Maximum 10 stops."); return prevStops; }
-            setRouteCoordinates([]); setRouteStats(null);
-            return [...prevStops, { ...location, note: "" }];
+        if (prevStops.length >= 10) { alert("Maximum 10 stops."); return prevStops; }
+        setRouteCoordinates([]); setRouteStats(null);
+        return [...prevStops, { ...location, location_id: id, note: "" }];
         }
     });
-  }, []);
+    }, []);
 
   const updateStopNote = useCallback((locationId: number, newNote: string) => {
     setSelectedStops(prevStops => prevStops.map(stop => stop.location_id === locationId ? { ...stop, note: newNote } : stop));
@@ -295,8 +318,8 @@ const MapPage = () => {
     if (!routeName.trim()) { alert("Enter route name"); return; }
 
     const stopsWithNotes = selectedStops.map((stop, index) => ({ 
-        location_id: stop.location_id, 
-        note: stop.note.trim(),
+        location_id: Number(stop.location_id), 
+        notes: stop.note ? stop.note.trim() : '',
         stop_order: index + 1
     }));
     
