@@ -310,22 +310,15 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
 
             const qualifyingLocations = locationsInRoute.filter(loc => {
                 const currentLocId = Number(loc.location_id);
-                
                 if (linkedIds.length > 0 && !linkedIds.includes(currentLocId)) {
                     return false; 
                 }
-                
                 switch(req.type) {
-                    case 'visit': 
-                        return true; 
-                    case 'atmosphere': 
-                        return loc.atmospheres && loc.atmospheres.includes(req.target);
-                    case 'budget': 
-                        return loc.average_budget_requirment === req.target;
-                    case 'beer_style': 
-                        return loc.beer_styles && loc.beer_styles.some((id: any) => Number(id) === Number(req.target_id));
-                    default: 
-                        return false;
+                    case 'visit': return true; 
+                    case 'atmosphere': return loc.atmospheres && loc.atmospheres.includes(req.target);
+                    case 'budget': return loc.average_budget_requirment === req.target;
+                    case 'beer_style': return loc.beer_styles && loc.beer_styles.some((id: any) => Number(id) === Number(req.target_id));
+                    default: return false;
                 }
             });
 
@@ -367,7 +360,7 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
                         WHERE user_id = $1 AND quest_id = $2 AND completed_at IS NULL
                     `, [userId, quest.quest_id]);
 
-                    const xpReward = parseInt(quest.rewards?.xp || '0');
+                    const xpReward = Number(quest.rewards?.xp || 0);
                     totalXpGained += xpReward;
                     completedQuests.push({ title: quest.title, xp: xpReward });
                 }
@@ -376,12 +369,10 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
 
         let finalUserStats = {};
         if (totalXpGained > 0) {
-
-            const userRes = await client.query(`SELECT xp FROM users WHERE user_id = $1`, [userId]);
-            const currentXp = userRes.rows[0]?.xp || 0;
+            const userRes = await client.query(`SELECT xp FROM users WHERE user_id = $1 FOR UPDATE`, [userId]);
+            const currentXp = Number(userRes.rows[0]?.xp || 0);
             
             const newXp = currentXp + totalXpGained;
-            
             const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
 
             await client.query(`
@@ -389,13 +380,12 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
                 SET xp = $1, level = $2
                 WHERE user_id = $3
             `, [newXp, newLevel, userId]);
-
-            finalUserStats = { newLevel, newXp };
+            
+            finalUserStats = { newXp, newLevel };
         }
 
         await client.query('COMMIT');
         return { completedQuests, ...finalUserStats };
-
     } catch (e) {
         await client.query('ROLLBACK');
         throw e;
