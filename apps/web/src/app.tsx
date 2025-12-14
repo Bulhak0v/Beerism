@@ -12,6 +12,7 @@ import Layout from "./components/layout";
 import HomePage from "./pages/home_pg";
 import AdminQuestsPage from "./pages/adminQuests_pg";
 import LeaderboardPage from "./pages/leaderboard_pg";
+import AboutPage from "./pages/about_pg";
 
 const App: React.FC = () => {
   return (
@@ -27,7 +28,7 @@ const App: React.FC = () => {
         <Route path="/adminUser" element={<AdminUserPage />} />
         <Route path="/adminQuests" element={<AdminQuestsPage />} />
         <Route path="/leaderboard" element={<LeaderboardPage />} />
-        {/* <Route path="/about" element={<AboutPage />} /> */}
+        <Route path="/about" element={<AboutPage />} />
         {/* <Route path="/contact" element={<ContactPage />} /> */}
       </Route>
       

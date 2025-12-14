@@ -15,11 +15,12 @@ body {
 }
 
 .profile-card {
-  flex: 0 0 59%;
+  flex: 0 0 61%;
 }
 
 .profile-settings {
-  padding-top: 65px !important;
+  padding: 45px 30px 30px 30px !important;
+
 }
 
 .profile-card,
@@ -105,6 +106,7 @@ body {
 .field label {
   font-weight: 500;
   margin-bottom: 16px;
+  font-size: 24px;
 }
 
 .field input,
@@ -121,7 +123,7 @@ body {
 }
 
 .settings-cover {
-  flex: 0 0 29%;
+  flex: 0 0 27%;
 }
 
 .profile-settings ul {
@@ -194,6 +196,51 @@ body {
   display: flex;
   justify-content: space-between;
 }
+.security-section{
+  text-align: left;
+}
+
+.security-section h2{
+  margin-bottom: 30px;
+}
+
+.security-actions .save-button{
+  font-weight:normal;
+  font-size: 20px;
+  background-color: #F2EFE580;
+  border-radius: 8px;
+  margin-top: 12px;
+  border-width: 0.1px;
+  cursor: pointer;
+  color: #1a1a1a;
+  border-color: #ccc;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-eye {
+  position: absolute;
+  right: 10px;
+  top: 42%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 0;
+}
+
+.password-eye:hover {
+  color: #000;
+}
+
 
 /* Mobile Adapt */
 
@@ -305,6 +352,8 @@ body {
     font-size: 26px;
   }
 }
+
+
 
 @media (max-width: 480px) {
   .account-title {

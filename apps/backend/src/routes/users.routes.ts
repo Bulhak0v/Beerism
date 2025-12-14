@@ -1,5 +1,5 @@
 ﻿import { Router } from "express";
-import { loginUser, registerUser, editUser, editUserPreference, addUser, updateUser, deleteUser, getRecommendedLocations, googleAuth, getAllUsers, getUserQuests, acceptUserQuest, abandonUserQuest, checkRouteProgress, getLeaderboard } from "../controllers/users.controller.js";
+import { loginUser, registerUser, editUser, editUserPreference, addUser, updateUser, deleteUser, getRecommendedLocations, googleAuth, getAllUsers, getUserQuests, acceptUserQuest, abandonUserQuest, checkRouteProgress, getLeaderboard, comparePasswords } from "../controllers/users.controller.js";
 
 const router = Router();
 
@@ -13,6 +13,8 @@ router.patch("/edit/preferences", editUserPreference);
 router.post("/add", addUser);
 router.put("/update/:id", updateUser);
 router.delete("/:id", deleteUser);
+
+router.post("/comparePassword", comparePasswords);
 
 // router.get("/recommendations/:id", getRecommendedLocations);
 router.get("/all", getAllUsers);

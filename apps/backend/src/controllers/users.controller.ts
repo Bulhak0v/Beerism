@@ -28,6 +28,23 @@ export async function registerUser(req: Request, res: Response) {
     }
 }
 
+export async function comparePasswords(req: Request, res: Response){
+   const {email, password } = req.body;
+
+    try {
+      const isValid = await UserService.comparePasswords(email, password);
+
+      if (!isValid) {
+        return res.status(401).json({ message: "Invalid password" });
+      }
+
+      return res.status(200).json({ message: "Password is correct" });
+    } catch (error: any) {
+      console.error("Error comparing passwords:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export async function loginUser(req: Request, res: Response) {
     const {email, password } = req.body;
 

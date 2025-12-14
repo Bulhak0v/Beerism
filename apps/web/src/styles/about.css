@@ -1,0 +1,200 @@
+body{
+  font-family: "Gentium Book Plus", serif;
+
+}
+.about-page {
+  margin: 0 auto;
+  padding: 32px 16px;
+  width: 82%;
+
+}
+.about {
+  margin-bottom: 48px;
+  text-align: center;
+}
+/* .beerism-highlight{
+  color: #e18b21;
+} */
+.about h1 {
+  font-size: 40px;
+  text-align: center;
+  margin-bottom: 16px; 
+}
+
+.about p {
+  font-size: 21px;
+  color: #333333;
+}
+
+.about-section-1{
+  text-align: left;
+  margin: 0 auto;
+  display: flex;
+  gap: 48px;
+}
+.about-section-3{
+    text-align: center;
+    margin-bottom: 65px;
+    gap: 48px;
+}
+.about-section-2{
+    text-align: left;
+    margin-bottom: 45px;
+    background-color: #5C4033;
+    display: flex;
+    border-radius: 20px;
+    padding: 28px;
+    gap: 48px;
+}
+
+.about-section-4{
+    background-color: #5C4033;
+    text-align: left;
+    margin: 0 auto;
+    border-radius: 20px;
+    display: flex;
+    gap: 48px;
+}
+
+.about-section-2 h2, .about-section-4 h2{
+  font-size: 30px;
+  margin-bottom: 29px;
+  color: #ffffff;
+}
+.about-section-1 h2, .about-section-3 h2{
+    font-size: 30px;
+    margin-bottom: 20px;
+}
+
+.about-section-2 p, .about-section-4 p{
+    color: #e7e7e7;
+    font-size: 21px;
+}
+.about-section-4-text{
+    padding: 32px 0px 0px 32px;
+}
+
+.section-intro{
+    font-size: 19px;
+    margin-bottom: 40px;
+}
+
+.about-section-1 p{
+    font-size: 21px;
+    color: #383838;
+}
+
+.about-section-1 img{
+    border-radius : 17px;
+    width: 98%;
+    margin-bottom: 45px;
+}
+
+.about-section-2 img{
+    width: 50%;
+}
+
+.about-section-4 img{
+    width: 143%;
+    border-top-right-radius: 17px;
+    border-bottom-right-radius: 17px;
+}
+
+.about-footer {
+  text-align: center;
+  margin-top: 54px;
+  font-size: 18px;
+  color: #333333;
+  padding: 23px 0px;
+  /* background: linear-gradient(to bottom, #5C4033 95%, #5d463b 100%); */
+}
+
+.steps {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 32px;
+}
+
+.step {
+  flex: 1 1 200px;
+  max-width: 220px;
+  background-color: #FFFFFF;
+  border-radius: 16px;
+  padding: 24px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease;
+}
+
+.step:hover {
+  transform: translateY(-6px);
+}
+
+.step img {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.step h3 {
+  font-size: 20px;
+  margin-bottom: 12px;
+  color: #e18b21;
+}
+
+.step p {
+  font-size: 16px;
+  color: #333333;
+}
+
+@media (max-width: 1182px) {
+    .about-page {
+    width: 95%;
+    padding: 32px 16px;
+  }
+
+  .about-section-1, 
+  .about-section-2, 
+  .about-section-4 {
+    flex-wrap: wrap; 
+    gap: 24px;
+  }
+
+  .about-section-1 div, 
+  .about-section-2 div, 
+  .about-section-4 div {
+    flex: 1 1 300px;
+  }
+
+  .about-section-1 p,
+  .about-section-2 p,
+  .about-section-3 p,
+  .about-section-4 p{
+    font-size: 16px;
+  }
+  .about-section-1 h2,
+  .about-section-2 h2,
+  .about-section-3 h2,
+  .about-section-4 h2{
+    font-size: 25px;
+  }
+
+  .about-section-4-text{
+    padding: 20px;
+  }
+
+  .about-section-1 img, 
+  .about-section-4 img {
+    flex: 1 1 291px; 
+    max-width: 100%;
+  }
+  .about-section-2 img{
+    width: 25%;
+  }
+
+  .steps {
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 24px;
+  }
+}

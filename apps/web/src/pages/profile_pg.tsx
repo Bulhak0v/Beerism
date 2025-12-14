@@ -1,9 +1,10 @@
-import React, { useState, useEffect, useRef, useCallback } from "react"; 
+import React, { useState, useEffect, useRef, useCallback, use } from "react"; 
 import avatarPlaceholder from "/avatar_placeholder.png"; 
 import '../styles/profile.css';
 import LogoHeader from "../components/logoHeader";
 import { useNavigate } from "react-router-dom";
 import { useAuth, User } from "../components/authProvider"; 
+import { Icon } from "@iconify/react";
 
 interface BeerStyleOption {
     beer_style_id: number;
@@ -57,6 +58,15 @@ const ProfilePage: React.FC = () => {
   const [userQuests, setUserQuests] = useState<Quest[]>([]);
   const [availableQuests, setAvailableQuests] = useState<Quest[]>([]);
 
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+
   const [activeTab, setActiveTab] = useState("Profile");
 
   const fetchAllQuestData = useCallback(async () => {
@@ -108,23 +118,23 @@ const ProfilePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-  if (user?.user_id) {
-    const fetchLatestUser = async () => {
-    try {
-        const resAll = await fetch(`https://beerism-backend.onrender.com/api/users/all`);
-        if(resAll.ok) {
-            const allUsers: User[] = await resAll.json();
-            const freshUser = allUsers.find(u => u.user_id === user.user_id);
-            if(freshUser) {
-                setUser(prev => ({...prev, ...freshUser}));
-                localStorage.setItem("user", JSON.stringify(freshUser));
+      if (user?.user_id) {
+        const fetchLatestUser = async () => {
+        try {
+            const resAll = await fetch(`https://beerism-backend.onrender.com/api/users/all`);
+            if(resAll.ok) {
+                const allUsers: User[] = await resAll.json();
+                const freshUser = allUsers.find(u => u.user_id === user.user_id);
+                if(freshUser) {
+                    setUser(prev => ({...prev, ...freshUser}));
+                    localStorage.setItem("user", JSON.stringify(freshUser));
+                }
             }
-        }
-    } catch(e) { console.error("Failed to refresh user stats", e); }
-  };
-fetchLatestUser();
-}
-}, [user?.user_id]);
+        } catch(e) { console.error("Failed to refresh user stats", e); }
+      };
+    fetchLatestUser();
+    }
+    }, [user?.user_id]);
   
   useEffect(() => {
     fetchAllQuestData();
@@ -281,7 +291,6 @@ fetchLatestUser();
   const tabs = [
     { name: "Profile", path: "/profile" },
     { name: "Security", path: "/profile" },
-    { name: "Notifications", path: "/profile" },
     { name: "Privacy", path: "/profile" },
     { name: "Quests", path: "/profile" }
   ];
@@ -291,6 +300,44 @@ fetchLatestUser();
       fileInputRef.current.click();
     }
   };
+  const handleChangePassword = async () => {
+    if (!user) return;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      alert("Please fill in all fields");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      alert("New passwords do not match");
+      return;
+    }
+
+    try {
+      const res = await fetch("https://beerism-backend.onrender.com/api/users/edit", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user.user_id,
+          password: newPassword
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to change password");
+
+      const updatedUser = await res.json();
+      setUser(prev => ({ ...prev, ...updatedUser }));
+      alert("Password changed successfully!");
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      console.error("Password change error:", err);
+      alert("Error changing password.");
+    }
+  };
+
 
   const handleTabClick = (tabName: string, path: string) => {
     setActiveTab(tabName);
@@ -384,7 +431,83 @@ fetchLatestUser();
         </div>
       );
     }
+    if (activeTab === "Security") {
+      return (
+        <div className="security-section">
+          <h2>Change Password</h2>
+          <div className="field">
+            <label>Current Password</label>
+            <div className="password-wrapper">
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="password-eye"
+                onClick={() => setShowCurrentPassword(p => !p)}
+              >
+                <Icon
+                  icon={showCurrentPassword ? "mdi:eye-off-outline" : "mdi:eye-outline"}
+                  width={22}
+                />
+              </button>
+            </div>
+          </div>
 
+
+          <div className="field">
+            <label>New Password</label>
+            <div className="password-wrapper">
+            <input
+              type={showNewPassword ? "text" : "password"}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="password-eye"
+              onClick={() => setShowNewPassword(p => !p)}
+            >
+              <Icon
+                icon={showNewPassword ? "mdi:eye-off-outline" : "mdi:eye-outline"}
+                width={22}
+              />
+            </button>
+          </div>
+          </div>
+
+          <div className="field">
+            <label>Confirm New Password</label>
+            <div className="password-wrapper">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              <button
+                type="button"
+                className="password-eye"
+                onClick={() => setShowConfirmPassword(p => !p)}
+              >
+                <Icon
+                  icon={showConfirmPassword ? "mdi:eye-off-outline" : "mdi:eye-outline"}
+                  width={22}
+                />
+              </button>
+            </div>
+          </div>
+
+          <div className="security-actions">
+            <button className="save-button" onClick={handleChangePassword}>
+              Change Password
+            </button>
+          </div>
+        </div>
+      );
+    }
     return (
       <>
         <div className="avatar-section">

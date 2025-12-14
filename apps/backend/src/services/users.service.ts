@@ -77,6 +77,15 @@ async loginUser(email: string, password: string): Promise<User> {
     return user;
 },
 
+async comparePasswords(email: string, password: string): Promise<boolean> {
+  const user = await this.getUser(email);
+  if (!user) throw new Error("Invalid email");
+
+  const validPassword = await bcrypt.compare(password, user.password);
+  return validPassword; 
+},
+
+
 async addUser(email: string, nickname: string, password: string, profile_picture: string, bio: string, preferred_budget_range: string, preferred_venue_atmosphere: string, preferred_beer_style_id: number, xp: number, level: number): Promise<User> {
     const result = await db.query<User>(
         `
