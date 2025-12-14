@@ -516,17 +516,21 @@ async checkReviewQuestProgress(userId: number, locationId: number, rating: numbe
 
 async getLeaderboard(): Promise<any[]> {
         const query = `
-            SELECT
-                u.user_id,
-                u.nickname,
-                u.profile_picture,
-                COALESCE(u.level, 0) as level,
-                COALESCE(u.xp, 0) as xp,
-                COUNT(uq.quest_id) FILTER (WHERE uq.completed_at IS NOT NULL) as completed_quests
-            FROM users u
-            LEFT JOIN user_quests uq ON u.user_id = uq.user_id
-            GROUP BY u.user_id
-            ORDER BY u.level DESC NULLS LAST, u.xp DESC NULLS LAST;
+            SELECT 
+                l.user_id,
+                l.nickname,
+                l.profile_picture,
+                l.xp,
+                l.level,
+                l.rank,
+                (
+                    SELECT COUNT(*) 
+                    FROM user_quests uq 
+                    WHERE uq.user_id = l.user_id AND uq.completed_at IS NOT NULL
+                ) as completed_quests
+            FROM leaderboard l
+            ORDER BY l.rank ASC
+            LIMIT 100;
         `;
         const result = await db.query(query);
         return result.rows;

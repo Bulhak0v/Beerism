@@ -10,6 +10,7 @@ interface LeaderboardUser {
     level: number;
     xp: number;
     completed_quests: number;
+    rank: number;
 }
 
 const LeaderboardPage: React.FC = () => {
@@ -35,12 +36,13 @@ const LeaderboardPage: React.FC = () => {
         fetchLeaderboard();
     }, []);
 
-    const renderRank = (index: number) => {
-        const rank = index + 1;
-        if (rank === 1) return <span className="rank-medal rank-1">1</span>;
-        if (rank === 2) return <span className="rank-medal rank-2">2</span>;
-        if (rank === 3) return <span className="rank-medal rank-3">3</span>;
-        return <span className="rank-other">#{rank}</span>;
+    const renderRank = (user: LeaderboardUser, index: number) => {
+        const rankToDisplay = user.rank ? Number(user.rank) : index + 1;
+
+        if (rankToDisplay === 1) return <span className="rank-medal rank-1">1</span>;
+        if (rankToDisplay === 2) return <span className="rank-medal rank-2">2</span>;
+        if (rankToDisplay === 3) return <span className="rank-medal rank-3">3</span>;
+        return <span className="rank-other">#{rankToDisplay}</span>;
     };
 
     return (
@@ -69,7 +71,9 @@ const LeaderboardPage: React.FC = () => {
                             <tbody>
                                 {users.map((user, index) => (
                                     <tr key={user.user_id}>
-                                        <td className="lb-rank-cell">{renderRank(index)}</td>
+                                        <td className="lb-rank-cell">
+                                            {renderRank(user, index)}
+                                        </td>
                                         <td>
                                             <div className="lb-user-cell">
                                                 <img 
@@ -82,7 +86,9 @@ const LeaderboardPage: React.FC = () => {
                                         </td>
                                         <td>
                                             <span className="lb-level-badge">Lvl {user.level}</span>
-                                            <span style={{fontSize: '14px', marginLeft: '8px', color:'#777'}}>({user.xp} XP)</span>
+                                            <span style={{fontSize: '14px', marginLeft: '8px', color:'#777'}}>
+                                                ({user.xp} XP)
+                                            </span>
                                         </td>
                                         <td className="lb-quest-count">
                                             {user.completed_quests} 🏆
