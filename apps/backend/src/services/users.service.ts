@@ -256,10 +256,7 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
             SELECT 
                 q.*, 
                 uq.progress,
-                COALESCE(
-                    (SELECT ARRAY_AGG(location_id::int) FROM quest_locations ql WHERE ql.quest_id = q.quest_id), 
-                    '{}'
-                ) as linked_location_ids
+                uq.quest_id as user_quest_id_ref
             FROM user_quests uq
             JOIN quests q ON uq.quest_id = q.quest_id
             WHERE uq.user_id = $1 AND uq.completed_at IS NULL
@@ -268,6 +265,23 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
         if (activeQuestsRes.rows.length === 0) {
             await client.query('COMMIT');
             return { completedQuests: [] };
+        }
+        const questIds = activeQuestsRes.rows.map(r => r.quest_id);
+        let questLocationMap = new Map<number, number[]>();
+
+        if (questIds.length > 0) {
+            const questLocsRes = await client.query(`
+                SELECT quest_id, location_id 
+                FROM quest_locations 
+                WHERE quest_id = ANY($1::int[])
+            `, [questIds]);
+
+            questLocsRes.rows.forEach(row => {
+                if (!questLocationMap.has(row.quest_id)) {
+                    questLocationMap.set(row.quest_id, []);
+                }
+                questLocationMap.get(row.quest_id)?.push(Number(row.location_id));
+            });
         }
         
         const locationsInRouteRes = await client.query(`
@@ -283,6 +297,8 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
         `, [locationIds]);
         const locationsInRoute = locationsInRouteRes.rows;
 
+        console.log(`[checkRouteProgress] Checking User ${userId}, Quests: ${questIds.length}, Locations in route: ${locationsInRoute.length}`);
+
         for (const quest of activeQuestsRes.rows) {
             const req = quest.requirements;
             if (!req || req.type === 'review') continue;
@@ -290,13 +306,13 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
             let currentCount = parseInt(quest.progress?.current_count || '0');
             let visitedIds: number[] = quest.progress?.visited_ids || [];
 
-            const questLinkedIds = (quest.linked_location_ids || []).map((id: any) => Number(id));
+            const linkedIds = questLocationMap.get(quest.quest_id) || [];
 
             const qualifyingLocations = locationsInRoute.filter(loc => {
                 const currentLocId = Number(loc.location_id);
                 
-                if (questLinkedIds.length > 0 && !questLinkedIds.includes(currentLocId)) {
-                    return false;
+                if (linkedIds.length > 0 && !linkedIds.includes(currentLocId)) {
+                    return false; 
                 }
                 
                 switch(req.type) {
@@ -345,6 +361,7 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
                 const target = parseInt(req.visits || req.count || '1');
                 
                 if (currentCount >= target) {
+                    console.log(`[checkRouteProgress] Completed quest: ${quest.title}`);
                     await client.query(`
                         UPDATE user_quests
                         SET completed_at = NOW()
