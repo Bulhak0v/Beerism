@@ -287,15 +287,27 @@ export const UserService = {
                 const req = quest.requirements;
                 if (!req || req.type === 'review') continue;
 
-                let currentCount = parseInt(quest.progress?.current_count || '0');
-                let visitedIds: number[] = (quest.progress?.visited_ids || []).map((id: any) => Number(id));
+                console.log("Processing quest:", quest.quest_id, quest.title);
+                console.log("Quest linked_location_ids:", quest.linked_location_ids);
+                console.log("Type of first linked ID:", typeof quest.linked_location_ids?.[0]);
+                console.log("Location IDs in route:", locationIds);
 
-                const questLinkedIds: number[] = (quest.linked_location_ids || []).map((id: any) => Number(id));
+                let currentCount = parseInt(quest.progress?.current_count || '0');
+                let visitedIds: number[] = quest.progress?.visited_ids || [];
+
+                const questLinkedIds: number[] = quest.linked_location_ids || [];
+                
+                console.log("Quest linked IDs after cast:", questLinkedIds);
 
                 const qualifyingLocations = locationsInRoute.filter(loc => {
+                    console.log(`Checking location ${loc.location_id} against quest linked IDs:`, questLinkedIds);
+                    
                     if (questLinkedIds.length > 0 && !questLinkedIds.includes(loc.location_id)) {
+                        console.log(`Location ${loc.location_id} NOT in quest's linked locations, skipping`);
                         return false;
                     }
+                    
+                    console.log(`Location ${loc.location_id} passed linked location check`);
                     
                     switch(req.type) {
                         case 'visit': 
