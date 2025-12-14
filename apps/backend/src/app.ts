@@ -6,6 +6,7 @@ import userRouter from "./routes/users.routes.js";
 import routesRouter from "./routes/routes.routes.js";
 import routeStopsRouter from "./routes/routeStops.routes.js";
 import questsRouter from "./routes/quests.routes.js";
+import reviewsRouter from "./routes/reviews.routes.js";
 
 const app = express();
 app.use(cors());
@@ -17,5 +18,6 @@ app.use("/api/users", userRouter)
 app.use("/api/routes", routesRouter);
 app.use("/api/route-stops", routeStopsRouter);
 app.use("/api/quests", questsRouter); 
+app.use("/api/reviews", reviewsRouter);
 
 export default app;

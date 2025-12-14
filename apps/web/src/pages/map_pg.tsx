@@ -15,6 +15,9 @@ import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 
 import LocationImage from "../components/locationImage";
 
+import ReviewModal from "../components/reviewModal";
+import "../styles/reviews.css";
+
 const DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
@@ -81,6 +84,14 @@ const DynamicFilterDropdown: React.FC<{
 const MapPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+    const [reviewTargetLocation, setReviewTargetLocation] = useState<{id: number, name: string} | null>(null);
+
+    const openReviewModal = (loc: Location) => {
+        setReviewTargetLocation({ id: loc.location_id, name: loc.name });
+        setIsReviewModalOpen(true);
+    };
   
   const [locations, setLocations] = useState<Location[]>([]);
   const [userRoutes, setUserRoutes] = useState<BackendRoute[]>([]);
@@ -607,6 +618,13 @@ const MapPage = () => {
                                         <li>⏱️ {location.opens_at ? location.opens_at.slice(0,5) : ''} - {location.closes_at ? location.closes_at.slice(0,5) : ''}</li>
                                     </ul>
                                     <button className="map-details-btn" onClick={() => navigate(`/locationDetails/${location.location_id}`)}>View Full Details</button>
+                                    <button 
+                                        className="map-details-btn" 
+                                        style={{marginTop: '5px', backgroundColor: '#fff', color: '#5C4033'}}
+                                        onClick={() => openReviewModal(location)}
+                                    >
+                                        ★ Leave a Review
+                                    </button>
                                     
                                     {isCreatingNewRoute && (
                                         <button className="map-route-toggle-btn" onClick={() => toggleStop(location)}>
@@ -615,6 +633,17 @@ const MapPage = () => {
                                     )}
                                 </div>
                             </div>
+                            {reviewTargetLocation && (
+                            <ReviewModal
+                                isOpen={isReviewModalOpen}
+                                onClose={() => setIsReviewModalOpen(false)}
+                                locationId={reviewTargetLocation.id}
+                                locationName={reviewTargetLocation.name}
+                                onReviewAdded={() => {
+                                    // Optional: You could trigger a toast here
+                                }}
+                            />
+                        )}
                         </Popup>
                     </Marker>
                 ))}
@@ -645,7 +674,6 @@ interface RoutePlannerPanelProps {
     resetRouteCreationState: () => void; saveRoute: () => void; calculateRoute: () => void;
     routeStats: { time: string; distance: string } | null;
     handleDeleteRoute: (e: React.MouseEvent, routeId: number) => void;
-    // DnD
     handleDragStart: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
     handleDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
     handleDragEnd: (e: React.DragEvent<HTMLDivElement>) => void;

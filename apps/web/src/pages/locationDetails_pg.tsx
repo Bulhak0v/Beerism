@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import LogoHeader from "../components/logoHeader";
 import "../styles/locationDetails.css";
 import LocationImage from "../components/locationImage";
+import ReviewModal from "../components/reviewModal";
+import "../styles/reviews.css";
+import avatarPlaceholder from "/avatar_placeholder.png";
 
 interface Location {
   location_id: number;
@@ -30,6 +33,15 @@ interface LocationDetails extends Location {
     beer_styles: BeerStyle[];
 }
 
+interface Review {
+    review_id: number;
+    rating: number;
+    review_text: string;
+    created_at: string;
+    nickname: string;
+    profile_picture: string | null;
+}
+
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => {
   const percentage = Math.min(100, Math.max(0, (rating / 5) * 100));
 
@@ -48,6 +60,15 @@ const LocationDetailsPage: React.FC = () => {
   const { id } = useParams();
   const [location, setLocation] = useState<any | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const fetchReviews = async () => {
+        if (!id) return;
+        try {
+            const res = await fetch(`https://beerism-backend.onrender.com/api/reviews/${id}`);
+            if (res.ok) setReviews(await res.json());
+        } catch (e) { console.error(e); }
+    };
   useEffect(() => {
     const fetchLocationDetails = async () => {
       if (!id) return; 
@@ -69,7 +90,12 @@ const LocationDetailsPage: React.FC = () => {
     };
 
     fetchLocationDetails();
+    fetchReviews();
   }, [id]);
+
+  const renderStars = (rating: number) => {
+        return "★".repeat(Math.floor(rating)) + "☆".repeat(5 - Math.floor(rating));
+    };
 
   const [activeTab, setActiveTab] = useState<"info" | "reviews">("info");
 
@@ -178,8 +204,45 @@ const LocationDetailsPage: React.FC = () => {
               </div>
             ) : (
               <div className="tab-content">
-                <p>No reviews yet.</p>
-              </div>
+                <button 
+                        className="leave-review-btn-large" 
+                        onClick={() => setIsReviewModalOpen(true)}
+                    >
+                        Leave a Review
+                    </button>
+
+                    {reviews.length === 0 && <p>No reviews yet. Be the first!</p>}
+                    
+                    {reviews.map(review => (
+                        <div key={review.review_id} className="review-item">
+                            <div className="review-header">
+                                <img 
+                                    src={review.profile_picture || avatarPlaceholder} 
+                                    alt="User" 
+                                    className="review-avatar"
+                                />
+                                <span className="review-author">{review.nickname}</span>
+                            </div>
+                            <div className="review-meta">
+                                <span className="review-stars">{renderStars(review.rating)}</span>
+                                <span className="review-date">
+                                    {new Date(review.created_at).toLocaleDateString("de-DE")}
+                                </span>
+                            </div>
+                            <div className="review-text">{review.review_text}</div>
+                        </div>
+                    ))}
+                </div>
+            )}
+            
+            {location && (
+                <ReviewModal 
+                    isOpen={isReviewModalOpen} 
+                    onClose={() => setIsReviewModalOpen(false)}
+                    locationId={location.location_id}
+                    locationName={location.name}
+                    onReviewAdded={fetchReviews}
+                />
             )}
 
             <div className="details-map">
