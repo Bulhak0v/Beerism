@@ -279,7 +279,7 @@ export const UserService = {
                 LEFT JOIN location_atmosphere_tags lat ON l.location_id = lat.location_id
                 LEFT JOIN location_beer_styles lbs ON l.location_id = lbs.location_id
                 WHERE l.location_id = ANY($1::int[])
-                GROUP BY l.location_id;
+                GROUP BY l.location_id, l.average_budget_requirment;
             `, [locationIds]);
             const locationsInRoute = locationsInRouteRes.rows;
 
@@ -288,9 +288,9 @@ export const UserService = {
                 if (!req || req.type === 'review') continue;
 
                 let currentCount = parseInt(quest.progress?.current_count || '0');
-                let visitedIds: number[] = quest.progress?.visited_ids || [];
+                let visitedIds: number[] = (quest.progress?.visited_ids || []).map((id: any) => Number(id));
 
-                const questLinkedIds: number[] = quest.linked_location_ids || [];
+                const questLinkedIds: number[] = (quest.linked_location_ids || []).map((id: any) => Number(id));
 
                 const qualifyingLocations = locationsInRoute.filter(loc => {
                     if (questLinkedIds.length > 0 && !questLinkedIds.includes(loc.location_id)) {
@@ -301,11 +301,11 @@ export const UserService = {
                         case 'visit': 
                             return true; 
                         case 'atmosphere': 
-                            return loc.atmospheres.includes(req.target);
+                            return loc.atmospheres && loc.atmospheres.includes(req.target);
                         case 'budget': 
                             return loc.average_budget_requirment === req.target;
                         case 'beer_style': 
-                            return loc.beer_styles.some((id: number) => id == Number(req.target_id));
+                            return loc.beer_styles && loc.beer_styles.some((id: any) => Number(id) === Number(req.target_id));
                         default: 
                             return false;
                     }
