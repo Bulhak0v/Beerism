@@ -39,14 +39,18 @@ export const QuestsService = {
                 `INSERT INTO quests (title, description, requirements, rewards, validity_start, validity_end)
                 VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING *`,
-                [title, description, requirements, rewards, validity_start, validity_end] // Remove JSON.stringify
+                [title, description, requirements, rewards, validity_start, validity_end]
             );
             const newQuest = res.rows[0];
 
             if (location_ids && location_ids.length > 0) {
-                for (const locId of location_ids) {
+                const uniqueLocationIds = [...new Set(location_ids)];
+                
+                for (const locId of uniqueLocationIds) {
                     await client.query(
-                        `INSERT INTO quest_locations (quest_id, location_id) VALUES ($1, $2)`,
+                        `INSERT INTO quest_locations (quest_id, location_id) 
+                        VALUES ($1, $2)
+                        ON CONFLICT DO NOTHING`,
                         [newQuest.quest_id, locId]
                     );
                 }
@@ -56,6 +60,7 @@ export const QuestsService = {
             return { ...newQuest, linked_location_ids: location_ids };
         } catch (e) {
             await client.query('ROLLBACK');
+            console.error("Error in addQuest service:", e);
             throw e;
         } finally {
             client.release();
@@ -81,7 +86,7 @@ export const QuestsService = {
                 SET title = $1, description = $2, requirements = $3, rewards = $4, validity_start = $5, validity_end = $6
                 WHERE quest_id = $7
                 RETURNING *`,
-                [title, description, requirements, rewards, validity_start, validity_end, id] // Remove JSON.stringify
+                [title, description, requirements, rewards, validity_start, validity_end, id]
             );
 
             if (res.rows.length === 0) throw new Error("Quest not found");
@@ -90,9 +95,13 @@ export const QuestsService = {
             await client.query(`DELETE FROM quest_locations WHERE quest_id = $1`, [id]);
 
             if (location_ids && location_ids.length > 0) {
-                for (const locId of location_ids) {
+                const uniqueLocationIds = [...new Set(location_ids)];
+                
+                for (const locId of uniqueLocationIds) {
                     await client.query(
-                        `INSERT INTO quest_locations (quest_id, location_id) VALUES ($1, $2)`,
+                        `INSERT INTO quest_locations (quest_id, location_id) 
+                        VALUES ($1, $2)
+                        ON CONFLICT DO NOTHING`,
                         [id, locId]
                     );
                 }
@@ -102,6 +111,7 @@ export const QuestsService = {
             return { ...updatedQuest, linked_location_ids: location_ids };
         } catch (e) {
             await client.query('ROLLBACK');
+            console.error("Error in updateQuest service:", e);
             throw e;
         } finally {
             client.release();
