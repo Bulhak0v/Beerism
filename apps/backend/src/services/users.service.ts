@@ -245,12 +245,13 @@ async abandonQuest(userId: number, questId: number): Promise<number | null> {
     return result.rowCount;
 },
 
-async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ completedQuests: any[] }> {
+async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ completedQuests: any[], newLevel?: number, newXp?: number }> {
     const client = await db.connect();
     try {
         await client.query('BEGIN');
 
         const completedQuests = [];
+        let totalXpGained = 0;
 
         const activeQuestsRes = await client.query(`
             SELECT 
@@ -266,6 +267,7 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
             await client.query('COMMIT');
             return { completedQuests: [] };
         }
+
         const questIds = activeQuestsRes.rows.map(r => r.quest_id);
         let questLocationMap = new Map<number, number[]>();
 
@@ -296,8 +298,6 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
             GROUP BY l.location_id, l.average_budget_requirment;
         `, [locationIds]);
         const locationsInRoute = locationsInRouteRes.rows;
-
-        console.log(`[checkRouteProgress] Checking User ${userId}, Quests: ${questIds.length}, Locations in route: ${locationsInRoute.length}`);
 
         for (const quest of activeQuestsRes.rows) {
             const req = quest.requirements;
@@ -361,7 +361,6 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
                 const target = parseInt(req.visits || req.count || '1');
                 
                 if (currentCount >= target) {
-                    console.log(`[checkRouteProgress] Completed quest: ${quest.title}`);
                     await client.query(`
                         UPDATE user_quests
                         SET completed_at = NOW()
@@ -369,21 +368,34 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
                     `, [userId, quest.quest_id]);
 
                     const xpReward = parseInt(quest.rewards?.xp || '0');
-                    if (xpReward > 0) {
-                        await client.query(`
-                            UPDATE users
-                            SET xp = COALESCE(xp, 0) + $1
-                            WHERE user_id = $2
-                        `, [xpReward, userId]);
-                    }
-                    
+                    totalXpGained += xpReward;
                     completedQuests.push({ title: quest.title, xp: xpReward });
                 }
             }
         }
 
+        let finalUserStats = {};
+        if (totalXpGained > 0) {
+
+            const userRes = await client.query(`SELECT xp FROM users WHERE user_id = $1`, [userId]);
+            const currentXp = userRes.rows[0]?.xp || 0;
+            
+            const newXp = currentXp + totalXpGained;
+            
+            const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+
+            await client.query(`
+                UPDATE users
+                SET xp = $1, level = $2
+                WHERE user_id = $3
+            `, [newXp, newLevel, userId]);
+
+            finalUserStats = { newLevel, newXp };
+        }
+
         await client.query('COMMIT');
-        return { completedQuests };
+        return { completedQuests, ...finalUserStats };
+
     } catch (e) {
         await client.query('ROLLBACK');
         throw e;

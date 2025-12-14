@@ -59,7 +59,6 @@ const ProfilePage: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState("Profile");
 
-  // FIX 1: Proper useCallback with correct dependencies
   const fetchAllQuestData = useCallback(async () => {
     if (!user) return;
     
@@ -76,14 +75,13 @@ const ProfilePage: React.FC = () => {
     } catch (err) { 
       console.error("Error fetching available quests", err); 
     }
-  }, [user?.user_id]); // Only depend on user_id, not entire user object
+  }, [user?.user_id]);
 
   const handleLogout = () => {
     logout(); 
     navigate("/auth");
   };
 
-  // FIX 2: Separate useEffect for fetching dynamic data (runs once on mount)
   useEffect(() => {
     const fetchDynamicData = async () => {
       try {
@@ -107,14 +105,31 @@ const ProfilePage: React.FC = () => {
     };
     
     fetchDynamicData();
-  }, []); // Empty dependency array - runs once on mount
+  }, []);
 
-  // FIX 3: Separate useEffect for quest data
+  useEffect(() => {
+  if (user?.user_id) {
+    const fetchLatestUser = async () => {
+    try {
+        const resAll = await fetch(`https://beerism-backend.onrender.com/api/users/all`);
+        if(resAll.ok) {
+            const allUsers: User[] = await resAll.json();
+            const freshUser = allUsers.find(u => u.user_id === user.user_id);
+            if(freshUser) {
+                setUser(prev => ({...prev, ...freshUser}));
+                localStorage.setItem("user", JSON.stringify(freshUser));
+            }
+        }
+    } catch(e) { console.error("Failed to refresh user stats", e); }
+  };
+fetchLatestUser();
+}
+}, [user?.user_id]);
+  
   useEffect(() => {
     fetchAllQuestData();
-  }, [fetchAllQuestData]); // Properly depends on the memoized function
+  }, [fetchAllQuestData]);
 
-  // FIX 4: Separate useEffect for user data updates
   useEffect(() => {
     if (user) {
       setNickname(user.nickname || "");
@@ -137,12 +152,10 @@ const ProfilePage: React.FC = () => {
         favoriteBarStyle: bar,
       });
     }
-  }, [user]); // Only depend on user object
+  }, [user]);
 
-  // FIX 5: Cleanup object URLs to prevent memory leaks
   useEffect(() => {
     return () => {
-      // Revoke object URL when component unmounts or avatar changes
       if (avatarPreview && avatarPreview.startsWith('blob:')) {
         URL.revokeObjectURL(avatarPreview);
       }
@@ -405,7 +418,6 @@ const ProfilePage: React.FC = () => {
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  // Revoke previous object URL to prevent memory leak
                   if (avatarPreview && avatarPreview.startsWith('blob:')) {
                     URL.revokeObjectURL(avatarPreview);
                   }
@@ -519,6 +531,8 @@ const ProfilePage: React.FC = () => {
                           ? "Bell"
                           : tab.name === "Privacy"
                           ? "Eye"
+                          : tab.name === "Quests"
+                          ? "Bookopen"
                           : "Eye"
                       }.svg`}
                       alt={tab.name}
