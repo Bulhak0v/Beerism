@@ -411,6 +411,109 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
     }
 },
 
+async checkReviewQuestProgress(userId: number, locationId: number, rating: number): Promise<{ completedQuests: any[] }> {
+        const client = await db.connect();
+        try {
+            await client.query('BEGIN');
+            const completedQuests = [];
+
+            const activeQuestsRes = await client.query(`
+                SELECT 
+                    q.*, 
+                    uq.progress
+                FROM user_quests uq
+                JOIN quests q ON uq.quest_id = q.quest_id
+                WHERE uq.user_id = $1 
+                  AND uq.completed_at IS NULL
+                  AND q.requirements->>'type' = 'review'
+            `, [userId]);
+
+            if (activeQuestsRes.rows.length === 0) {
+                await client.query('COMMIT');
+                return { completedQuests: [] };
+            }
+
+            const questIds = activeQuestsRes.rows.map(r => r.quest_id);
+            let questLocationMap = new Map<number, number[]>();
+
+            if (questIds.length > 0) {
+                const questLocsRes = await client.query(`
+                    SELECT quest_id, location_id 
+                    FROM quest_locations 
+                    WHERE quest_id = ANY($1::int[])
+                `, [questIds]);
+
+                questLocsRes.rows.forEach(row => {
+                    if (!questLocationMap.has(row.quest_id)) {
+                        questLocationMap.set(row.quest_id, []);
+                    }
+                    questLocationMap.get(row.quest_id)?.push(Number(row.location_id));
+                });
+            }
+
+            for (const quest of activeQuestsRes.rows) {
+                const req = quest.requirements;
+                
+                const minRating = req.min_rating || 0;
+                if (rating < minRating) continue;
+
+                const linkedIds = questLocationMap.get(quest.quest_id) || [];
+                if (linkedIds.length > 0 && !linkedIds.includes(Number(locationId))) {
+                    continue;
+                }
+
+                let currentCount = parseInt(quest.progress?.current_count || '0');
+                let visitedIds: number[] = quest.progress?.visited_ids || [];
+
+                if (!visitedIds.includes(locationId)) {
+                    currentCount++;
+                    visitedIds.push(locationId);
+
+                    const newProgressJson = {
+                        current_count: currentCount,
+                        visited_ids: visitedIds
+                    };
+
+                    await client.query(`
+                        UPDATE user_quests 
+                        SET progress = $1
+                        WHERE user_id = $2 AND quest_id = $3
+                    `, [newProgressJson, userId, quest.quest_id]);
+
+                    const target = parseInt(req.count || '1');
+
+                    if (currentCount >= target) {
+                        await client.query(`
+                            UPDATE user_quests
+                            SET completed_at = NOW()
+                            WHERE user_id = $1 AND quest_id = $2 AND completed_at IS NULL
+                        `, [userId, quest.quest_id]);
+
+                        const xpReward = parseInt(quest.rewards?.xp || '0');
+                        if (xpReward > 0) {
+                            await client.query(`
+                                UPDATE users
+                                SET xp = COALESCE(xp, 0) + $1
+                                WHERE user_id = $2
+                            `, [xpReward, userId]);
+                        }
+
+                        completedQuests.push({ title: quest.title, xp: xpReward });
+                    }
+                }
+            }
+
+            await client.query('COMMIT');
+            return { completedQuests };
+        } catch (e) {
+            await client.query('ROLLBACK');
+            console.error("Error checking review quest progress:", e);
+            return { completedQuests: [] };
+        } finally {
+            client.release();
+        }
+    },
+
 async getLeaderboard(): Promise<any[]> {
         const query = `
             SELECT

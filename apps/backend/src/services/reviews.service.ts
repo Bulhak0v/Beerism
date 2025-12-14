@@ -36,8 +36,9 @@ export const ReviewsService = {
             UPDATE reviews 
             SET rating = $1, review_text = $2, updated_at = NOW()
             WHERE review_id = $3 AND user_id = $4
-            RETURNING *
+            RETURNING * includes location_id
         `;
+        
         const result = await db.query(query, [rating, text, reviewId, userId]);
         if (result.rows.length === 0) throw new Error("Review not found or unauthorized");
         

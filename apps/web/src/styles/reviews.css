@@ -212,6 +212,7 @@
     white-space: pre-wrap; 
     font-family: "Gentium Book Plus", serif;
     max-width: 90%;
+    text-align: left;
 }
 
 .review-text b, .review-text strong {

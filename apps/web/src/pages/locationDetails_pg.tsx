@@ -7,6 +7,8 @@ import ReviewModal from "../components/reviewModal";
 import "../styles/reviews.css";
 import avatarPlaceholder from "/avatar_placeholder.png";
 import { useAuth } from "../components/authProvider";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Location {
   location_id: number;
@@ -68,20 +70,20 @@ const LocationDetailsPage: React.FC = () => {
     const [userReview, setUserReview] = useState<Review | null>(null);
     const [editingReviewData, setEditingReviewData] = useState<any>(null);
   const fetchReviews = async () => {
-        if (!id) return;
-        try {
-            const res = await fetch(`https://beerism-backend.onrender.com/api/reviews/${id}`);
-            if (res.ok) {
-                const data: Review[] = await res.json();
-                setReviews(data);
-                
-                if (user) {
-                    const found = data.find(r => r.user_id === user.user_id);
-                    setUserReview(found || null);
-                }
+    if (!id) return;
+    try {
+        const res = await fetch(`https://beerism-backend.onrender.com/api/reviews/${id}`);
+        if (res.ok) {
+            const data: Review[] = await res.json();
+            setReviews(data);
+            
+            if (user) {
+                const found = data.find(r => r.user_id == user.user_id); 
+                setUserReview(found || null);
             }
-        } catch (e) { console.error(e); }
-    };
+        }
+    } catch (e) { console.error(e); }
+};
   useEffect(() => {
     const fetchLocationDetails = async () => {
       if (!id) return; 
@@ -160,6 +162,7 @@ const LocationDetailsPage: React.FC = () => {
   if (!location) {
     return (
       <>
+      <ToastContainer position="top-right" autoClose={5000} theme="light" />
         <div className="locationDetails-main">
           <div className="locations-cover">
                 <div className="topTitle">
@@ -290,7 +293,7 @@ const LocationDetailsPage: React.FC = () => {
                                 {parseRichText(review.review_text)}
                             </div>
 
-                            {user && user.user_id === review.user_id && (
+                            {user && user.user_id == review.user_id && (
                                 <div className="review-actions">
                                     <button className="review-action-btn btn-edit" onClick={() => handleEditClick(review)}>
                                         Edit

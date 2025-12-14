@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import '../styles/reviews.css';
 import { useAuth } from './authProvider';
+import { toast } from 'react-toastify';
 
 interface ReviewModalProps {
     isOpen: boolean;
@@ -59,6 +60,18 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
             });
 
             if (res.ok) {
+                const data = await res.json();
+                
+                if (data.completedQuests && data.completedQuests.length > 0) {
+                    data.completedQuests.forEach((q: any) => {
+                        toast.success(`🎉 Quest Complete: "${q.title}" (+${q.xp} XP)`);
+                    });
+                } else if (!initialData) {
+                    toast.success("Review posted successfully!");
+                } else if (initialData) {
+                    toast.success("Review updated!");
+                }
+
                 onReviewAdded();
                 onClose();
             } else if (res.status === 409) {
@@ -73,6 +86,8 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
             setIsSubmitting(false);
         }
     };
+
+    if (!isOpen) return null;
 
     return (
         <div className="review-modal-overlay" onClick={onClose}>
@@ -93,7 +108,7 @@ const ReviewModal: React.FC<ReviewModalProps> = ({
 
                 <textarea 
                     className="review-textarea"
-                    placeholder="Share your experience... (supports <b>bold</b> and <i>italic</i> tags)"
+                    placeholder="Share your experience..."
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                 />
