@@ -310,15 +310,22 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
 
             const qualifyingLocations = locationsInRoute.filter(loc => {
                 const currentLocId = Number(loc.location_id);
+                
                 if (linkedIds.length > 0 && !linkedIds.includes(currentLocId)) {
                     return false; 
                 }
+                
                 switch(req.type) {
-                    case 'visit': return true; 
-                    case 'atmosphere': return loc.atmospheres && loc.atmospheres.includes(req.target);
-                    case 'budget': return loc.average_budget_requirment === req.target;
-                    case 'beer_style': return loc.beer_styles && loc.beer_styles.some((id: any) => Number(id) === Number(req.target_id));
-                    default: return false;
+                    case 'visit': 
+                        return true; 
+                    case 'atmosphere': 
+                        return loc.atmospheres && loc.atmospheres.includes(req.target);
+                    case 'budget': 
+                        return loc.average_budget_requirment === req.target;
+                    case 'beer_style': 
+                        return loc.beer_styles && loc.beer_styles.some((id: any) => Number(id) === Number(req.target_id));
+                    default: 
+                        return false;
                 }
             });
 
@@ -373,19 +380,29 @@ async checkRouteProgress(userId: number, locationIds: number[]): Promise<{ compl
             const currentXp = Number(userRes.rows[0]?.xp || 0);
             
             const newXp = currentXp + totalXpGained;
-            const newLevel = Math.floor(newXp / 100) + 1;
+            
+            let calculatedLevel = 1;
+            let increment = 100;
+            let threshold = 100;
+
+            while (newXp >= threshold) {
+                calculatedLevel++;
+                increment = Math.floor(increment * 1.5);
+                threshold += increment;
+            }
 
             await client.query(`
                 UPDATE users
                 SET xp = $1, level = $2
                 WHERE user_id = $3
-            `, [newXp, newLevel, userId]);
+            `, [newXp, calculatedLevel, userId]);
             
-            finalUserStats = { newXp, newLevel };
+            finalUserStats = { newXp, newLevel: calculatedLevel };
         }
 
         await client.query('COMMIT');
         return { completedQuests, ...finalUserStats };
+
     } catch (e) {
         await client.query('ROLLBACK');
         throw e;
