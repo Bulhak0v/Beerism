@@ -104,6 +104,12 @@ export default function AdminQuestsPage() {
         if (!selectedId) { alert("Select a quest first."); return; }
         const quest = quests.find(q => q.quest_id === selectedId);
         if (quest) {
+            console.log("Quest linked_location_ids:", quest.linked_location_ids);
+            console.log("Type of first ID:", typeof quest.linked_location_ids?.[0]);
+            
+            const locationIds = (quest.linked_location_ids || []).map(id => Number(id));
+            console.log("After conversion:", locationIds);
+            
             setEditingId(quest.quest_id);
             setBaseForm({
                 title: quest.title,
@@ -111,7 +117,7 @@ export default function AdminQuestsPage() {
                 xp_reward: quest.rewards?.xp || 0,
                 validity_start: quest.validity_start ? new Date(quest.validity_start).toISOString().split('T')[0] : "",
                 validity_end: quest.validity_end ? new Date(quest.validity_end).toISOString().split('T')[0] : "",
-                location_ids: (quest.linked_location_ids || []).map(id => Number(id))
+                location_ids: locationIds
             });
 
             const req = quest.requirements || {};

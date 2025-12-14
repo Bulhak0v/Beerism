@@ -56,8 +56,18 @@ export const QuestsService = {
                 }
             }
 
+            const savedLocationsRes = await client.query(
+                `SELECT location_id::int as location_id 
+                FROM quest_locations 
+                WHERE quest_id = $1 
+                ORDER BY location_id`,
+                [newQuest.quest_id]
+            );
+            const savedLocationIds = savedLocationsRes.rows.map(row => row.location_id);
+
             await client.query('COMMIT');
-            return { ...newQuest, linked_location_ids: location_ids };
+            
+            return { ...newQuest, linked_location_ids: savedLocationIds };
         } catch (e) {
             await client.query('ROLLBACK');
             console.error("Error in addQuest service:", e);
@@ -107,8 +117,18 @@ export const QuestsService = {
                 }
             }
 
+            const savedLocationsRes = await client.query(
+                `SELECT location_id::int as location_id 
+                FROM quest_locations 
+                WHERE quest_id = $1 
+                ORDER BY location_id`,
+                [id]
+            );
+            const savedLocationIds = savedLocationsRes.rows.map(row => row.location_id);
+
             await client.query('COMMIT');
-            return { ...updatedQuest, linked_location_ids: location_ids };
+            
+            return { ...updatedQuest, linked_location_ids: savedLocationIds };
         } catch (e) {
             await client.query('ROLLBACK');
             console.error("Error in updateQuest service:", e);
