@@ -17,17 +17,29 @@ export async function getLocationReviews(req: Request, res: Response) {
 export async function addReview(req: Request, res: Response) {
     try {
         const { user_id, location_id, rating, review_text } = req.body;
-        
-        if (!user_id || !location_id || !rating) {
-            return res.status(400).json({ error: "Missing required fields" });
-        }
-
         const newReview = await ReviewsService.addReview(user_id, location_id, rating, review_text);
-
-        
         res.status(201).json(newReview);
     } catch (err: any) {
-        console.error("Error adding review:", err);
-        res.status(500).json({ error: "Failed to add review" });
+        if (err.message === "Review already exists") {
+            return res.status(409).json({ message: "You have already reviewed this location." });
+        }
+        res.status(500).json({ error: "Add error" });
     }
+}
+
+export async function updateReview(req: Request, res: Response) {
+    try {
+        const { user_id, review_id, rating, review_text } = req.body;
+        const updated = await ReviewsService.updateReview(user_id, review_id, rating, review_text);
+        res.json(updated);
+    } catch (err) { res.status(500).json({ error: "Update error" }); }
+}
+
+export async function deleteReview(req: Request, res: Response) {
+    try {
+        const reviewId = parseInt(req.params.reviewId);
+        const { user_id } = req.body; 
+        await ReviewsService.deleteReview(user_id, reviewId);
+        res.status(204).send();
+    } catch (err) { res.status(500).json({ error: "Delete error" }); }
 }
