@@ -52,6 +52,17 @@ export async function updateQuest(req: Request, res: Response) {
         requirements
     } = req.body;
 
+    console.log("Update quest request:", {
+        id,
+        title,
+        description,
+        xp_reward,
+        validity_start,
+        validity_end,
+        location_ids,
+        requirements
+    });
+
     const rewards = { xp: parseInt(xp_reward) || 0 };
     const finalRequirements = requirements || { type: 'visit', visits: 1, unique: true };
 
@@ -61,8 +72,14 @@ export async function updateQuest(req: Request, res: Response) {
         );
         res.status(200).json(updated);
     } catch (err: any) {
-        console.error(err);
-        res.status(500).json({ message: "Error updating quest" });
+        console.error("Error updating quest - Full details:", err);
+        console.error("Error message:", err.message);
+        console.error("Error stack:", err.stack);
+        res.status(500).json({ 
+            message: "Error updating quest", 
+            error: err.message,
+            details: err.stack 
+        });
     }
 }
 
