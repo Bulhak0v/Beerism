@@ -39,7 +39,7 @@ export const QuestsService = {
                 `INSERT INTO quests (title, description, requirements, rewards, validity_start, validity_end)
                  VALUES ($1, $2, $3, $4, $5, $6)
                  RETURNING *`,
-                [title, description, requirements, rewards, validity_start, validity_end]
+                [title, description, JSON.stringify(requirements), JSON.stringify(rewards), validity_start, validity_end]
             );
             const newQuest = res.rows[0];
 
@@ -81,7 +81,7 @@ export const QuestsService = {
                  SET title = $1, description = $2, requirements = $3, rewards = $4, validity_start = $5, validity_end = $6
                  WHERE quest_id = $7
                  RETURNING *`,
-                [title, description, requirements, rewards, validity_start, validity_end, id]
+                [title, description, JSON.stringify(requirements), JSON.stringify(rewards), validity_start, validity_end, id]
             );
 
             if (res.rows.length === 0) throw new Error("Quest not found");
