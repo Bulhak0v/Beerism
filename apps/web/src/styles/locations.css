@@ -275,6 +275,20 @@ body {
   align-items: center;
 }
 
+@media(max-width: 1200px){
+  .locations-main{
+    width: 95%; 
+  }
+}
+
+@media(max-width: 930px){
+  .location-description, .location-meta{
+    font-size: 16px;
+  }
+  .location-info-titleName{
+    font-size: 25px;
+  }
+}
 
 @media screen and (max-width: 768px) {
     
@@ -304,7 +318,7 @@ body {
     }
 
     .search-and-pagination {
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
         gap: 15px;
     }
@@ -316,7 +330,6 @@ body {
     
     .search-bar {
         width: 100%;
-        justify-content: space-between;
     }
     
     .search-bar input {
@@ -334,8 +347,7 @@ body {
     
     .pagination-controls {
         width: 100%;
-        justify-content: center;
-        margin-top: 10px;
+        justify-content: flex-end;
     }
 
     .location-card {

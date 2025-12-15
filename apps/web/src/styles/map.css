@@ -36,13 +36,15 @@ button, select, input, option {
 }
 
 .map-content-wrapper {
-  padding: 0 50px;
   flex: 1;
+  width: 85%;
+  margin: 0 auto;
 }
 
 .map-controls {
   margin-bottom: 20px;
   display: flex;
+  flex-wrap: wrap;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
@@ -51,7 +53,7 @@ button, select, input, option {
 .map-page-title {
   font-size: 40px;
   color: #202020;
-  margin: 0;
+  margin-bottom: 10px;
   background-color: transparent;
   padding: 0;
   border-radius: 0;
@@ -60,6 +62,7 @@ button, select, input, option {
 .filter-container {
   display: flex;
   gap: 15px;
+  flex-wrap: wrap;
   flex-direction: row;
 }
 
@@ -94,6 +97,7 @@ button, select, input, option {
   width: 100%;
   z-index: 1; 
 }
+
 
 .leaflet-container {
   width: 100%;
@@ -474,6 +478,13 @@ button, select, input, option {
   color: #ffffff;
 }
 
+@media(max-width: 1200px){
+  .map-page-title{
+    font-size: 31px;
+    margin-right: 10px;
+  }
+}
+
 @media screen and (max-width: 768px) {
   .map-content-wrapper {
     padding: 0 15px;
@@ -486,9 +497,9 @@ button, select, input, option {
     min-height: auto;
   }
   .map-wrapper {
-    height: 149vh;
     display: flex;
     flex-wrap: wrap-reverse;
+    height: 100%;
   }
   
   .leaflet-container {

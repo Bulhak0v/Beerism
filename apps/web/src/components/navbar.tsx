@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import logo from "/logo.svg";
 import "../styles/navbar.css";
@@ -17,9 +17,17 @@ const Navbar: React.FC = () => {
       }
     };
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = () => setMenuOpen(false);
+
+
   return (
     <nav className="navbar">
-      <div className="nav-left" onClick={() => navigate(isAdminMode ? "/admin" : "/home")}>
+      <div className="nav-left" onClick={() => {
+          navigate(isAdminMode ? "/admin" : "/home");
+          closeMenu();
+        }}
+        >
         <img src={logo} alt="Beerism Logo" className="nav-logo" />
         <div className="nav-title-wrapper">
           <span className="nav-title">Beerism</span>
@@ -27,40 +35,59 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      <div className="nav-links">
+      <div className={`nav-links ${menuOpen ? "open" : ""}`}>
         {isAdminMode ? (
           <>
-            <NavLink to="/admin" className="nav-item" end>
+            <NavLink to="/admin" className="nav-item" end onClick={closeMenu}>
               Locations
             </NavLink>
-            <NavLink to="/adminUser" className="nav-item">
+            <NavLink to="/adminUser" className="nav-item" onClick={closeMenu}>
               Users
             </NavLink>
-            <NavLink to="/adminQuests" className="nav-item">Quests</NavLink>
+            <NavLink to="/adminQuests" className="nav-item" onClick={closeMenu}>Quests</NavLink>
           </>
         ) : (
           <>
-            <NavLink to="/home" className="nav-item">
+            <NavLink to="/home" className="nav-item" onClick={closeMenu}>
               Home
             </NavLink>
-            <NavLink to="/profile" className="nav-item">
+            <NavLink to="/profile" className="nav-item" onClick={closeMenu}>
               Profile
             </NavLink>
-            <NavLink to="/leaderboard" className="nav-item">
+            <NavLink to="/leaderboard" className="nav-item" onClick={closeMenu}>
               Leaderboard
             </NavLink>
-            <NavLink to="/about" className="nav-item">
+            <NavLink to="/about" className="nav-item" onClick={closeMenu}>
               About
             </NavLink>
-            <NavLink to="/contact" className="nav-item">
+            <NavLink to="/contact" className="nav-item" onClick={closeMenu}>
               Contact
             </NavLink>
           </>
         )}
+
       </div>
 
+      <button
+        className="nav-burger"
+        onClick={() => setMenuOpen(!menuOpen)}
+        aria-label="Toggle menu"
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
+
       <div className="nav-right">
-        <button className="nav-admin-btn" onClick={toggleAdminMode} title={isAdminMode ? "Exit Admin" : "Enter Admin"}>
+        <button 
+          className="nav-admin-btn" 
+          onClick={() => {
+            toggleAdminMode();
+            closeMenu();
+          }} 
+          title={isAdminMode ? "Exit Admin" : "Enter Admin"}
+        >
           <img 
             src={adminIcon} 
             alt="Toggle Admin Mode" 

@@ -1,7 +1,7 @@
 .leaderboard-main {
     display: flex;
     flex-flow: wrap;
-    width: 80%;
+    width: 85%;
     margin: 25px auto;
     align-items: center;
     justify-content: center;
@@ -104,8 +104,13 @@
 .lb-quest-count {
     color: #444;
 }
+.level-column{
+    display: flex;
+    flex-direction: column;
+}
 
-@media screen and (max-width: 768px) {
+
+@media screen and (max-width: 1040px) {
     .leaderboard-main {
         width: 95%;
     }
@@ -115,8 +120,13 @@
         width: 100%;
     }
 
+    .level-column{
+        display: flex;
+        flex-direction: column;
+    }
+
     .leaderboard-table th, .leaderboard-table td {
-        padding: 10px;
+        padding: 4px;
         font-size: 16px;
     }
 

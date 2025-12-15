@@ -170,3 +170,20 @@
   color: #202020;
   -webkit-text-stroke: 1px #202020; 
 }
+
+@media(max-width: 1040px){
+  .locationDetails-main{
+    width: 95%;
+  }
+
+  .topTitle .backButton{
+    margin-top: 10px;
+    padding: 6px 32px;
+  }
+  .details-description{
+    font-size: 20px;
+  }
+  .details-meta, .tab-content{
+    font-size: 17px;
+  }
+}

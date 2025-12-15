@@ -244,7 +244,7 @@ body {
 
 /* Mobile Adapt */
 
-@media (max-width: 768px) {
+@media (max-width: 940px) {
 
   body {
     overflow-y: auto;
@@ -347,9 +347,18 @@ body {
     height: 60px;
     display: hidden;
   }
+  .avatar-wrapper{
+    margin: 0;
+  }
 
+  .profile-settings ul li:last-child{
+    padding-bottom: 10px;
+  }
   .title {
     font-size: 26px;
+  }
+  .profile-settings ul li.active::after{
+    bottom: 11px;
   }
 }
 

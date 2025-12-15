@@ -84,7 +84,7 @@ const LeaderboardPage: React.FC = () => {
                                                 <span className="lb-nickname">{user.nickname}</span>
                                             </div>
                                         </td>
-                                        <td>
+                                        <td className="level-column">
                                             <span className="lb-level-badge">Lvl {user.level}</span>
                                             <span style={{fontSize: '14px', marginLeft: '8px', color:'#777'}}>
                                                 ({user.xp} XP)

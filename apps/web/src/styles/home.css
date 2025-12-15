@@ -119,14 +119,13 @@
 }
 
 .feature-image {
-  width: auto;
-  height: 50vh;
+  width: 100%;
   border-radius: 8px;
   box-shadow: 0 20px 50px rgba(0,0,0,0.15);
   object-fit: cover;
 }
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1040px) {
   
   .feature-section {
     flex-direction: column-reverse; 
@@ -153,6 +152,10 @@
 
   .feature-description {
     font-size: 18px;
+  }
+  .feature-image{
+    width: 80%;
+    height: auto;
   }
   
   .feature-image-wrapper {
