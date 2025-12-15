@@ -110,6 +110,10 @@ async editUser(user_id: number, updateData: Partial<User>): Promise<User | null>
         return null;
     }
 
+    if (updateData.password) {
+        updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
+
     const fields = Object.keys(updateData).filter(key => (updateData as any)[key] !== undefined);
 
     if (fields.length === 0) {
@@ -135,6 +139,10 @@ async editUser(user_id: number, updateData: Partial<User>): Promise<User | null>
 async updateUser(user_id: number, updateData: Partial<User>): Promise<User | null> {
     const user = await this.getUserById(user_id);
     if (!user) return null;
+
+    if (updateData.password) {
+        updateData.password = await bcrypt.hash(updateData.password, 10);
+    }
 
     const fields = Object.keys(updateData).filter(
         key => (updateData as any)[key] !== undefined
