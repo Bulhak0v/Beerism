@@ -41,6 +41,9 @@ const AuthForms: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const [recoveryEmail, setRecoveryEmail] = useState("");
+  const [recoveryStatus, setRecoveryStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [recoveryMessage, setRecoveryMessage] = useState("");
 
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,33 +165,85 @@ const AuthForms: React.FC = () => {
   };
 
 
+const handleRecoverySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setRecoveryStatus("loading");
+    setRecoveryMessage("");
 
+    try {
+      const res = await fetch("https://beerism-backend.onrender.com/api/users/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: recoveryEmail }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setRecoveryStatus("success");
+      } else {
+        setRecoveryStatus("error");
+        setRecoveryMessage(data.message || "Something went wrong.");
+      }
+    } catch (err) {
+      setRecoveryStatus("error");
+      setRecoveryMessage("Network error. Please try again.");
+    }
+  };
 
   if (view === "recovery") {
     return (
-      <div className="signIn_form"> {}
+      <div className="signIn_form">
         <h2>Forgot your password?</h2>
-        <p>Enter your email to reset instructions!</p>
-        
-        <div className="divider"></div>
 
-        <form onSubmit={(e) => { e.preventDefault(); alert("Reset logic here"); }}>
-          <div className="form-group">
-            <label htmlFor="rec-email">Email address</label>
-            <input
-              id="rec-email"
-              type="email"
-              placeholder="Enter your email"
-              required
-            />
+        {recoveryStatus === "success" ? (
+          <div style={{ textAlign: 'center', marginTop: '10px' }}>
+            <div style={{ fontSize: '50px', marginBottom: '10px' }}>📩</div>
+            <h3 style={{ color: '#5C4033', fontSize: '24px', margin: '10px 0' }}>Email Sent!</h3>
+            <p style={{ fontSize: '18px', color: '#555', marginBottom: '25px', lineHeight: '1.4' }}>
+              We've sent a new password to <b>{recoveryEmail}</b>.<br />
+              Please check your inbox (and spam folder).
+            </p>
+            <button onClick={() => setView("signIn")} style={{ width: '100%' }}>
+              Return to Login
+            </button>
           </div>
-          <button type="submit">Reset password</button>
-          
-          <h3>
-            Remembered your password?{" "}
-            <a onClick={() => setView("signIn")}>Sign In</a>
-          </h3>
-        </form>
+        ) : (
+          <>
+            <p>Enter your email to reset instructions!</p>
+            
+            <div className="divider"></div>
+
+            <form onSubmit={handleRecoverySubmit}>
+              <div className="form-group">
+                <label htmlFor="rec-email">Email address</label>
+                <input
+                  id="rec-email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={recoveryEmail}
+                  onChange={(e) => setRecoveryEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              {recoveryStatus === "error" && (
+                 <p style={{ color: "#FF2A2A", fontWeight: "bold", textAlign: "center", margin: "10px 0" }}>
+                   {recoveryMessage}
+                 </p>
+              )}
+
+              <button type="submit" disabled={recoveryStatus === "loading"}>
+                {recoveryStatus === "loading" ? "Sending..." : "Reset password"}
+              </button>
+              
+              <h3>
+                Remembered your password?{" "}
+                <a onClick={() => setView("signIn")}>Sign In</a>
+              </h3>
+            </form>
+          </>
+        )}
       </div>
     );
   }
