@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend("re_Dz4FyunA_LE2DuB5kvnh8TNLiQdeGtief");
 
 export const sendResetEmail = async (to: string, newPassword: string, nickname: string) => {
   const htmlContent = `
