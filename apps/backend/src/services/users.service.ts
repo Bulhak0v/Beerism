@@ -565,16 +565,11 @@ async getLeaderboard(): Promise<any[]> {
         await db.query("UPDATE users SET password = $1 WHERE user_id = $2", 
             [hashedPassword, user.user_id]);
 
-        await Promise.race([
-            sendResetEmail(email, newPassword, user.nickname),
-            new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('Email sending timeout')), 10000)
-            )
-        ]);
+        await sendResetEmail(email, newPassword, user.nickname);
 
         return true;
     } catch (error) {
-        console.error("Error in resetPassword service:", error);
+        console.error("Error in resetPassword:", error);
         throw error;
     }
 }
