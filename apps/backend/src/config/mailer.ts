@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const resend = new Resend("re_Dz4FyunA_LE2DuB5kvnh8TNLiQdeGtief");
+const resend = new Resend("re_RXeRCTLT_7yipC7257LSmidfjzJYLPzMJ");
 
 export const sendResetEmail = async (to: string, newPassword: string, nickname: string) => {
   const htmlContent = `
@@ -51,22 +51,10 @@ export const sendResetEmail = async (to: string, newPassword: string, nickname: 
     </html>
   `;
 
-  try {
-    const { data, error } = await resend.emails.send({
-      from: 'Beerism <onboarding@resend.dev>',
-      to: to,
-      subject: '🍺 Your New Beerism Password',
-      html: htmlContent,
-    });
-
-    if (error) {
-      console.error('Resend error:', error);
-      throw new Error('Failed to send password reset email');
-    }
-
-    console.log(`Password reset email sent to ${to}`, data);
-  } catch (error) {
-    console.error('Resend send error:', error);
-    throw error;
-  }
+  await resend.emails.send({
+    from: 'onboarding@resend.dev',
+    to: to,
+    subject: '🍺 Your New Beerism Password',
+    html: htmlContent,
+  });
 };
