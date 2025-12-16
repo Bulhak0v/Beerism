@@ -60,9 +60,6 @@ const Navbar: React.FC = () => {
             <NavLink to="/about" className="nav-item" onClick={closeMenu}>
               About
             </NavLink>
-            <NavLink to="/contact" className="nav-item" onClick={closeMenu}>
-              Contact
-            </NavLink>
           </>
         )}
 

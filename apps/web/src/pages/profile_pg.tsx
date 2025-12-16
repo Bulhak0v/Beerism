@@ -291,7 +291,6 @@ const ProfilePage: React.FC = () => {
   const tabs = [
     { name: "Profile", path: "/profile" },
     { name: "Security", path: "/profile" },
-    { name: "Privacy", path: "/profile" },
     { name: "Quests", path: "/profile" }
   ];
 
@@ -630,7 +629,7 @@ const ProfilePage: React.FC = () => {
         <div className="topTitle">
           <h2 className="account-title">Account settings</h2>
           <button className="backButton" onClick={() => handleLogout()}>
-            <span><img src="/profileIcons/Arrow.svg" alt="Back" /></span> Back
+            <span><img src="/profileIcons/Arrow.svg" alt="Back" /></span> Logout
           </button>
         </div>
         <div className="settings-cover">
