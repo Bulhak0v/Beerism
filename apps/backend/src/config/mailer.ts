@@ -1,17 +1,9 @@
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import sgMail from '@sendgrid/mail';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.resend.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: 'resend',
-    pass: "re_Dz4FyunA_LE2DuB5kvnh8TNLiQdeGtief",
-  },
-});
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export const sendResetEmail = async (to: string, newPassword: string, nickname: string) => {
   const htmlContent = `
@@ -59,10 +51,18 @@ export const sendResetEmail = async (to: string, newPassword: string, nickname: 
     </html>
   `;
 
-  await transporter.sendMail({
-    from: '"Beerism Support" <onboarding@resend.dev>',
+  const msg = {
     to: to,
+    from: 'slothfulman@proton.me',
     subject: '🍺 Your New Beerism Password',
     html: htmlContent,
-  });
+  };
+
+  try {
+    await sgMail.send(msg);
+    console.log(`Password reset email sent to ${to}`);
+  } catch (error: any) {
+    console.error('SendGrid error:', error.response?.body || error);
+    throw new Error('Failed to send password reset email');
+  }
 };
