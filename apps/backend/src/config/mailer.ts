@@ -41,7 +41,6 @@ export const sendResetEmail = async (to: string, newPassword: string, nickname: 
             Please log in using this password and change it in your Profile settings immediately.
           </p>
           
-          <a href="${process.env.FRONTEND_URL}/auth" class="btn">Log In Now</a>
         </div>
         <div class="footer">
           &copy; ${new Date().getFullYear()} Beerism. Drink responsibly.
