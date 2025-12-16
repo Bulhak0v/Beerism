@@ -1,5 +1,5 @@
 ﻿import { Router } from "express";
-import { loginUser, registerUser, editUser, editUserPreference, addUser, updateUser, deleteUser, getRecommendedLocations, googleAuth, getAllUsers, getUserQuests, acceptUserQuest, abandonUserQuest, checkRouteProgress, getLeaderboard, comparePasswords } from "../controllers/users.controller.js";
+import { loginUser, registerUser, editUser, editUserPreference, addUser, updateUser, deleteUser, getRecommendedLocations, googleAuth, getAllUsers, getUserQuests, acceptUserQuest, abandonUserQuest, checkRouteProgress, getLeaderboard, comparePasswords, forgotPassword } from "../controllers/users.controller.js";
 
 const router = Router();
 
@@ -27,5 +27,7 @@ router.delete("/:id/quests/:questId", abandonUserQuest);
 router.post("/:id/check-route-progress", checkRouteProgress);
 
 router.get("/leaderboard", getLeaderboard);
+
+router.post("/forgot-password", forgotPassword);
 
 export default router;

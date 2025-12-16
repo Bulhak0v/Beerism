@@ -352,3 +352,21 @@ export async function getLeaderboard(req: Request, res: Response) {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export async function forgotPassword(req: Request, res: Response) {
+    try {
+        const { email } = req.body;
+        if (!email) return res.status(400).json({ message: "Email is required" });
+
+        const success = await UserService.resetPassword(email);
+        
+        if (!success) {
+            return res.status(404).json({ message: "User with this email not found." });
+        }
+
+        res.status(200).json({ message: "Password reset email sent." });
+    } catch (error: any) {
+        console.error("Forgot password error:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}

@@ -4,6 +4,7 @@ import { User } from "../models/users.model.js";
 import bcrypt from "bcrypt";
 import { OAuth2Client } from "google-auth-library";
 import crypto from "crypto";
+import { sendResetEmail } from "../config/mailer.js";
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const UserService = {
@@ -551,5 +552,20 @@ async getLeaderboard(): Promise<any[]> {
         `;
         const result = await db.query(query);
         return result.rows;
+    },
+
+    async resetPassword(email: string): Promise<boolean> {
+        const user = await this.getUser(email);
+        if (!user) return false;
+
+        const newPassword = crypto.randomBytes(4).toString("hex");
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await db.query("UPDATE users SET password = $1 WHERE user_id = $2", [hashedPassword, user.user_id]);
+
+        await sendResetEmail(email, newPassword, user.nickname);
+
+        return true;
     }
 }
