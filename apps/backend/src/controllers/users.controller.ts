@@ -356,7 +356,10 @@ export async function getLeaderboard(req: Request, res: Response) {
 export async function forgotPassword(req: Request, res: Response) {
     try {
         const { email } = req.body;
-        if (!email) return res.status(400).json({ message: "Email is required" });
+        
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
 
         const success = await UserService.resetPassword(email);
         
@@ -365,8 +368,16 @@ export async function forgotPassword(req: Request, res: Response) {
         }
 
         res.status(200).json({ message: "Password reset email sent." });
+        
     } catch (error: any) {
         console.error("Forgot password error:", error);
-        res.status(500).json({ message: "Internal server error" });
+        
+        if (error.message.includes('timeout')) {
+            res.status(504).json({ message: "Email service timeout. Please try again." });
+        } else if (error.message.includes('email') || error.message.includes('SMTP')) {
+            res.status(503).json({ message: "Email service unavailable. Please try again later." });
+        } else {
+            res.status(500).json({ message: "Internal server error" });
+        }
     }
 }
