@@ -1,9 +1,17 @@
-import { Resend } from 'resend';
-import dotenv from 'dotenv';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
 dotenv.config();
 
-const resend = new Resend("re_RXeRCTLT_7yipC7257LSmidfjzJYLPzMJ");
+const transporter = nodemailer.createTransport({
+  host: 'smtp.resend.com',
+  port: 465,
+  secure: true,
+  auth: {
+    user: 'resend',
+    pass: "re_Dz4FyunA_LE2DuB5kvnh8TNLiQdeGtief",
+  },
+});
 
 export const sendResetEmail = async (to: string, newPassword: string, nickname: string) => {
   const htmlContent = `
@@ -51,8 +59,8 @@ export const sendResetEmail = async (to: string, newPassword: string, nickname: 
     </html>
   `;
 
-  await resend.emails.send({
-    from: 'onboarding@resend.dev',
+  await transporter.sendMail({
+    from: '"Beerism Support" <onboarding@resend.dev>',
     to: to,
     subject: '🍺 Your New Beerism Password',
     html: htmlContent,
