@@ -1,18 +1,9 @@
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
+import { Resend } from 'resend';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    type: 'OAuth2',
-    user: process.env.SMTP_USER,
-    clientId: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    refreshToken: process.env.GOOGLE_REFRESH_TOKEN,
-  },
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendResetEmail = async (to: string, newPassword: string, nickname: string) => {
   const htmlContent = `
@@ -60,10 +51,22 @@ export const sendResetEmail = async (to: string, newPassword: string, nickname: 
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"Beerism Support" <${process.env.SMTP_USER}>`,
-    to,
-    subject: "🍺 Your New Beerism Password",
-    html: htmlContent,
-  });
+  try {
+    const { data, error } = await resend.emails.send({
+      from: 'Beerism <onboarding@resend.dev>',
+      to: to,
+      subject: '🍺 Your New Beerism Password',
+      html: htmlContent,
+    });
+
+    if (error) {
+      console.error('Resend error:', error);
+      throw new Error('Failed to send password reset email');
+    }
+
+    console.log(`Password reset email sent to ${to}`, data);
+  } catch (error) {
+    console.error('Resend send error:', error);
+    throw error;
+  }
 };
