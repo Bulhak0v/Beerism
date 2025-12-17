@@ -39,7 +39,7 @@ export const UserService = {
 async googleAuth(idToken: string): Promise<User> {
     const ticket = await client.verifyIdToken({
     idToken,
-    audience: process.env.GOOGLE_CLIENT_ID,
+    audience: "761586987657-5qnpb50bbi1kqq8dpdoecl3tes4pbqeu.apps.googleusercontent.com",
     });
 
     const payload = ticket.getPayload();
