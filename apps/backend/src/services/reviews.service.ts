@@ -36,7 +36,7 @@ export const ReviewsService = {
             UPDATE reviews 
             SET rating = $1, review_text = $2, updated_at = NOW()
             WHERE review_id = $3 AND user_id = $4
-            RETURNING * includes location_id
+            RETURNING *
         `;
         
         const result = await db.query(query, [rating, text, reviewId, userId]);
