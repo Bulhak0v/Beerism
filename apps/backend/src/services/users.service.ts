@@ -56,11 +56,11 @@ async googleAuth(idToken: string): Promise<User> {
 
     const result = await db.query<User>(
         `
-        INSERT INTO users (email, nickname, password, auth_provider, created_at)
-        VALUES ($1, $2, $3, $4, NOW())
+        INSERT INTO users (email, nickname, password, created_at)
+        VALUES ($1, $2, $3, NOW())
         RETURNING *;
         `,
-        [email, nickname, hashedPassword, "google"]
+        [email, nickname, hashedPassword]
     );
     user = result.rows[0];
     }
