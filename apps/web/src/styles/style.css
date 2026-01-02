@@ -1,0 +1,579 @@
+:root {
+  font-family: "Gentium Book Plus", serif;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+
+  color-scheme: light;
+  color: #1a1a1a;
+  background-color: #F2EFE5;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  display: block !important;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+.logo {
+  width: 100px;
+  height: auto;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  border-color: #646cff;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+/* Desktop Adapt */
+
+.auth-container, .passwordRecovery-container {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh; 
+  position: relative;
+  overflow: hidden;
+}
+
+.slider-section {
+  flex: 0 0 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.form-section {
+  flex: 0 0 50%;
+  /* margin-top: 50px; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.registerData_form,
+.signIn_form , .recovery_form{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.registerData_form input,
+.signIn_form input, .recovery_form input {
+  margin-bottom: 15px;
+  padding: 13px;
+  background-color: #FCFCFC;
+  border-radius: 8px;
+  border-width: 0.1px;
+  font-size: 18px;
+  font-family: inherit; 
+}
+
+.registerData_form button,
+.registration_form button,
+.signIn_form button , .recovery_form button{
+  font-weight: normal;
+  font-size: 20px;
+  background-color: #FCFCFC;
+  border-radius: 8px;
+  margin-top: 12px;
+  border-width: 0.1px;
+  cursor: pointer;
+  color: #1a1a1a;
+  border-color: #1a1a1a;
+  width: 100%;
+}
+
+.logo-header {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.registration_form,
+.signIn_form , .recovery_form{
+  width: 70%;
+}
+
+.registration_form h2,
+.signIn_form h2 , .recovery_form h2{
+  font-size: 37px;
+  margin-top: 0;
+  margin-bottom: 17px;
+}
+
+.registration_form p, .signIn_form p, .recovery_form p{
+  font-size: 25px;
+  color: #202020A6;
+  margin: 0;
+  margin-bottom: 15px;
+  font-style: italic;
+}
+
+.registration_form h3,
+.signIn_form h3 , .recovery_form h3{
+  font-size: 20px;
+  text-align: center;
+  margin-top: 15px;
+  font-weight: lighter;
+}
+.registration_form a:hover, .signIn_form a:hover, .recovery_form a:hover{
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.recovery_form .form-group :nth-child(1){
+  margin-top: 10px;
+}
+.form-group label {
+  font-size: 26px;
+  font-weight: 400;
+  margin-bottom: 22px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  color: #555;
+  margin: 20px 0px 10px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 1px solid #aaa;
+}
+
+.divider:not(:empty)::before {
+  margin-right: 10px;
+}
+
+.divider:not(:empty)::after {
+  margin-left: 10px;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal input {
+    padding: 8px;
+    font-size: 16px;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Mobile Adapt */
+
+@media (max-width: 768px) {
+
+  .auth-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 10px -2px;
+    overflow-y: scroll;
+  }
+
+  .logo-header {
+    position: static;
+    margin-bottom: 20px;
+    justify-content: center;
+  }
+
+  .logo {
+    width: 70px;
+    height: auto;
+  }
+
+  .title {
+    font-size: 24px;
+    margin-left: 10px;
+  }
+
+  .slider-section {
+  flex: 0 0 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 0;
+}
+
+.form-section {
+  flex: 0 0 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; 
+}
+
+  .registration_form,
+  .signIn_form {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .registration_form h2,
+  .signIn_form h2 {
+    font-size: 28px;
+    text-align: center;
+  }
+
+  .registration_form p,
+  .signIn_form p {
+    font-size: 18px;
+    text-align: center;
+  }
+
+  .form-group label {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .registerData_form input,
+  .signIn_form input {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .registerData_form button,
+  .signIn_form button {
+    font-size: 18px;
+    padding: 10px;
+  }
+
+  .registration_form h3,
+  .signIn_form h3 {
+    font-size: 16px;
+  }
+
+  .divider {
+    font-size: 14px;
+    margin: 15px 0;
+  }
+}
+
+/* Very thin screens adapt */
+@media (max-width: 480px) {
+  .registration_form,
+  .signIn_form {
+    width: 100%;
+  }
+
+  .registration_form h2,
+  .signIn_form h2 {
+    font-size: 24px;
+  }
+
+  .form-group label {
+    font-size: 16px;
+  }
+
+  .registerData_form input,
+  .signIn_form input {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .registerData_form button,
+  .signIn_form button {
+    font-size: 16px;
+    padding: 8px;
+  }
+
+  .divider {
+    margin: 10px 0;
+  }
+}
+
+/* Password Recovery Desktop Adapt */
+
+.passwordRecovery-container {
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  position: relative;
+  background-color: #F2EFE5;
+  font-family: "Gentium Book Plus", serif;
+}
+
+.passwordRecovery-container .logo-header {
+  top: 20px;
+  left: 30px;
+}
+
+.recovery_form {
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+  background-color: #FCFCFC;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+}
+
+.recovery_form h2 {
+  font-size: 38px;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.recovery_form p {
+  font-size: 22px;
+  color: #202020A6;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.recovery_form .form-group {
+  margin-bottom: 20px;
+}
+
+.recovery_form input {
+  font-size: 18px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #aaa;
+  background-color: #fff;
+  transition: 0.2s;
+}
+
+.recovery_form input:focus {
+  outline: none;
+  border-color: #646cff;
+  box-shadow: 0 0 5px rgba(100,108,255,0.3);
+}
+
+.recovery_form button {
+  background-color: #1a1a1a;
+  color: #fff;
+  border: none;
+  font-size: 20px;
+  font-weight: 500;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.recovery_form button:hover {
+  background-color: #333;
+}
+
+.recovery_form h3 {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.recovery_form a {
+  color: #646cff;
+  font-weight: 500;
+}
+
+.recovery_form a:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Password Recovery Mobile Adapt */
+
+@media (max-width: 768px) {
+  .passwordRecovery-container {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 10px;
+  }
+
+  .passwordRecovery-container .logo-header {
+    position: static;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .passwordRecovery-container .title {
+    font-size: 26px;
+    margin-left: 10px;
+  }
+
+  .passwordRecovery-container .form-section {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .recovery_form {
+    width: 90%;
+    padding: 25px 20px;
+    box-shadow: none;
+  }
+
+  .recovery_form h2 {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .recovery_form p {
+    font-size: 18px;
+    margin-bottom: 20px;
+  }
+
+  .recovery_form label {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+
+  .recovery_form input {
+    font-size: 16px;
+    padding: 10px;
+  }
+
+  .recovery_form button {
+    font-size: 18px;
+    padding: 10px;
+  }
+
+  .recovery_form h3 {
+    font-size: 16px;
+    margin-top: 15px;
+  }
+
+  .slider-section {
+    order: 3;
+    margin-top: 30px;
+    width: 100%;
+  }
+}
+
+/* Password Recovery Very thin screens adapt */
+@media (max-width: 480px) {
+  .recovery_form {
+    width: 100%;
+    padding: 20px 15px;
+  }
+
+  .recovery_form h2 {
+    font-size: 24px;
+  }
+
+  .recovery_form p {
+    font-size: 16px;
+  }
+
+  .recovery_form input {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .recovery_form button {
+    font-size: 16px;
+    padding: 8px;
+  }
+
+  .recovery_form h3 {
+    font-size: 14px;
+  }
+}

@@ -1,0 +1,603 @@
+body {
+  width: 100%;
+  display: block !important;
+  place-items: unset !important;
+  overflow-y:scroll;
+  background-color: #F2EFE5;
+}
+
+.profile-main {
+  display: flex;
+  justify-content: space-evenly;
+  flex-flow: wrap;
+  width: 80%;
+  margin: 25px auto ;
+}
+
+.profile-card {
+  flex: 0 0 61%;
+}
+
+.profile-settings {
+  padding: 45px 30px 30px 30px !important;
+
+}
+
+.profile-card,
+.profile-settings {
+  background-color: #FCFCFC;
+  padding: 50px;
+  font-weight: 400;
+  text-align: center;
+  border-radius: 10px;
+  font-size: 25px;
+  border-color: #20202080;
+  border-width: 1px;
+  border-style: solid;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar-wrapper {
+  position: relative;
+  margin-right: 18%;
+  height: 98px;
+  width: 96px;
+}
+
+.avatar {
+  margin-right: 0;
+  object-fit: cover;
+  height: 100%;
+  width: 100%;
+  border-radius: 53px;
+}
+
+.edit-avatar-btn {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  background-color: #F2EFE5;
+  border: 2px solid rgb(0, 0, 0);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  padding: 0;
+}
+
+.edit-avatar-btn img {
+  width: 25px;
+  height: auto;
+}
+
+.profile-actions{
+  text-align: right;
+}
+
+.profile-actions button{
+  font-weight:normal;
+  font-size: 17px;
+  background-color: #F2EFE580;
+  border-radius: 8px;
+  margin-top: 12px;
+  border-width: 0.1px;
+  cursor: pointer;
+  color: #1a1a1a;
+  border-color: #ccc;
+  width: 26%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-top: 15px;
+}
+
+.field label {
+  font-weight: 500;
+  margin-bottom: 16px;
+  font-size: 24px;
+}
+
+.field input,
+.field textarea,
+.field select {
+  padding: 10px;
+  margin-bottom: 15px;
+  background-color: #f2efe580;
+  border-radius: 8px;
+  color: #20202099;
+  font-size: 17px;
+  border: 1px solid #ccc;
+  font-family: inherit; 
+}
+
+.settings-cover {
+  flex: 0 0 27%;
+}
+
+.profile-settings ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.profile-settings ul li {
+  padding-bottom: 31px;
+  font-size: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  position: relative; 
+}
+
+.profile-settings ul li:last-child {
+  padding-bottom: 31px;
+}
+
+.profile-settings ul li.active {
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.profile-settings ul li.active::after {
+  content: '';
+  position: absolute;
+  justify-content: center;
+  width: 60%;
+  height: 2px;
+  bottom: 25px;
+  left: 0;
+  background-color: #1a1a1a;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.account-title {
+  text-align: left;
+  font-size: 31px;
+}
+
+.topTitle .backButton {
+  padding: 0px 24px;
+  border-radius: 24px;
+  border: #20202080 1px solid;
+  background-color: #FCFCFC;
+  font-size: 22px;
+}
+
+.backButton span {
+  display: inline-flex;
+  margin-right: 10px;
+  height: 12px;
+}
+
+.topTitle {
+  width: 92%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  align-items: center;
+}
+
+.preferences {
+  display: flex;
+  justify-content: space-between;
+}
+.security-section{
+  text-align: left;
+}
+
+.security-section h2{
+  margin-bottom: 30px;
+}
+
+.security-actions .save-button{
+  font-weight:normal;
+  font-size: 20px;
+  background-color: #F2EFE580;
+  border-radius: 8px;
+  margin-top: 12px;
+  border-width: 0.1px;
+  cursor: pointer;
+  color: #1a1a1a;
+  border-color: #ccc;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-eye {
+  position: absolute;
+  right: 10px;
+  top: 42%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  padding: 0;
+}
+
+.password-eye:hover {
+  color: #000;
+}
+
+
+/* Mobile Adapt */
+
+@media (max-width: 940px) {
+
+  body {
+    overflow-y: auto;
+  }
+
+  .profile-main {
+    margin: 20px auto;
+    flex-direction: column;
+    align-items: center;
+    width: 95%;
+  }
+
+  .topTitle {
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .account-title {
+    font-size: 24px;
+    text-align: center;
+  }
+
+  .backButton {
+    width: 100%;
+    font-size: 18px;
+    background-color: #f5f5f2;
+    padding: 8px 0;
+  }
+
+  .settings-cover {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .profile-settings {
+    padding: 20px;
+    font-size: 20px;
+  }
+
+  .profile-settings ul {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .profile-settings ul li {
+    font-size: 18px;
+    padding-bottom: 10px;
+    padding-left: 0;
+    padding-right: 0;
+    gap: 5px;
+  }
+
+  .profile-card {
+    width: 100%;
+    padding: 25px;
+  }
+
+  .avatar-section {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .avatar {
+    height: 100%;
+  }
+
+  .field label {
+    font-size: 16px;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    font-size: 15px;
+    padding: 8px;
+  }
+
+  .preferences {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .preferences .field {
+    width: 100%;
+  }
+
+  .logo-header {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .logo {
+    width: 60px;
+    height: 60px;
+    display: hidden;
+  }
+  .avatar-wrapper{
+    margin: 0;
+  }
+
+  .profile-settings ul li:last-child{
+    padding-bottom: 10px;
+  }
+  .title {
+    font-size: 26px;
+  }
+  .profile-settings ul li.active::after{
+    bottom: 11px;
+  }
+}
+
+
+
+@media (max-width: 480px) {
+  .account-title {
+    font-size: 20px;
+  }
+
+  .profile-settings ul li {
+    font-size: 16px;
+  }
+
+  .profile-card {
+    font-size: 18px;
+    padding: 20px;
+  }
+
+  .backButton {
+    font-size: 16px;
+  }
+
+  .logo-header {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    font-size: 14px;
+  }
+}
+
+
+.field .upload-button{
+  background-color: #F2EFE580;
+  font-size: 13px;
+  font-family: "Gentium Book Plus", serif;
+  padding: 0px;
+  margin: auto;
+  margin-bottom: 15px;
+  border-radius: 7px;
+  color: #1a1a1a;
+}
+
+.quests-container {
+  background-color: #f5f5f2;
+  padding: 30px;
+  border-radius: 10px;
+  border: 1px solid #20202080;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  min-height: 500px;
+}
+
+.section-title {
+  font-size: 28px;
+  margin-bottom: 25px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 10px;
+}
+
+
+.quests-stats {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  background-color: #e8e6dc;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.stat-box {
+  text-align: center;
+  flex: 1;
+  border-right: 1px solid #ccc;
+}
+
+.stat-box:last-child {
+  border-right: none;
+}
+
+.stat-label {
+  display: block;
+  font-size: 14px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #5C4033;
+}
+
+
+.quests-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.quest-card {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  transition: transform 0.2s;
+}
+
+.quest-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.quest-card.completed {
+  border: 1px solid #60BB5A;
+  background-color: #f0fff0;
+}
+
+.quest-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.quest-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.quest-xp {
+  font-weight: bold;
+  color: #E69500;
+  background-color: #fff8e1;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 14px;
+}
+
+.quest-desc {
+  font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.quest-progress-section {
+  margin-bottom: 15px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-bottom: 5px;
+  color: #444;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 10px;
+  background-color: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #5C4033;
+  transition: width 0.5s ease-in-out;
+}
+
+.quest-card.completed .progress-bar-fill {
+  background-color: #60BB5A;
+}
+
+.quest-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #888;
+}
+
+.completed-badge {
+  color: #60BB5A;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.quests-section-header {
+  font-size: 22px;
+  color: #5C4033;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #ddd;
+}
+
+.quest-card.available {
+  background-color: #fdfbf5;
+  border-style: dashed;
+}
+
+.quest-card-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.quest-action-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.accept-btn {
+  background-color: #60BB5A;
+  color: white;
+}
+.accept-btn:hover {
+  background-color: #4a9d45;
+}
+
+.abandon-btn {
+  background-color: #FF2A2A;
+  color: white;
+}
+.abandon-btn:hover {
+  background-color: #d92525;
+}

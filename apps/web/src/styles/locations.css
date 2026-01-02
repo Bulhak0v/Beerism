@@ -1,0 +1,394 @@
+body {
+  width: 100%;
+  display: block !important;
+  place-items: unset !important;
+  overflow-y:scroll;
+  color: #202020;
+  background-color: #F2EFE5;
+}
+
+.locations-main {
+  display: flex;
+  flex-flow: wrap;
+  width: 80%;
+  margin: 25px auto ;
+  align-items: center;
+  justify-content: center;
+}
+
+.locations-cover{
+  background-color: #FCFCFC;
+  padding: 25px 50px;
+  border-radius: 10px;
+  border-color: #20202080;
+  width: 92%;
+  border-width: 1px;
+  font-size: 26px;
+  border-style: solid;
+}
+
+.locations-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; 
+}
+
+.location-card {
+  display: flex; 
+  border: 1px solid #3d3d3d5d; 
+  border-radius: 8px;
+  
+  padding: 0; 
+  
+  overflow: hidden; 
+  background-color: #f2efe5;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.location-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.location-image {
+  width: 220px;
+  height: auto;
+  min-height: 100%;
+  object-fit: cover;
+  flex-shrink: 0;
+  
+  margin-right: 0; 
+}
+
+.location-info {
+  display: flex;
+  flex-direction: column; 
+  
+  padding: 20px 25px; 
+  
+  flex-grow: 1;
+  gap: 8px;
+}
+
+
+.location-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.location-name {
+  font-size: 1.25rem;
+  font-style: bold;
+  margin: 0;
+  color: #202020;
+}
+
+.location-rating-value, .star-rating{
+  font-weight: bold;
+  font-size: 23px;
+  color: #202020;
+}
+
+.location-rating-value{
+  margin-left: 20px;
+}
+
+.star-rating-wrapper {
+  position: relative;
+  display: inline-block;
+  font-size: 23px;
+  line-height: 1;
+  font-family: sans-serif;
+  margin-right: 10px;
+}
+
+.star-rating-base {
+  color: transparent;
+  -webkit-text-stroke: 1px #333;
+  white-space: nowrap;
+}
+
+.star-rating-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #202020;
+  
+  -webkit-text-stroke: 1px #202020; 
+}
+
+.location-review-count {
+  font-size: 1rem;
+  color: #202020;
+}
+
+.star-rating .star-empty {
+  color: #DCDCDC;
+}
+
+.location-description {
+  font-size: 1.25rem;
+  color: #202020;
+  margin-top: 10px;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.location-meta {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  margin-top: auto; 
+  padding-top: 8px;
+  border-top: 1px solid #EEE;
+  font-size: 1.15rem;
+  color: #202020;
+}
+
+.meta-item {
+  flex-basis: 0; 
+  flex-grow: 1;
+  text-align: left;
+}
+
+.meta-item:last-child {
+  text-align: right;
+}
+
+
+.search-and-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 25px;
+}
+
+.search-bar-container{
+  position: relative;
+  width: auto; 
+}
+
+.search-bar{
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.search-bar input{
+  padding: 10px 15px;
+  border-radius: 7px;
+  border: 1px solid #3d3d3d5d;
+  background-color: #f2efe5;
+  font-size: 18px;
+  
+  width: 350px;
+  margin-bottom: 0;
+}
+
+.searchButton{
+  width: 45px;
+  height: 45px;
+  background: url("/search.svg") no-repeat center;
+  background-size: 28px;
+  background-color: #F2EFE5;
+  
+  border: 1.5px solid #202020;
+  border-radius: 50%;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 18px;
+}
+
+.page-number {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #333;
+  border-radius: 0;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.page-number.active {
+  background-color: #F2EFE5;
+  font-weight: bold;
+}
+
+.page-arrow {
+  border: 1px solid #ccc;
+  background-color: #fff;
+  color: #333;
+  border-radius: 0;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+
+.topTitle {
+  width: 92%;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+  align-items: center;
+}
+.topTitle h2{
+  font-size: 36px;
+}
+.topTitle .backButton {
+  padding: 10px 36px;
+  border-radius: 24px;
+  border: #20202080 1px solid;
+  background-color: #FCFCFC;
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.backButton span {
+  margin-right: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.location-info-titleName, .location-rating-value{
+  margin-right: 16px;
+}
+.location-info-title{
+  font-size: 28px;
+  font-weight: bold;
+}
+.location-info-title{
+  display: flex;
+  align-items: center;
+}
+
+@media(max-width: 1200px){
+  .locations-main{
+    width: 95%; 
+  }
+}
+
+@media(max-width: 930px){
+  .location-description, .location-meta{
+    font-size: 16px;
+  }
+  .location-info-titleName{
+    font-size: 25px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+    
+    .locations-main {
+        width: 95%; 
+        margin: 70px auto 20px auto; 
+    }
+
+    .topTitle {
+        width: 100%; 
+        margin-bottom: 15px;
+    }
+
+    .topTitle h2 {
+        font-size: 28px; 
+    }
+    
+    .backButton {
+        font-size: 14px;
+        padding: 5px 10px;
+    }
+
+    .locations-cover {
+        padding: 15px; 
+        width: 100%; 
+        font-size: 16px;
+    }
+
+    .search-and-pagination {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .search-bar-container {
+        width: 100%; 
+        margin-right: 0;
+    }
+    
+    .search-bar {
+        width: 100%;
+    }
+    
+    .search-bar input {
+        flex-grow: 1; 
+        width: auto;
+        font-size: 16px;
+    }
+    
+    .suggestions-dropdown {
+        width: 90%; 
+        left: 0;
+        right: auto;
+        top: 48px; 
+    }
+    
+    .pagination-controls {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .location-card {
+        flex-direction: column; 
+        padding: 8px;
+    }
+
+    .location-image {
+        width: 100%;
+        height: 200px;
+        margin-bottom: 0; 
+    }
+    
+    .location-info {
+        padding: 15px; 
+    }
+
+    .location-info-title {
+        flex-direction: column; 
+        align-items: flex-start;
+    }
+
+    .location-info-titleName {
+        font-size: 20px; 
+        margin-right: 0;
+    }
+    
+    .location-rating-value, .star-rating {
+        font-size: 16px; 
+    }
+    
+    .location-meta {
+        flex-direction: column; 
+        align-items: flex-start;
+        font-size: 0.85rem;
+        gap: 4px;
+    }
+    
+    .location-meta span {
+        width: 100%; 
+        text-align: left !important;
+        white-space: normal; 
+    }
+}

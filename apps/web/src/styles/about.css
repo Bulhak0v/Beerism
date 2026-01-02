@@ -1,0 +1,263 @@
+.about-page-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  font-family: "Gentium Book Plus", serif;
+  color: #202020;
+}
+
+.about-page-container h1 {
+  font-size: 48px;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #202020;
+}
+
+.about-page-container h2 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #5C4033;
+}
+
+.about-page-container p {
+  font-size: 20px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.about-hero {
+  text-align: center;
+  margin-bottom: 60px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.highlight-text {
+  color: #5C4033;
+  font-style: italic;
+}
+
+.hero-subtitle {
+  font-size: 24px !important;
+  color: #555 !important;
+}
+
+.about-split-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 50px;
+  margin-bottom: 60px;
+}
+
+.about-text-content {
+  flex: 1;
+}
+
+.about-image-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.about-img {
+  width: 100%;
+  height: auto;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.dark-theme {
+  background-color: #5C4033;
+  color: #FCFCFC;
+  padding: 40px;
+}
+
+.rounded-section {
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(92, 64, 51, 0.2);
+}
+
+.dark-theme h2 {
+  color: #FCFCFC;
+}
+
+.dark-theme p {
+  color: #E2E2E2;
+}
+
+.about-logo-img {
+  width: 180px;
+  height: auto;
+}
+
+.no-padding-right {
+  padding-right: 0;
+  overflow: hidden;
+}
+
+.full-height-img {
+  height: 100%;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.cover-fit {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  border-radius: 0;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+.about-steps-section {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.section-intro {
+  max-width: 700px;
+  margin: 0 auto 40px auto;
+  font-style: italic;
+}
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
+}
+
+.step-card {
+  background-color: #FCFCFC;
+  padding: 30px 20px;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  border: 1px solid rgba(92, 64, 51, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+.step-icon {
+  font-size: 40px;
+  margin-bottom: 15px;
+}
+
+.step-card h3 {
+  font-size: 22px;
+  margin-bottom: 10px;
+  color: #5C4033;
+}
+
+.step-card p {
+  font-size: 16px !important;
+  color: #555;
+  margin: 0;
+}
+
+.about-footer {
+  text-align: center;
+  border-top: 1px solid rgba(92, 64, 51, 0.2);
+  padding-top: 40px;
+  margin-top: 60px;
+}
+
+.about-footer a {
+  color: #5C4033;
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .about-split-section {
+    flex-direction: column;
+    gap: 30px;
+    text-align: center;
+  }
+
+  .about-split-section.dark-theme {
+    flex-direction: column-reverse;
+  }
+
+  .about-logo-img {
+    margin-bottom: 20px;
+  }
+
+  .no-padding-right {
+    padding-right: 40px;
+  }
+  
+  .full-height-img {
+    border-radius: 16px;
+  }
+  
+  .cover-fit {
+    border-radius: 16px;
+  }
+
+  .about-page-container h1 {
+    font-size: 36px;
+  }
+  
+  .steps-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.flush-image-container {
+  padding: 0 !important; 
+  overflow: hidden; 
+  align-items: stretch; 
+}
+
+.flush-image-container .padding-fix {
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.full-stretch {
+  height: auto;
+  flex: 1;
+  display: flex;
+}
+
+.cover-full {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0; 
+  display: block;
+}
+
+
+@media (max-width: 900px) {
+
+  .flush-image-container {
+    flex-direction: column;
+  }
+  
+  .full-stretch {
+    width: 100%;
+    min-height: 250px;
+  }
+
+  .flush-image-container {
+    border-radius: 16px; 
+  }
+}
